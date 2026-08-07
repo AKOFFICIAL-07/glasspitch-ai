@@ -191,14 +191,14 @@
     border: 1px solid oklch(1 0 0 / 0.11);
     background: linear-gradient(
       150deg,
-      oklch(0.22 0.02 205 / 0.62),
-      oklch(0.15 0.008 205 / 0.42)
+      oklch(0.2 0.025 255 / 0.62),
+      oklch(0.14 0.015 255 / 0.42)
     );
     backdrop-filter: blur(36px) saturate(150%);
     -webkit-backdrop-filter: blur(36px) saturate(150%);
     box-shadow:
       0 18px 50px oklch(0 0 0 / 0.55),
-      0 0 32px oklch(0.72 0.12 205 / 0.07),
+      0 0 32px oklch(0.68 0.16 255 / 0.08),
       inset 0 1px 0 oklch(1 0 0 / 0.09),
       inset 0 -1px 0 oklch(0 0 0 / 0.35);
   }
@@ -209,14 +209,14 @@
     border: 1px solid oklch(1 0 0 / 0.09);
     background: linear-gradient(
       150deg,
-      oklch(0.21 0.016 205 / 0.52),
-      oklch(0.14 0.008 205 / 0.36)
+      oklch(0.2 0.02 255 / 0.52),
+      oklch(0.14 0.014 255 / 0.36)
     );
     backdrop-filter: blur(28px) saturate(140%);
     -webkit-backdrop-filter: blur(28px) saturate(140%);
     box-shadow:
       0 10px 32px oklch(0 0 0 / 0.45),
-      0 0 24px oklch(0.72 0.12 205 / 0.06),
+      0 0 24px oklch(0.68 0.16 255 / 0.07),
       inset 0 1px 0 oklch(1 0 0 / 0.07);
   }
 
@@ -226,14 +226,14 @@
     border: 1px solid oklch(1 0 0 / 0.12);
     background: linear-gradient(
       150deg,
-      oklch(0.24 0.024 205 / 0.8),
-      oklch(0.17 0.012 205 / 0.64)
+      oklch(0.22 0.03 255 / 0.8),
+      oklch(0.16 0.018 255 / 0.64)
     );
     backdrop-filter: blur(40px) saturate(160%);
     -webkit-backdrop-filter: blur(40px) saturate(160%);
     box-shadow:
       0 22px 64px oklch(0 0 0 / 0.6),
-      0 0 44px oklch(0.72 0.12 205 / 0.09),
+      0 0 44px oklch(0.68 0.16 255 / 0.1),
       inset 0 1px 0 oklch(1 0 0 / 0.1),
       inset 0 -1px 0 oklch(0 0 0 / 0.4);
   }
@@ -246,25 +246,25 @@
   }
   .glass-hover:hover {
     transform: translateY(-3px);
-    border-color: oklch(0.72 0.13 205 / 0.5);
+    border-color: oklch(0.68 0.16 255 / 0.5);
     box-shadow:
       0 26px 68px oklch(0 0 0 / 0.65),
-      0 0 40px oklch(0.72 0.13 205 / 0.18),
+      0 0 40px oklch(0.68 0.16 255 / 0.18),
       inset 0 1px 0 oklch(1 0 0 / 0.12);
   }
 
   .edge-highlight {
     box-shadow:
       0 0 0 1px oklch(1 0 0 / 0.1),
-      0 0 36px oklch(0.72 0.13 205 / 0.22),
+      0 0 36px oklch(0.68 0.16 255 / 0.22),
       inset 0 1px 0 oklch(1 0 0 / 0.1);
   }
 
   .text-gradient {
     background: linear-gradient(
       115deg,
-      oklch(0.82 0.12 200),
-      oklch(0.68 0.14 185)
+      oklch(0.74 0.13 245),
+      oklch(0.56 0.18 265)
     );
     -webkit-background-clip: text;
     background-clip: text;

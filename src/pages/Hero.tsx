@@ -113,7 +113,7 @@ export default function Hero() {
               </Button>
             </Link>
             <Link to="/auth?returnTo=/dashboard">
-              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-500 px-4 text-neutral-950 shadow-[0_10px_26px_rgba(34,211,238,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(34,211,238,0.45)]">
+              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 text-white shadow-[0_10px_26px_rgba(99,102,241,0.4)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(99,102,241,0.5)]">
                 Open the forge
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -133,7 +133,7 @@ export default function Hero() {
             className="flex flex-col items-start gap-6"
           >
             <motion.div variants={fadeUp}>
-              <Badge className="border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200 backdrop-blur-md">
+              <Badge className="border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200 backdrop-blur-md">
                 README → investor-ready pitch deck · for web3 teams
               </Badge>
             </motion.div>
@@ -179,7 +179,7 @@ export default function Hero() {
               <Button
                 size="lg"
                 onClick={goForge}
-                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-teal-500 px-8 text-[15px] font-semibold text-neutral-950 shadow-[0_16px_44px_rgba(34,211,238,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_56px_rgba(34,211,238,0.45)]"
+                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 px-8 text-[15px] font-semibold text-white shadow-[0_16px_44px_rgba(99,102,241,0.4)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_56px_rgba(99,102,241,0.5)]"
               >
                 <FileText className="h-[18px] w-[18px]" />
                 Upload README — free
@@ -198,7 +198,7 @@ export default function Hero() {
             <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-x-6 gap-y-2">
               {TRUST_CHIPS.map((chip) => (
                 <span key={chip} className="flex items-center gap-2 text-[13px] font-medium text-white/65">
-                  <Check className="h-3.5 w-3.5 text-cyan-300" strokeWidth={2.5} />
+                  <Check className="h-3.5 w-3.5 text-indigo-300" strokeWidth={2.5} />
                   {chip}
                 </span>
               ))}
@@ -228,7 +228,7 @@ export default function Hero() {
               className="pointer-events-none absolute -inset-10 -z-10 rounded-[3rem] opacity-60 blur-3xl"
               style={{
                 background:
-                  "radial-gradient(60% 55% at 50% 45%, rgba(34,211,238,0.28), rgba(45,212,191,0.12), transparent 70%)",
+                  "radial-gradient(60% 55% at 50% 45%, rgba(99,102,241,0.3), rgba(59,130,246,0.12), transparent 70%)",
               }}
             />
             <motion.div
@@ -301,7 +301,7 @@ export default function Hero() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+          <Badge className="border-transparent bg-indigo-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
             Why Deckify AI
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -336,7 +336,7 @@ export default function Hero() {
               className="glass glass-hover group relative overflow-hidden p-6"
             >
               <div className="shimmer pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-cyan-300 transition-transform duration-300 group-hover:scale-110">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300 transition-transform duration-300 group-hover:scale-110">
                 <f.icon className="h-5 w-5" strokeWidth={1.9} />
               </span>
               <h3 className="mt-4 text-[16.5px] font-semibold text-white">{f.title}</h3>
@@ -359,7 +359,7 @@ export default function Hero() {
             className="pointer-events-none absolute inset-0 opacity-25"
             style={{
               background:
-                "linear-gradient(120deg, rgba(34,211,238,0.4), rgba(45,212,191,0.35), rgba(56,189,248,0.28))",
+                "linear-gradient(120deg, rgba(59,130,246,0.4), rgba(99,102,241,0.35), rgba(129,140,248,0.28))",
             }}
           />
           <div className="relative">
@@ -376,7 +376,7 @@ export default function Hero() {
               <Link to="/auth?returnTo=/dashboard">
                 <Button
                   size="lg"
-                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-teal-500 px-8 text-[15px] font-semibold text-neutral-950 shadow-[0_16px_40px_rgba(34,211,238,0.4)] transition-transform hover:-translate-y-0.5"
+                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 px-8 text-[15px] font-semibold text-white shadow-[0_16px_40px_rgba(99,102,241,0.4)] transition-transform hover:-translate-y-0.5"
                 >
                   <FileText className="h-[18px] w-[18px]" />
                   Upload README — free

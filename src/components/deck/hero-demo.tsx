@@ -50,7 +50,7 @@ export function HeroDemo() {
   return (
     <div className="glass-strong relative overflow-hidden rounded-3xl p-3 shadow-[0_30px_80px_rgba(0,0,0,0.5)]">
       <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10" />
-      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-[linear-gradient(145deg,oklch(0.21_0.045_205),oklch(0.165_0.03_210))]">
+      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-[linear-gradient(145deg,oklch(0.2_0.045_255),oklch(0.16_0.028_262))]">
         <AuroraBlobs className="absolute inset-0 opacity-90" />
         <div className="bg-grid absolute inset-0 opacity-70" />
         <ParticleField count={26} className="absolute inset-0" />
@@ -69,7 +69,7 @@ export function HeroDemo() {
                 <div className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-400/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-cyan-400/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-indigo-400/70" />
                   <span className="ml-2 text-[10px] font-semibold uppercase tracking-widest text-white/45">
                     README.md
                   </span>
@@ -87,8 +87,8 @@ export function HeroDemo() {
                 <div
                   className="pointer-events-none absolute inset-x-4 h-6"
                   style={{
-                    background:
-                      "linear-gradient(180deg, transparent, rgba(34,211,238,0.28), transparent)",
+                  background:
+                    "linear-gradient(180deg, transparent, rgba(99,102,241,0.32), transparent)",
                     animation: "scan-line 1.6s ease-in-out infinite alternate",
                   }}
                 />
@@ -131,7 +131,7 @@ export function HeroDemo() {
                     className="absolute left-1/2 top-1/2"
                     style={{ marginLeft: -78, marginTop: -34 }}
                   >
-                    <div className="shimmer w-40 overflow-hidden rounded-xl border border-white/10 bg-[oklch(0.22_0.05_205/0.6)] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+                    <div className="shimmer w-40 overflow-hidden rounded-xl border border-white/10 bg-[oklch(0.22_0.06_258/0.6)] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
                       <div className="flex items-center gap-2">
                         <span
                           className="grid h-7 w-7 place-items-center rounded-lg text-white"
@@ -166,12 +166,12 @@ export function HeroDemo() {
                 initial={{ scale: 0.6, rotate: -3, opacity: 0 }}
                 animate={{ scale: 1, rotate: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 16 }}
-                className="relative h-full max-h-[280px] w-full max-w-[500px] overflow-hidden rounded-xl bg-[oklch(0.2_0.045_205/0.7)] shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                className="relative h-full max-h-[280px] w-full max-w-[500px] overflow-hidden rounded-xl bg-[oklch(0.2_0.05_258/0.7)] shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
                 style={{ aspectRatio: "16/10" }}
               >
                 <div
                   className="absolute inset-0 opacity-25"
-                  style={{ background: "linear-gradient(135deg,#22d3ee,#2dd4bf,#38bdf8)" }}
+                  style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5,#3b82f6)" }}
                 />
                 <div className="relative flex h-full flex-col items-center justify-center px-8 text-center">
                   <BrandMark className="h-9 w-9" />
@@ -201,7 +201,7 @@ export function HeroDemo() {
               key={p}
               className={cn(
                 "h-1.5 rounded-full transition-all duration-300",
-                phase === p ? "w-5 bg-cyan-300" : "w-1.5 bg-white/30",
+                phase === p ? "w-5 bg-indigo-300" : "w-1.5 bg-white/30",
               )}
             />
           ))}
