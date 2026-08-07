@@ -1,0 +1,46 @@
+import { PlaceholderPage } from "@/components/placeholder-page";
+import { BarChart3, LayoutTemplate, Settings, Wallet } from "lucide-react";
+
+export function TemplatesPage() {
+  return (
+    <PlaceholderPage
+      icon={LayoutTemplate}
+      title="Deck templates"
+      blurb="Curated, investor-grade layouts for every stage — from pre-seed narrative to growth round. Templates will let you restyle any deck in one click."
+      chips={["Minimal glass", "Bold narrative", "SaaS growth", "Deep tech", "Impact"]}
+    />
+  );
+}
+
+export function AnalyticsPage() {
+  return (
+    <PlaceholderPage
+      icon={BarChart3}
+      title="Analytics"
+      blurb="See who opened your deck, which slides investors linger on, and how your story performs. Analytics will connect to your share links automatically."
+      chips={["Deck views", "Slide dwell time", "Share opens", "Section heat"]}
+    />
+  );
+}
+
+export function WalletPage() {
+  return (
+    <PlaceholderPage
+      icon={Wallet}
+      title="Wallet"
+      blurb="A home for your fundraising essentials — round tracking, cap table previews and investor CRM. Wallet will keep your numbers in one glass place."
+      chips={["Round tracker", "Investor list", "Invoices", "Payouts"]}
+    />
+  );
+}
+
+export function SettingsPage() {
+  return (
+    <PlaceholderPage
+      icon={Settings}
+      title="Settings"
+      blurb="Manage your profile, workspace and preferences. More controls land here as GlassPitch grows past version one."
+      chips={["Profile", "Workspace", "Appearance", "API keys"]}
+    />
+  );
+}
