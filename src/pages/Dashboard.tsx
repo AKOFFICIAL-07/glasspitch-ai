@@ -25,7 +25,7 @@ import {
 } from "@/lib/deck";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
@@ -69,168 +69,6 @@ async function parseFileToText(file: File): Promise<string> {
     return result.value.trim() || "# Extracted DOCX — no text found";
   }
   return await file.text();
-}
-
-/** Normalize a GitHub URL to extract owner and repo. */
-function normalizeGithubUrl(url: string): { owner: string; repo: string } {
-  // Remove .git suffix, trailing slashes, query params, fragments
-  const cleaned = url.trim().replace(/\.git$/, '').replace(/[?#].*$/, '').replace(/\/$/, '');
-  
-  // Handle various URL formats
-  const patterns = [
-    /github\.com\/([^/]+)\/([^/]+)/,  // github.com/owner/repo
-    /^([^/]+)\/([^/]+)$/,              // owner/repo (bare format)
-  ];
-  
-  for (const pattern of patterns) {
-    const match = pattern.exec(cleaned);
-    if (match) {
-      return { owner: match[1], repo: match[2] };
-    }
-  }
-  
-  throw new Error("That doesn't look like a GitHub repository URL. Use format: github.com/owner/repo");
-}
-
-/** Fetch the default branch from GitHub API. */
-async function getDefaultBranch(owner: string, repo: string): Promise<string> {
-  try {
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
-    if (res.ok) {
-      const data = await res.json();
-      return data.default_branch || 'main';
-    }
-  } catch {
-    // Fallback to trying common branch names
-  }
-  return 'main';
-}
-
-/** Try to fetch content from raw.githubusercontent. */
-async function tryFetchRaw(owner: string, repo: string, branch: string, path: string): Promise<string | null> {
-  const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      const text = await res.text();
-      if (text.trim().length > 20) return text;
-    }
-  } catch {
-    // Continue to next candidate
-  }
-  return null;
-}
-
-/** Scan repository contents via GitHub API. */
-async function scanRepositoryContents(owner: string, repo: string, branch: string): Promise<string> {
-  try {
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents?ref=${branch}`);
-    if (!res.ok) return '';
-    
-    const contents = await res.json();
-    if (!Array.isArray(contents)) return '';
-    
-    // Build a summary of the repository structure
-    const files: string[] = [];
-    const dirs: string[] = [];
-    
-    for (const item of contents) {
-      if (item.type === 'file') {
-        files.push(item.name);
-      } else if (item.type === 'dir') {
-        dirs.push(item.name);
-      }
-    }
-    
-    // Look for important config files
-    const importantFiles = [
-      'package.json', 'requirements.txt', 'Cargo.toml', 'pom.xml',
-      'pubspec.yaml', 'Dockerfile', 'docker-compose.yml', 'go.mod',
-      'Gemfile', 'composer.json', 'build.gradle', 'CMakeLists.txt',
-    ];
-    
-    const foundConfigs = files.filter(f => importantFiles.includes(f));
-    
-    // Build a synthetic README from repository structure
-    let summary = `# ${repo}\n\n`;
-    summary += `Repository: ${owner}/${repo}\n`;
-    summary += `Branch: ${branch}\n\n`;
-    
-    if (foundConfigs.length > 0) {
-      summary += `## Configuration Files\n`;
-      summary += foundConfigs.map(f => `- ${f}`).join('\n') + '\n\n';
-    }
-    
-    if (dirs.length > 0) {
-      summary += `## Directory Structure\n`;
-      summary += dirs.map(d => `- ${d}/`).join('\n') + '\n\n';
-    }
-    
-    if (files.length > 0) {
-      summary += `## Files\n`;
-      summary += files.slice(0, 20).map(f => `- ${f}`).join('\n');
-      if (files.length > 20) {
-        summary += `\n- ... and ${files.length - 20} more files`;
-      }
-    }
-    
-    return summary;
-  } catch {
-    return '';
-  }
-}
-
-/** Resolve a GitHub repo URL to its content with robust fallback chain. */
-async function fetchGithubContent(
-  url: string,
-  onProgress?: (step: string) => void
-): Promise<{ content: string; source: string }> {
-  const { owner, repo } = normalizeGithubUrl(url);
-  
-  onProgress?.('Detecting default branch...');
-  const branch = await getDefaultBranch(owner, repo);
-  
-  onProgress?.('Searching for README...');
-  
-  // Try README variants in order
-  const readmeCandidates = [
-    'README.md', 'README.MD', 'readme.md', 'Readme.md',
-    'README.txt', 'README', 'readme.txt',
-    'docs/README.md', 'docs/readme.md',
-  ];
-  
-  for (const candidate of readmeCandidates) {
-    const content = await tryFetchRaw(owner, repo, branch, candidate);
-    if (content) {
-      onProgress?.('README found!');
-      return { content, source: `GitHub: ${owner}/${repo} (${candidate})` };
-    }
-  }
-  
-  // Try other branches if main branch didn't work
-  const fallbackBranches = ['master', 'dev', 'develop', 'main'].filter(b => b !== branch);
-  for (const fallbackBranch of fallbackBranches) {
-    for (const candidate of ['README.md', 'readme.md']) {
-      const content = await tryFetchRaw(owner, repo, fallbackBranch, candidate);
-      if (content) {
-        onProgress?.('README found!');
-        return { content, source: `GitHub: ${owner}/${repo} (${candidate} on ${fallbackBranch})` };
-      }
-    }
-  }
-  
-  // No README found - scan repository structure
-  onProgress?.('No README found. Scanning repository structure...');
-  const repoContent = await scanRepositoryContents(owner, repo, branch);
-  
-  if (repoContent) {
-    return { content: repoContent, source: `GitHub: ${owner}/${repo} (repository scan)` };
-  }
-  
-  throw new Error(
-    `We couldn't find a README in ${owner}/${repo}, but we'll continue with whatever content you provide. ` +
-    `You can paste your project description manually below.`
-  );
 }
 
 /** Progress step indicator for GitHub import */
@@ -284,6 +122,7 @@ export default function Dashboard() {
   const createDeck = useMutation(api.decks.createDeck);
   const deleteDeck = useMutation(api.decks.deleteDeck);
   const decks = useQuery(api.decks.listDecks);
+  const fetchRepo = useAction(api.github.fetchGithubRepo);
 
   const analysis = useMemo(() => {
     if (markdown.trim().length < 20) return null;
@@ -329,30 +168,31 @@ export default function Dashboard() {
     setCurrentStep(steps[0]);
     
     try {
-      // Simulate progress steps
-      for (let i = 0; i < steps.length - 2; i++) {
+      // Simulate progress steps while the server-side action works
+      for (let i = 0; i < steps.length - 3; i++) {
         setCurrentStep(steps[i]);
         await new Promise(r => setTimeout(r, 300 + Math.random() * 200));
       }
-      
-      const { content, source } = await fetchGithubContent(
-        githubUrl.trim(),
-        (step) => setCurrentStep(step)
-      );
-      
+
+      const result = await fetchRepo({ url: githubUrl.trim() });
+
       setCurrentStep(steps[steps.length - 1]);
       await new Promise(r => setTimeout(r, 200));
-      
-      setMarkdown(content);
-      toast.success(`Repository imported: ${source}`);
+
+      setMarkdown(result.content);
+      if (result.notice) {
+        toast.warning(result.notice, { duration: 6000 });
+      } else {
+        toast.success(`Repository imported: ${result.source}`);
+      }
     } catch (error) {
-      // Show helpful message instead of immediate error
-      const message = error instanceof Error ? error.message : "Could not fetch the repository";
+      const message =
+        error instanceof Error ? error.message : "Could not fetch the repository";
       toast.error(message, {
         duration: 6000,
         description: "You can paste your project description manually below.",
       });
-      // Don't set markdown to empty - let user keep what they have
+      // Don't clear the editor — the user keeps whatever they already had
     } finally {
       setImporting(null);
       setGithubProgress([]);
