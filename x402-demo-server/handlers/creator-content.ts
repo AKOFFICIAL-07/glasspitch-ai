@@ -52,7 +52,7 @@ export function handleCreatorContentRequest(c: Context) {
     console.log('✓ PAYMENT VERIFIED - GET /creator-content/:id handler executing');
 
     // Get content ID from params
-    const contentId = c.req.param('id');
+    const contentId = c.req.param('id') as string;
 
     // Look up content
     const content = contentDatabase[contentId];
