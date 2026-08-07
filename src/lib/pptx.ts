@@ -44,31 +44,20 @@ interface PptxShapeOptions {
     offset?: number;
   };
 }
-type ShapeName =
-  | "rect"
-  | "roundRect"
-  | "ellipse"
-  | "line"
-  | "triangle"
-  | "rightTriangle"
-  | "diamond"
-  | "arc"
-  | "chevron"
-  | "blockArc"
-  | "pie"
-  | "ring";
+
+interface PptxSlide {
+  background: { color: string };
+  addText(text: string | PptxTextItem[], options?: PptxTextOptions): unknown;
+  addShape(shape: string, options?: PptxShapeOptions): unknown;
+}
 
 interface PptxGenLike {
   defineLayout(o: { name: string; width: number; height: number }): void;
   layout: string;
   author: string;
   title: string;
-  background: { color: string };
-  ShapeType: Record<ShapeName, ShapeName>;
-  addSlide(): unknown;
-  addText(text: string | PptxTextItem[], options?: PptxTextOptions): unknown;
-  addShape(shape: ShapeName, options?: PptxShapeOptions): unknown;
-  writeFile(opts: { fileName: string }): Promise<void>;
+  addSlide(): PptxSlide;
+  writeFile(opts: { fileName: string }): Promise<unknown>;
 }
 
 const EMERALD = "00A86B";
@@ -93,10 +82,11 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
   const total = slides.length;
 
   const addBullets = (
+    sl: PptxSlide,
     body: string[],
     opts: { x?: number; y?: number; w?: number; h?: number; fontSize?: number } = {},
   ) => {
-    pptx.addText(
+    sl.addText(
       body.map((b) => ({ text: b, options: { bullet: { code: "25AA", indent: 12 } } })),
       {
         x: opts.x ?? 0.9,
@@ -111,11 +101,11 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
     );
   };
 
-  const addPageFrame = (i: number) => {
+  const addPageFrame = (sl: PptxSlide, i: number) => {
     // background + emerald top accent
-    pptx.background = { color: "0A0A0A" };
-    pptx.addShape("rect", { x: 0, y: 0, w: 13.33, h: 0.12, fill: { color: accent } });
-    pptx.addShape("roundRect", {
+    sl.background = { color: "0A0A0A" };
+    sl.addShape("rect", { x: 0, y: 0, w: 13.33, h: 0.12, fill: { color: accent } });
+    sl.addShape("roundRect", {
       x: 0.7,
       y: 0.6,
       w: 2.1,
@@ -124,7 +114,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       line: { color: accent },
       rectRadius: 0.1,
     });
-    pptx.addText("PitchForge AI", {
+    sl.addText("PitchForge AI", {
       x: 0.7,
       y: 0.68,
       w: 2.1,
@@ -136,14 +126,14 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       charSpacing: 2,
     });
     // real per-slide numbering
-    pptx.addText([{ text: String(i + 1).padStart(2, "0"), options: { fontSize: 36, bold: true, color: "3F3F46" } }], {
+    sl.addText([{ text: String(i + 1).padStart(2, "0"), options: { fontSize: 36, bold: true, color: "3F3F46" } }], {
       x: 11.4,
       y: 0.35,
       w: 1.2,
       h: 0.9,
       align: "right",
     });
-    pptx.addText(`/ ${String(total).padStart(2, "0")}`, {
+    sl.addText(`/ ${String(total).padStart(2, "0")}`, {
       x: 11.4,
       y: 1.05,
       w: 1.2,
@@ -157,12 +147,12 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
 
   slides.forEach((slide, i) => {
     const label = slideLabel(slide);
-    pptx.addSlide();
-    addPageFrame(i);
+    const sl = pptx.addSlide();
+    addPageFrame(sl, i);
 
     if (i === 0) {
       // Cover
-      pptx.addText(deck.title, {
+      sl.addText(deck.title, {
         x: 0.9,
         y: 1.9,
         w: 11.5,
@@ -173,7 +163,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         align: "center",
         fontFace: "Arial",
       });
-      pptx.addText(deck.tagline, {
+      sl.addText(deck.tagline, {
         x: 2.2,
         y: 3.6,
         w: 8.9,
@@ -182,11 +172,11 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         color: MUTED,
         align: "center",
       });
-      pptx.addText(
+      sl.addText(
         deck.sections.map((s) => ({ text: s.title, options: { breakLine: true } })),
         { x: 2.2, y: 5.1, w: 8.9, h: 1.4, fontSize: 13, color: EMERALD, align: "center" },
       );
-      pptx.addText(`Investor Readiness ${deck.readiness.overall}/100 · ${deck.stats.words.toLocaleString()} words distilled`, {
+      sl.addText(`Investor Readiness ${deck.readiness.overall}/100 · ${deck.stats.words.toLocaleString()} words distilled`, {
         x: 2.2,
         y: 6.6,
         w: 8.9,
@@ -199,7 +189,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
     }
 
     if (slide.kind === "closing") {
-      pptx.addText("Let's build this together.", {
+      sl.addText("Let's build this together.", {
         x: 0.9,
         y: 1.6,
         w: 11.5,
@@ -209,7 +199,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         color: WHITE,
         align: "center",
       });
-      pptx.addText(deck.insights.fundingAsk, {
+      sl.addText(deck.insights.fundingAsk, {
         x: 2.2,
         y: 3.0,
         w: 8.9,
@@ -223,7 +213,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       const metrics = deck.readiness.metrics.map(
         (m) => ({ text: `${m.label}: ${m.score}/100  —  ${m.note}`, options: { breakLine: true, fontSize: 14, color: BODY } }),
       );
-      pptx.addText([{ text: `Investor Readiness ${deck.readiness.overall}/100`, options: { breakLine: true, fontSize: 20, bold: true, color: EMERALD } }, ...metrics], {
+      sl.addText([{ text: `Investor Readiness ${deck.readiness.overall}/100`, options: { breakLine: true, fontSize: 20, bold: true, color: EMERALD } }, ...metrics], {
         x: 1.7,
         y: 4.2,
         w: 9.9,
@@ -231,7 +221,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         align: "center",
         valign: "top",
       });
-      pptx.addText(
+      sl.addText(
         `${deck.stats.sectionsFound}/6 story sections found in your docs · ${deck.stats.lines.toLocaleString()} lines analyzed`,
         { x: 2.2, y: 6.7, w: 8.9, h: 0.4, fontSize: 12, color: "71717A", align: "center" },
       );
@@ -239,7 +229,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
     }
 
     // Header
-    pptx.addText(label.toUpperCase(), {
+    sl.addText(label.toUpperCase(), {
       x: 0.9,
       y: 1.15,
       w: 11.5,
@@ -251,7 +241,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
     });
 
     if (slide.kind === "section") {
-      pptx.addText(slide.section.title, {
+      sl.addText(slide.section.title, {
         x: 0.9,
         y: 1.65,
         w: 5.6,
@@ -271,7 +261,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
             const row = Math.floor(ti / 2);
             const cx = 6.7 + col * 2.95;
             const cy = 1.6 + row * 0.75;
-            pptx.addShape("roundRect", {
+            sl.addShape("roundRect", {
               x: cx,
               y: cy,
               w: 2.8,
@@ -280,7 +270,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
               line: { color: "1F3D31", width: 1 },
               rectRadius: 0.12,
             });
-            pptx.addText(tech, {
+            sl.addText(tech, {
               x: cx + 0.1,
               y: cy + 0.08,
               w: 2.6,
@@ -292,12 +282,12 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
               valign: "middle",
             });
           });
-          addBullets(slide.section.bullets, { x: 6.7, y: 1.7 + rows * 0.75 + 0.25, w: 5.7, fontSize: 14 });
+          addBullets(sl, slide.section.bullets, { x: 6.7, y: 1.7 + rows * 0.75 + 0.25, w: 5.7, fontSize: 14 });
         } else {
-          addBullets(slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
+          addBullets(sl, slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
         }
         if (slide.section.derived) {
-          pptx.addText("AI-DERIVED", {
+          sl.addText("AI-DERIVED", {
             x: 0.9,
             y: 6.8,
             w: 2.4,
@@ -316,7 +306,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         cards.forEach((card, ci) => {
           const cx = 6.6 + ci * 2.2;
           const cw = 2.05;
-          pptx.addShape("roundRect", {
+          sl.addShape("roundRect", {
             x: cx,
             y: 1.6,
             w: cw,
@@ -338,13 +328,13 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
             { text: "OUR EDGE", options: { breakLine: true, fontSize: 9, bold: true, color: EMERALD, charSpacing: 1 } },
             { text: card.advantage, options: { breakLine: true, fontSize: 10.5, color: MUTED } },
           ];
-          pptx.addText(rows, { x: cx + 0.15, y: 1.8, w: cw - 0.3, h: 4.9, valign: "top" });
+          sl.addText(rows, { x: cx + 0.15, y: 1.8, w: cw - 0.3, h: 4.9, valign: "top" });
         });
       } else {
-        addBullets(slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
+        addBullets(sl, slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
       }
       if (slide.section.derived) {
-        pptx.addText("AI-DERIVED", {
+        sl.addText("AI-DERIVED", {
           x: 0.9,
           y: 6.8,
           w: 2.4,
@@ -376,7 +366,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         financials: "Financials",
         ask: "Investment Ask",
       };
-      pptx.addText(titleMap[slide.insight] ?? label, {
+      sl.addText(titleMap[slide.insight] ?? label, {
         x: 0.9,
         y: 1.65,
         w: 11.5,
@@ -385,8 +375,8 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         bold: true,
         color: WHITE,
       });
-      addBullets(content[slide.insight] ?? [], { y: 2.8, fontSize: 15 });
-      pptx.addText("AI-GENERATED — REVIEW BEFORE PITCHING", {
+      addBullets(sl, content[slide.insight] ?? [], { y: 2.8, fontSize: 15 });
+      sl.addText("AI-GENERATED — REVIEW BEFORE PITCHING", {
         x: 0.9,
         y: 6.8,
         w: 6,
@@ -397,7 +387,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       });
       // Surface the assumptions the docs didn't state — investor-relevant.
       if (slide.insight === "ask" && ins.missing.length > 0) {
-        pptx.addText(
+        sl.addText(
           ins.missing.map((m) => ({ text: `⚠ ${m}`, options: { breakLine: true, fontSize: 11, color: MUTED } })),
           { x: 0.9, y: 6.35, w: 10.2, h: 1.0, valign: "top" },
         );
