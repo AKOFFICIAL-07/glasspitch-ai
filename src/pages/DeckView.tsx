@@ -130,7 +130,11 @@ export default function DeckView() {
       toast.success("PPTX downloaded", { id: "pptx" });
     } catch (error) {
       console.error(error);
-      toast.error("Could not export PPTX", { id: "pptx" });
+      const detail =
+        error instanceof Error && error.message
+          ? `Could not export PPTX — ${error.message}`
+          : "Could not export PPTX";
+      toast.error(detail, { id: "pptx" });
     }
   };
 

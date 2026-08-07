@@ -107,6 +107,20 @@ export function getPaymentConfig() {
       ],
       description: 'Exclusive creator content and premium resources',
     },
+
+    // AI pitch deck generation - $1.00 per deck (configurable via DECK_PRICE_USD)
+    'POST /generate-deck': {
+      accepts: [
+        {
+          scheme: 'exact',
+          price: `$${process.env.DECK_PRICE_USD || '1.00'}`,
+          network: caip2,
+          payTo: avmAddress,
+          extra: { asset: usdcAssetId },
+        },
+      ],
+      description: 'AI pitch deck generation from your repository (Deckify AI)',
+    },
   };
 }
 

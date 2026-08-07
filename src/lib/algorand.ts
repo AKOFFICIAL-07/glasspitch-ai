@@ -57,9 +57,42 @@ async function buildPaymentTxn(opts: {
   });
 }
 
+type AlgoTxn = Awaited<ReturnType<typeof buildPaymentTxn>>;
+
+/** Sign a transaction with the connected wallet and submit it to the network. */
+async function signAndSubmit(opts: {
+  kind: Exclude<WalletKind, "manual">;
+  walletAddress: string;
+  txn: AlgoTxn;
+  algodUrl: string;
+}): Promise<string> {
+  if (opts.kind === "pera") {
+    const { PeraWalletConnect } = await import("@perawallet/connect");
+    const pera = new PeraWalletConnect();
+    const signed = await pera.signTransaction([[{ txn: opts.txn, signers: [opts.walletAddress] }]]);
+    const blob = signed?.[0];
+    if (!blob) throw new Error("Pera returned no signed transaction.");
+    const algosdk = await import("algosdk");
+    const algod = new algosdk.Algodv2("", opts.algodUrl);
+    const { txid } = await algod.sendRawTransaction(blob).do();
+    return txid;
+  }
+
+  // Defly
+  const { DeflyWalletConnect } = await import("@blockshake/defly-connect");
+  const defly = new DeflyWalletConnect();
+  const signed = await defly.signTransaction([[{ txn: opts.txn, signers: [opts.walletAddress] }]]);
+  const blob = signed?.[0];
+  if (!blob) throw new Error("Defly returned no signed transaction.");
+  const algosdk = await import("algosdk");
+  const algod = new algosdk.Algodv2("", opts.algodUrl);
+  const { txid } = await algod.sendRawTransaction(blob).do();
+  return txid;
+}
+
 /**
- * Sign + submit a payment using the connected wallet. Returns the on-chain
- * transaction id, which the server then verifies via the indexer.
+ * Sign + submit a native ALGO payment using the connected wallet. Returns the
+ * on-chain transaction id, which the server then verifies via the indexer.
  */
 export async function payWithWallet(opts: {
   kind: WalletKind;
@@ -81,28 +114,69 @@ export async function payWithWallet(opts: {
     algodUrl: opts.algodUrl,
   });
 
-  if (opts.kind === "pera") {
-    const { PeraWalletConnect } = await import("@perawallet/connect");
-    const pera = new PeraWalletConnect();
-    const signed = await pera.signTransaction([[{ txn, signers: [opts.walletAddress] }]]);
-    const blob = signed?.[0];
-    if (!blob) throw new Error("Pera returned no signed transaction.");
-    const algosdk = await import("algosdk");
-    const algod = new algosdk.Algodv2("", opts.algodUrl);
-    const { txid } = await algod.sendRawTransaction(blob).do();
-    return { txId: txid };
-  }
+  const txId = await signAndSubmit({
+    kind: opts.kind,
+    walletAddress: opts.walletAddress,
+    txn,
+    algodUrl: opts.algodUrl,
+  });
+  return { txId };
+}
 
-  // Defly
-  const { DeflyWalletConnect } = await import("@blockshake/defly-connect");
-  const defly = new DeflyWalletConnect();
-  const signed = await defly.signTransaction([[{ txn, signers: [opts.walletAddress] }]]);
-  const blob = signed?.[0];
-  if (!blob) throw new Error("Defly returned no signed transaction.");
+/** Build a USDC (ASA) asset-transfer transaction (unsigned, algosdk Transaction). */
+async function buildAssetTransferTxn(opts: {
+  from: string;
+  to: string;
+  assetId: number;
+  amountUnits: number;
+  note: string;
+  algodUrl: string;
+}) {
   const algosdk = await import("algosdk");
   const algod = new algosdk.Algodv2("", opts.algodUrl);
-  const { txid } = await algod.sendRawTransaction(blob).do();
-  return { txId: txid };
+  const suggestedParams = await algod.getTransactionParams().do();
+  return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+    sender: opts.from,
+    receiver: opts.to,
+    assetIndex: opts.assetId,
+    amount: opts.amountUnits,
+    note: new TextEncoder().encode(opts.note.slice(0, 500)),
+    suggestedParams,
+  });
+}
+
+/**
+ * Sign + submit a USDC (ASA) payment using the connected wallet — used by the
+ * live x402 server flow, which quotes prices in USDC. Returns the on-chain
+ * transaction id for the server to verify.
+ */
+export async function payUsdcWithWallet(opts: {
+  kind: Exclude<WalletKind, "manual">;
+  walletAddress: string;
+  to: string;
+  assetId: number;
+  amountUsd: number;
+  note: string;
+  algodUrl: string;
+}): Promise<{ txId: string }> {
+  // USDC has 6 decimals on Algorand
+  const amountUnits = Math.round(opts.amountUsd * 1_000_000);
+  const txn = await buildAssetTransferTxn({
+    from: opts.walletAddress,
+    to: opts.to,
+    assetId: opts.assetId,
+    amountUnits,
+    note: opts.note,
+    algodUrl: opts.algodUrl,
+  });
+
+  const txId = await signAndSubmit({
+    kind: opts.kind,
+    walletAddress: opts.walletAddress,
+    txn,
+    algodUrl: opts.algodUrl,
+  });
+  return { txId };
 }
 
 /** Explorer link for a transaction on the configured network. */

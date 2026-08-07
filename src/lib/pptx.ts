@@ -65,6 +65,14 @@ const WHITE = "FFFFFF";
 const BODY = "E4E4E7";
 const MUTED = "A1A1AA";
 
+/** Tolerate ragged/legacy deck data that predates the current schema. */
+function safe<T>(value: T | null | undefined, fallback: T): T {
+  return value === null || value === undefined ? fallback : value;
+}
+const arr = <T,>(value: T[] | null | undefined): T[] => safe(value, []);
+const str = (value: string | null | undefined, fallback = ""): string =>
+  typeof value === "string" && value.length > 0 ? value : fallback;
+
 /** Export the deck as a .pptx file and trigger a download. */
 export async function exportPptx(deck: PitchDeck): Promise<void> {
   const mod = (await import("pptxgenjs")) as unknown as {
@@ -77,9 +85,41 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
   pptx.title = deck.title;
 
   const t = getTemplate(deck.template ?? "glass");
-  const accent = t.accent.replace("#", "");
+  const accent = (t.accent ?? "#00A86B").replace("#", "");
   const slides = deckSlides(deck);
   const total = slides.length;
+
+  // Legacy/ragged decks may be missing insights — normalize once up front.
+  const insights = safe(deck.insights, {
+    executiveSummary: "",
+    elevatorPitch: "",
+    tam: "",
+    sam: "",
+    som: "",
+    marketNote: "",
+    businessModel: "",
+    pricingStrategy: "",
+    gtm: [],
+    roadmap: [],
+    risks: [],
+    fundingAsk: "",
+    useOfFunds: [],
+    competitors: [],
+    missing: [],
+  });
+  const ins = {
+    ...insights,
+    gtm: arr(insights.gtm),
+    roadmap: arr(insights.roadmap),
+    risks: arr(insights.risks),
+    useOfFunds: arr(insights.useOfFunds),
+    competitors: arr(insights.competitors),
+    missing: arr(insights.missing),
+  };
+  const stats = safe(deck.stats, { words: 0, lines: 0, sectionsFound: 0 });
+  const readiness = safe(deck.readiness, { overall: 0, metrics: [] });
+  const readinessMetrics = arr(readiness.metrics);
+  const overallScore = safe(readiness.overall, 0);
 
   const addBullets = (
     sl: PptxSlide,
@@ -87,7 +127,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
     opts: { x?: number; y?: number; w?: number; h?: number; fontSize?: number } = {},
   ) => {
     sl.addText(
-      body.map((b) => ({ text: b, options: { bullet: { code: "25AA", indent: 12 } } })),
+      arr(body).map((b) => ({ text: b, options: { bullet: { code: "25AA", indent: 12 } } })),
       {
         x: opts.x ?? 0.9,
         y: opts.y ?? 2.4,
@@ -146,13 +186,18 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
   };
 
   slides.forEach((slide, i) => {
-    const label = slideLabel(slide);
+    let label: string;
+    try {
+      label = slideLabel(slide) ?? "";
+    } catch {
+      label = ""; // legacy deck missing a section — never let this kill the export
+    }
     const sl = pptx.addSlide();
     addPageFrame(sl, i);
 
     if (i === 0) {
       // Cover
-      sl.addText(deck.title, {
+      sl.addText(str(deck.title, "Untitled Deck"), {
         x: 0.9,
         y: 1.9,
         w: 11.5,
@@ -163,7 +208,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         align: "center",
         fontFace: "Arial",
       });
-      sl.addText(deck.tagline, {
+      sl.addText(str(deck.tagline, ""), {
         x: 2.2,
         y: 3.6,
         w: 8.9,
@@ -173,10 +218,10 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         align: "center",
       });
       sl.addText(
-        deck.sections.map((s) => ({ text: s.title, options: { breakLine: true } })),
+        arr(deck.sections).map((s) => ({ text: str(s.title), options: { breakLine: true } })),
         { x: 2.2, y: 5.1, w: 8.9, h: 1.4, fontSize: 13, color: EMERALD, align: "center" },
       );
-      sl.addText(`Investor Readiness ${deck.readiness.overall}/100 · ${deck.stats.words.toLocaleString()} words distilled`, {
+      sl.addText(`Investor Readiness ${overallScore}/100 · ${(stats.words ?? 0).toLocaleString()} words distilled`, {
         x: 2.2,
         y: 6.6,
         w: 8.9,
@@ -199,7 +244,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         color: WHITE,
         align: "center",
       });
-      sl.addText(deck.insights.fundingAsk, {
+      sl.addText(str(ins.fundingAsk, ""), {
         x: 2.2,
         y: 3.0,
         w: 8.9,
@@ -210,10 +255,10 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       });
 
       // Readiness metrics breakdown
-      const metrics = deck.readiness.metrics.map(
+      const metrics = readinessMetrics.map(
         (m) => ({ text: `${m.label}: ${m.score}/100  —  ${m.note}`, options: { breakLine: true, fontSize: 14, color: BODY } }),
       );
-      sl.addText([{ text: `Investor Readiness ${deck.readiness.overall}/100`, options: { breakLine: true, fontSize: 20, bold: true, color: EMERALD } }, ...metrics], {
+      sl.addText([{ text: `Investor Readiness ${overallScore}/100`, options: { breakLine: true, fontSize: 20, bold: true, color: EMERALD } }, ...metrics], {
         x: 1.7,
         y: 4.2,
         w: 9.9,
@@ -222,14 +267,14 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         valign: "top",
       });
       sl.addText(
-        `${deck.stats.sectionsFound}/6 story sections found in your docs · ${deck.stats.lines.toLocaleString()} lines analyzed`,
+        `${stats.sectionsFound ?? 0}/6 story sections found in your docs · ${(stats.lines ?? 0).toLocaleString()} lines analyzed`,
         { x: 2.2, y: 6.7, w: 8.9, h: 0.4, fontSize: 12, color: "71717A", align: "center" },
       );
       return;
     }
 
     // Header
-    sl.addText(label.toUpperCase(), {
+    sl.addText(str(label, "").toUpperCase(), {
       x: 0.9,
       y: 1.15,
       w: 11.5,
@@ -241,7 +286,15 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
     });
 
     if (slide.kind === "section") {
-      sl.addText(slide.section.title, {
+      const section = safe(slide.section, {
+        key: "problem" as const,
+        title: "",
+        eyebrow: "",
+        bullets: [],
+        accent: "",
+        derived: false,
+      });
+      sl.addText(str(section.title, ""), {
         x: 0.9,
         y: 1.65,
         w: 5.6,
@@ -251,8 +304,8 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         color: WHITE,
       });
       // Technology → render the real extracted stack as chips, bullets below
-      if (slide.section.key === "tech") {
-        const stack = extractTechStack(slide.section.bullets);
+      if (section.key === "tech") {
+        const stack = extractTechStack(arr(section.bullets));
         const chips = stack.length > 0 ? stack : null;
         if (chips) {
           const rows = Math.ceil(chips.length / 2);
@@ -270,7 +323,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
               line: { color: "1F3D31", width: 1 },
               rectRadius: 0.12,
             });
-            sl.addText(tech, {
+            sl.addText(str(tech), {
               x: cx + 0.1,
               y: cy + 0.08,
               w: 2.6,
@@ -282,11 +335,11 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
               valign: "middle",
             });
           });
-          addBullets(sl, slide.section.bullets, { x: 6.7, y: 1.7 + rows * 0.75 + 0.25, w: 5.7, fontSize: 14 });
+          addBullets(sl, arr(section.bullets), { x: 6.7, y: 1.7 + rows * 0.75 + 0.25, w: 5.7, fontSize: 14 });
         } else {
-          addBullets(sl, slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
+          addBullets(sl, arr(section.bullets), { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
         }
-        if (slide.section.derived) {
+        if (section.derived) {
           sl.addText("AI-DERIVED", {
             x: 0.9,
             y: 6.8,
@@ -301,8 +354,8 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       }
 
       // Competitive Landscape → render the real competitor cards
-      if (slide.section.key === "competitors" && deck.insights.competitors.length > 0) {
-        const cards = deck.insights.competitors.slice(0, 3);
+      if (section.key === "competitors" && ins.competitors.length > 0) {
+        const cards = ins.competitors.slice(0, 3);
         cards.forEach((card, ci) => {
           const cx = 6.6 + ci * 2.2;
           const cw = 2.05;
@@ -316,24 +369,24 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
             rectRadius: 0.12,
           });
           const rows: PptxTextItem[] = [
-            { text: card.name, options: { breakLine: true, fontSize: 15, bold: true, color: WHITE } },
-            { text: card.category, options: { breakLine: true, fontSize: 11, color: EMERALD, charSpacing: 1 } },
+            { text: str(card.name), options: { breakLine: true, fontSize: 15, bold: true, color: WHITE } },
+            { text: str(card.category), options: { breakLine: true, fontSize: 11, color: EMERALD, charSpacing: 1 } },
             { text: " ", options: { breakLine: true, fontSize: 6 } },
             { text: "STRENGTHS", options: { breakLine: true, fontSize: 9, bold: true, color: "86efac", charSpacing: 1 } },
-            ...card.strengths.slice(0, 3).map((s) => ({ text: `• ${s}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
+            ...arr(card.strengths).slice(0, 3).map((s) => ({ text: `• ${s}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
             { text: " ", options: { breakLine: true, fontSize: 6 } },
             { text: "WEAKNESSES", options: { breakLine: true, fontSize: 9, bold: true, color: "FCA5A5", charSpacing: 1 } },
-            ...card.weaknesses.slice(0, 3).map((w) => ({ text: `• ${w}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
+            ...arr(card.weaknesses).slice(0, 3).map((w) => ({ text: `• ${w}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
             { text: " ", options: { breakLine: true, fontSize: 6 } },
             { text: "OUR EDGE", options: { breakLine: true, fontSize: 9, bold: true, color: EMERALD, charSpacing: 1 } },
-            { text: card.advantage, options: { breakLine: true, fontSize: 10.5, color: MUTED } },
+            { text: str(card.advantage), options: { breakLine: true, fontSize: 10.5, color: MUTED } },
           ];
           sl.addText(rows, { x: cx + 0.15, y: 1.8, w: cw - 0.3, h: 4.9, valign: "top" });
         });
       } else {
-        addBullets(sl, slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
+        addBullets(sl, arr(section.bullets), { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
       }
-      if (slide.section.derived) {
+      if (section.derived) {
         sl.addText("AI-DERIVED", {
           x: 0.9,
           y: 6.8,
@@ -349,14 +402,16 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
 
     // Insight slides
     if (slide.kind === "insight") {
-      const ins = deck.insights;
       const content: Record<string, string[]> = {
-        product: [ins.elevatorPitch, ins.executiveSummary],
-        market: [`TAM ${ins.tam}  ·  SAM ${ins.sam}  ·  SOM ${ins.som}`, ins.marketNote],
-        gtm: ins.gtm,
-        roadmap: ins.roadmap.flatMap((p) => [`${p.phase} (${p.timeline})`, ...p.items]),
-        financials: [ins.businessModel, ins.pricingStrategy],
-        ask: [ins.fundingAsk, ...ins.useOfFunds, "Key risks:", ...ins.risks],
+        product: [str(ins.elevatorPitch), str(ins.executiveSummary)],
+        market: [`TAM ${str(ins.tam, "—")}  ·  SAM ${str(ins.sam, "—")}  ·  SOM ${str(ins.som, "—")}`, str(ins.marketNote)],
+        gtm: arr(ins.gtm),
+        roadmap: arr(ins.roadmap).flatMap((p) => [
+          `${str(p.phase)} (${str(p.timeline)})`,
+          ...arr(p.items),
+        ]),
+        financials: [str(ins.businessModel), str(ins.pricingStrategy)],
+        ask: [str(ins.fundingAsk), ...arr(ins.useOfFunds), "Key risks:", ...arr(ins.risks)],
       };
       const titleMap: Record<string, string> = {
         product: "Product",
@@ -366,7 +421,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         financials: "Financials",
         ask: "Investment Ask",
       };
-      sl.addText(titleMap[slide.insight] ?? label, {
+      sl.addText(titleMap[slide.insight] ?? str(label, ""), {
         x: 0.9,
         y: 1.65,
         w: 11.5,
@@ -388,7 +443,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       // Surface the assumptions the docs didn't state — investor-relevant.
       if (slide.insight === "ask" && ins.missing.length > 0) {
         sl.addText(
-          ins.missing.map((m) => ({ text: `⚠ ${m}`, options: { breakLine: true, fontSize: 11, color: MUTED } })),
+          arr(ins.missing).map((m) => ({ text: `⚠ ${m}`, options: { breakLine: true, fontSize: 11, color: MUTED } })),
           { x: 0.9, y: 6.35, w: 10.2, h: 1.0, valign: "top" },
         );
       }

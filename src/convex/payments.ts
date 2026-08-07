@@ -263,6 +263,67 @@ export const verifyX402Payment = mutation({
   },
 });
 
+/**
+ * Record a payment that was verified by the live x402 server.
+ *
+ * In the live flow the external x402 server (localhost:4021) performs the
+ * on-chain verification and returns a receipt; this mutation persists the
+ * verified payment so `isDeckUnlocked` reports the deck as premium.
+ */
+export const recordX402Unlock = mutation({
+  args: {
+    deckId: v.optional(v.id("decks")),
+    walletAddress: v.string(),
+    txHash: v.string(),
+    amountUsd: v.number(),
+    assetId: v.number(),
+    network: v.string(),
+    confirmedRound: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Not signed in");
+
+    const hash = args.txHash.trim();
+    if (!hash) throw new Error("Missing transaction hash.");
+    if (!/^[A-Z2-7]{52,58}$/.test(hash) && !/^[a-f0-9]{64}$/i.test(hash)) {
+      throw new Error("Invalid transaction hash.");
+    }
+
+    // Deck ownership check (when a deck is attached)
+    if (args.deckId) {
+      const deck = await ctx.db.get(args.deckId);
+      if (!deck) throw new Error("Deck not found");
+      if (deck.ownerId !== user._id) throw new Error("You don't own this deck");
+    }
+
+    // Avoid duplicate unlocks for the same deck
+    if (args.deckId) {
+      const existing = await ctx.db
+        .query("payments")
+        .withIndex("by_deck", (q) => q.eq("deckId", args.deckId))
+        .filter((q) => q.eq(q.field("status"), "verified"))
+        .first();
+      if (existing) return { status: "already-unlocked", paymentId: existing._id };
+    }
+
+    const paymentId = await ctx.db.insert("payments", {
+      userId: user._id,
+      deckId: args.deckId,
+      walletAddress: args.walletAddress.trim(),
+      txHash: hash,
+      amount: Math.round(args.amountUsd * 1_000_000), // micro-units of USDC
+      assetId: args.assetId,
+      status: "verified",
+      network: args.network,
+      confirmedRound: args.confirmedRound,
+      memo: "Deckify AI — premium deck via x402 server",
+    });
+
+    return { status: "verified", paymentId };
+  },
+});
+
 export const listPayments = query({
   args: {},
   handler: async (ctx) => {
