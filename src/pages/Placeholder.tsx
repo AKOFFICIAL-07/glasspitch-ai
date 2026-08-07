@@ -1,5 +1,5 @@
 import { PlaceholderPage } from "@/components/placeholder-page";
-import { BarChart3, LayoutTemplate, Settings } from "lucide-react";
+import { BarChart3, LayoutTemplate } from "lucide-react";
 
 export function TemplatesPage() {
   return (
@@ -19,17 +19,6 @@ export function AnalyticsPage() {
       title="Analytics"
       blurb="See who opened your deck, which slides investors linger on, and how your story performs. Analytics will connect to your share links automatically."
       chips={["Deck views", "Slide dwell time", "Share opens", "Section heat"]}
-    />
-  );
-}
-
-export function SettingsPage() {
-  return (
-    <PlaceholderPage
-      icon={Settings}
-      title="Settings"
-      blurb="Manage your profile, workspace and preferences. More controls land here as Pitch Forge grows past version one."
-      chips={["Profile", "Workspace", "Appearance", "API keys"]}
     />
   );
 }

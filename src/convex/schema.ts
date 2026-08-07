@@ -31,6 +31,10 @@ const schema = defineSchema(
 
       role: v.optional(roleValidator), // role of the user. do not remove
       plan: v.optional(v.string()), // billing plan: "free" | "pro"
+
+      // profile settings (editable in the Settings page)
+      bio: v.optional(v.string()),
+      walletAddress: v.optional(v.string()), // primary Algorand wallet
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
     // pitch deck projects — one per source README

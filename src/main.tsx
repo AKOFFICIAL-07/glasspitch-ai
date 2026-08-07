@@ -28,9 +28,7 @@ const TemplatesPage = lazy(() =>
 const AnalyticsPage = lazy(() =>
   import("./pages/Placeholder.tsx").then((m) => ({ default: m.AnalyticsPage })),
 );
-const SettingsPage = lazy(() =>
-  import("./pages/Placeholder.tsx").then((m) => ({ default: m.SettingsPage })),
-);
+const SettingsPage = lazy(() => import("./pages/Settings.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Branded loading fallback for route transitions
