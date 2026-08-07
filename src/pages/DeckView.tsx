@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useAuth } from "@/hooks/use-auth";
+import type { WalletKind } from "@/lib/algorand";
 import { DECK_TEMPLATES, getTemplate, type PitchDeck } from "@/lib/deck";
 import { exportPptx } from "@/lib/pptx";
 import { cn } from "@/lib/utils";
@@ -49,6 +50,7 @@ import {
   Send,
   Trash2,
   Wallet,
+  Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -556,8 +558,10 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
   const requestAuth = useMutation(api.payments.requestX402Authorization);
   const verifyPayment = useMutation(api.payments.verifyX402Payment);
   const unlock = useQuery(api.payments.isDeckUnlocked, { deckId });
+  const config = useQuery(api.payments.getX402Config);
 
   const [step, setStep] = useState<"wallet" | "authorize" | "verify" | "done">("wallet");
+  const [walletKind, setWalletKind] = useState<WalletKind | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
   const [paymentId, setPaymentId] = useState<Id<"payments"> | null>(null);
   const [txHash, setTxHash] = useState("");
@@ -566,17 +570,42 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
 
   const reset = () => {
     setStep("wallet");
+    setWalletKind(null);
     setWalletAddress("");
     setPaymentId(null);
     setTxHash("");
   };
 
-  const handleConnect = () => {
-    if (!/^[A-Z2-7]{40,58}$/.test(walletAddress.trim())) {
-      toast.error("Enter a valid Algorand address (58-char base32).");
-      return;
+  /** Connect a real wallet (Pera or Lute) or accept a manual address. */
+  const handleWalletConnect = async (kind: WalletKind) => {
+    setBusy(true);
+    try {
+      if (kind === "pera") {
+        const { connectPera } = await import("@/lib/algorand");
+        const address = await connectPera();
+        setWalletKind("pera");
+        setWalletAddress(address);
+        setStep("authorize");
+      } else if (kind === "lute") {
+        const { connectLute } = await import("@/lib/algorand");
+        const address = await connectLute(config?.genesisID ?? "testnet-v1.0");
+        setWalletKind("lute");
+        setWalletAddress(address);
+        setStep("authorize");
+      } else if (kind === "manual") {
+        if (!/^[A-Z2-7]{40,58}$/.test(walletAddress.trim())) {
+          toast.error("Enter a valid Algorand address (58-char base32).");
+          return;
+        }
+        setWalletKind("manual");
+        setStep("authorize");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Could not connect the wallet");
+    } finally {
+      setBusy(false);
     }
-    setStep("authorize");
   };
 
   const handleAuthorize = async () => {
@@ -591,6 +620,37 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
       setStep("verify");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authorization failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** Sign + submit the ALGO payment in the wallet, then verify on-chain. */
+  const handlePayAndVerify = async () => {
+    if (!paymentId || !walletKind) return;
+    if (!config) {
+      toast.error("Payment config is still loading — try again in a moment.");
+      return;
+    }
+    if (walletKind === "manual") return handleVerify();
+    setBusy(true);
+    try {
+      const { payWithWallet } = await import("@/lib/algorand");
+      const { txId } = await payWithWallet({
+        kind: walletKind,
+        walletAddress: walletAddress.trim(),
+        to: config.receiverAddress,
+        amountMicro: config.amountMicro,
+        note: `PitchForge AI premium deck — ${deck?.title ?? ""}`,
+        algodUrl: config.algodUrl,
+      });
+      setTxHash(txId);
+      await verifyPayment({ paymentId, txHash: txId });
+      setStep("done");
+      toast.success("Payment confirmed on-chain — premium deck unlocked!");
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Payment failed");
     } finally {
       setBusy(false);
     }
@@ -611,6 +671,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
   };
 
   const verified = unlock?.verified?.[0];
+  const amountLabel = `${config?.amountAlgo ?? 2.5} ALGO`;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
@@ -673,8 +734,39 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
           {step === "wallet" && (
             <div className="space-y-3">
               <p className="text-[12.5px] text-white/60">
-                Connect your Algorand wallet (Pera, Daffi, or any x402-compatible wallet).
+                Connect an Algorand wallet to pay {amountLabel} on-chain via x402.
+                {config && (
+                  <span className="mt-1 block text-[11px] text-white/40">
+                    Network: <span className="font-semibold text-emerald-300">{config.network}</span> · Receiver:{" "}
+                    <span className="font-mono">{config.receiverAddress.slice(0, 8)}…</span>
+                  </span>
+                )}
               </p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={() => handleWalletConnect("pera")}
+                  disabled={busy}
+                  className="h-11 gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_10px_24px_rgba(0,168,107,0.3)]"
+                >
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+                  Pera
+                </Button>
+                <Button
+                  onClick={() => handleWalletConnect("lute")}
+                  disabled={busy}
+                  className="h-11 gap-2 rounded-xl border border-white/15 bg-white/5 text-white/85 backdrop-blur-md transition hover:bg-white/10"
+                >
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 text-emerald-300" />}
+                  Lute
+                </Button>
+              </div>
+
+              <div className="relative flex items-center gap-2">
+                <div className="h-px flex-1 bg-white/10" />
+                <span className="text-[10px] font-medium uppercase tracking-widest text-white/30">or paste address</span>
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
+
               <input
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
@@ -682,15 +774,15 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                 className="h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] font-mono text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
               />
               <Button
-                onClick={handleConnect}
-                disabled={!walletAddress.trim()}
-                className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_10px_24px_rgba(0,168,107,0.3)]"
+                onClick={() => handleWalletConnect("manual")}
+                disabled={!walletAddress.trim() || busy}
+                variant="outline"
+                className="w-full gap-2 rounded-xl glass-soft text-white/70 hover:bg-white/10"
               >
-                <Wallet className="h-4 w-4" />
-                Connect wallet
+                Continue with pasted address
               </Button>
               <p className="text-center text-[11px] text-white/35">
-                Demo mode: use any 58-char Algorand-style address to try the flow.
+                Testnet demo? Fund the address with the Algorand faucet, then pay from your wallet.
               </p>
             </div>
           )}
@@ -700,11 +792,17 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
               <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/[0.07] p-4">
                 <div className="flex items-center justify-between text-[13px]">
                   <span className="text-white/60">Amount</span>
-                  <span className="font-bold text-white">2.5 ALGO</span>
+                  <span className="font-bold text-white">{amountLabel}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[13px]">
                   <span className="text-white/60">Asset</span>
                   <span className="font-semibold text-white/85">Native ALGO (ID 0)</span>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[13px]">
+                  <span className="text-white/60">Receiver</span>
+                  <span className="max-w-[200px] truncate font-mono text-[11px] text-emerald-300">
+                    {config?.receiverAddress ?? "…"}
+                  </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[13px]">
                   <span className="text-white/60">Wallet</span>
@@ -713,9 +811,9 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                   </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[13px]">
-                  <span className="text-white/60">Memo</span>
-                  <span className="max-w-[220px] truncate text-[11.5px] text-white/60">
-                    PitchForge AI premium deck
+                  <span className="text-white/60">Connected via</span>
+                  <span className="font-semibold uppercase tracking-wide text-[11px] text-white/70">
+                    {walletKind}
                   </span>
                 </div>
               </div>
@@ -733,22 +831,58 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
           {step === "verify" && (
             <div className="space-y-3">
               <p className="text-[12.5px] text-white/60">
-                Sign the payment in your wallet, then paste the transaction hash to verify on-chain.
+                {walletKind !== "manual"
+                  ? "Sign the payment in your wallet — we'll build, submit, and verify the transaction on-chain."
+                  : "Paste the transaction hash of the payment you already sent to verify it on-chain."}
               </p>
-              <input
-                value={txHash}
-                onChange={(e) => setTxHash(e.target.value)}
-                placeholder="Transaction hash (64-char)"
-                className="h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 font-mono text-[12px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
-              />
+              {walletKind !== "manual" ? (
+                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                  <div className="flex items-center justify-between text-[13px]">
+                    <span className="text-white/60">Sending</span>
+                    <span className="font-bold text-white">{amountLabel}</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-[13px]">
+                    <span className="text-white/60">To</span>
+                    <span className="max-w-[220px] truncate font-mono text-[11px] text-emerald-300">
+                      {config?.receiverAddress ?? "…"}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-[11.5px] leading-relaxed text-white/40">
+                    A confirmation window opens in your wallet — approve the payment to continue.
+                  </p>
+                </div>
+              ) : null}
               <Button
-                onClick={handleVerify}
-                disabled={busy || txHash.trim().length < 20}
+                onClick={walletKind !== "manual" ? handlePayAndVerify : handleVerify}
+                disabled={busy || (walletKind === "manual" && txHash.trim().length < 20)}
                 className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_10px_24px_rgba(0,168,107,0.3)]"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                {busy ? "Verifying on-chain…" : "Verify payment"}
+                {busy
+                  ? walletKind !== "manual"
+                    ? "Signing & verifying…"
+                    : "Verifying on-chain…"
+                  : walletKind !== "manual"
+                    ? `Pay ${amountLabel} & verify`
+                    : "Verify payment"}
               </Button>
+              {walletKind !== "manual" && (
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-white/10" />
+                  <span className="text-[10px] font-medium uppercase tracking-widest text-white/30">
+                    already paid manually?
+                  </span>
+                  <div className="h-px flex-1 bg-white/10" />
+                </div>
+              )}
+              {walletKind !== "manual" && (
+                <input
+                  value={txHash}
+                  onChange={(e) => setTxHash(e.target.value)}
+                  placeholder="Transaction hash (64-char)"
+                  className="h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 font-mono text-[12px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                />
+              )}
             </div>
           )}
 
@@ -768,13 +902,28 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                   </div>
                   <div className="flex justify-between gap-3">
                     <span className="text-white/50">Transaction hash</span>
-                    <span className="max-w-[220px] truncate font-mono text-[11px] text-emerald-300">
+                    <a
+                      href={config ? `${config.explorerBase}/tx/${txHash || verified?.txHash}` : "#"}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="max-w-[220px] truncate font-mono text-[11px] text-emerald-300 underline-offset-2 hover:underline"
+                    >
                       {txHash || verified?.txHash}
+                    </a>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-white/50">Network</span>
+                    <span className="font-semibold uppercase tracking-wide text-white/70">
+                      {config?.network ?? "testnet"}
                     </span>
                   </div>
                   <div className="flex justify-between gap-3">
                     <span className="text-white/50">Payment status</span>
                     <span className="font-semibold text-emerald-300">Verified ✓</span>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-white/50">Confirmed round</span>
+                    <span className="text-white/70">{verified?.confirmedRound ?? "—"}</span>
                   </div>
                   <div className="flex justify-between gap-3">
                     <span className="text-white/50">Timestamp</span>

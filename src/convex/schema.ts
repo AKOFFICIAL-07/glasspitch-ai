@@ -119,7 +119,9 @@ const schema = defineSchema(
       txHash: v.string(),
       amount: v.number(), // in microAlgos
       assetId: v.number(), // 0 = ALGO native
-      status: v.string(), // "authorized" | "verified"
+      status: v.string(), // "authorized" | "verified" | "failed"
+      network: v.optional(v.string()), // "testnet" | "mainnet"
+      confirmedRound: v.optional(v.number()), // on-chain round when verified
       memo: v.optional(v.string()),
     })
       .index("by_user", ["userId"])
