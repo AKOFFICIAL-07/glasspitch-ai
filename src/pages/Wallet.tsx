@@ -13,6 +13,8 @@ import {
   ExternalLink,
   Loader2,
   Wallet as WalletIcon,
+  Zap,
+  X,
 } from "lucide-react";
 
 
@@ -104,61 +106,150 @@ export default function Wallet() {
 
             </div>
 
-            {/* Plans */}
-            <div className="grid gap-5 sm:grid-cols-2">
-              {/* Free */}
-              <div className="glass glass-hover relative flex flex-col rounded-3xl p-6">
-                <h3 className="text-[15px] font-semibold text-slate-100">Hacker</h3>
-                <p className="mt-0.5 text-[12px] text-slate-500">Current plan</p>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold tracking-tight text-slate-100">$0</span>
-                  <span className="text-[12px] text-slate-500">forever</span>
-                </div>
-                <ul className="mt-5 flex-1 space-y-2 text-[13px] text-slate-300">
-                  {["2 pitch decks", "PDF export", "Share links", "Comment on any deck"].map((f) => (
-                    <li key={f} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 shrink-0 text-indigo-400" strokeWidth={2.5} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="outline" disabled className="glass-soft mt-6 w-full rounded-xl text-slate-500">
-                  Current plan
-                </Button>
+            {/* Pricing comparison */}
+            <div className="mt-6">
+              <div className="mb-4 text-center">
+                <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
+                  Pricing
+                </p>
+                <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-100">
+                  Pay with ALGO on-chain
+                </h2>
+                <p className="mt-1 text-[13px] text-slate-400">
+                  All payments go through Algorand x402 — connect Pera or Lute and approve the transaction.
+                </p>
               </div>
 
-              {/* Pro */}
-              <div className="edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-indigo-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-6 backdrop-blur-xl">
-                <Badge className="absolute right-4 top-4 border-transparent bg-indigo-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-indigo-300">
-                  One-time
-                </Badge>
-                <h3 className="text-[15px] font-semibold text-slate-100">Founder</h3>
-                <p className="mt-0.5 text-[12px] text-slate-400">For teams actually raising</p>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold tracking-tight text-slate-100">$19</span>
-                  <span className="text-[12px] text-slate-500">one-time</span>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {/* Free */}
+                <div className={cn(
+                  "glass relative flex flex-col rounded-3xl p-5 transition-all duration-300",
+                  plan === "free" && "ring-1 ring-indigo-400/30",
+                )}>
+                  {plan === "free" && (
+                    <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
+                      Current
+                    </Badge>
+                  )}
+                  <h3 className="text-[14px] font-semibold text-slate-100">Free</h3>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tracking-tight text-slate-100">0</span>
+                    <span className="text-[11px] text-slate-500">ALGO</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-500">No wallet needed</p>
+                  <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-400">
+                    {[
+                      [true, "2 pitch decks"],
+                      [true, "PDF export"],
+                      [true, "Share links"],
+                      [true, "Comment on any deck"],
+                      [false, "PPTX export"],
+                      [false, "Publish to catalog"],
+                      [false, "Priority quality"],
+                    ].map(([ok, label]) => (
+                      <li key={String(label)} className="flex items-center gap-2">
+                        {ok ? (
+                          <Check className="h-3.5 w-3.5 shrink-0 text-indigo-400" strokeWidth={2.5} />
+                        ) : (
+                          <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
+                        )}
+                        {label}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button variant="outline" disabled className="glass-soft mt-4 w-full rounded-xl text-[12px] text-slate-500">
+                    Free forever
+                  </Button>
                 </div>
-                <ul className="mt-5 flex-1 space-y-2 text-[13px] text-slate-200">
-                  {["Unlimited pitch decks", "Publish to the catalog", "Priority deck quality", "Early access to new formats"].map((f) => (
-                    <li key={f} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 shrink-0 text-indigo-300" strokeWidth={2.5} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                {isPro ? (
-                  <Button disabled className="mt-6 w-full rounded-xl bg-indigo-500/15 text-indigo-300 hover:bg-indigo-500/15">
-                    <Check className="mr-2 h-4 w-4" />
-                    Pro active
+
+                {/* Per-Deck */}
+                <div className="glass relative flex flex-col rounded-3xl p-5">
+                  <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
+                    x402
+                  </Badge>
+                  <h3 className="text-[14px] font-semibold text-slate-100">Per-Deck</h3>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tracking-tight text-slate-100">2.5</span>
+                    <span className="text-[11px] text-slate-500">ALGO</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-500">Pay only for what you use</p>
+                  <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-400">
+                    {[
+                      [true, "Unlimited premium decks"],
+                      [true, "Full AI analysis + scoring"],
+                      [true, "PDF + PPTX export"],
+                      [true, "Share links"],
+                      [true, "Comment on any deck"],
+                      [false, "Publish to catalog"],
+                      [false, "Priority quality"],
+                    ].map(([ok, label]) => (
+                      <li key={String(label)} className="flex items-center gap-2">
+                        {ok ? (
+                          <Check className="h-3.5 w-3.5 shrink-0 text-indigo-400" strokeWidth={2.5} />
+                        ) : (
+                          <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
+                        )}
+                        {label}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button disabled className="mt-4 w-full gap-1.5 rounded-xl bg-indigo-500/15 text-[12px] text-indigo-300">
+                    <Zap className="h-3.5 w-3.5" />
+                    Pay per deck in DeckView
                   </Button>
-                ) : (
-                  <Button
-                    disabled
-                    className="mt-6 w-full gap-2 rounded-xl bg-indigo-500/15 text-indigo-300"
-                  >
-                    Coming soon via x402
-                  </Button>
-                )}
+                </div>
+
+                {/* Founder */}
+                <div className={cn(
+                  "edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-indigo-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-5 backdrop-blur-xl",
+                  isPro && "ring-1 ring-indigo-400/50",
+                )}>
+                  {isPro ? (
+                    <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-200">
+                      Active
+                    </Badge>
+                  ) : (
+                    <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
+                      Best value
+                    </Badge>
+                  )}
+                  <h3 className="text-[14px] font-semibold text-slate-100">Founder</h3>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tracking-tight text-slate-100">19</span>
+                    <span className="text-[11px] text-slate-500">ALGO</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-500">One-time, lifetime access</p>
+                  <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-300">
+                    {[
+                      [true, "Everything in Per-Deck"],
+                      [true, "Unlimited premium decks"],
+                      [true, "Publish to the catalog"],
+                      [true, "Priority deck quality"],
+                      [true, "Early access to new formats"],
+                      [true, "AI voice pitch"],
+                      [true, "Custom templates"],
+                    ].map(([ok, label]) => (
+                      <li key={String(label)} className="flex items-center gap-2">
+                        {ok ? (
+                          <Check className="h-3.5 w-3.5 shrink-0 text-indigo-300" strokeWidth={2.5} />
+                        ) : (
+                          <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
+                        )}
+                        {label}
+                      </li>
+                    ))}
+                  </ul>
+                  {isPro ? (
+                    <Button disabled className="mt-4 w-full rounded-xl bg-indigo-500/15 text-[12px] text-indigo-300">
+                      <Check className="mr-1.5 h-3.5 w-3.5" />
+                      Founder active
+                    </Button>
+                  ) : (
+                    <Button disabled className="mt-4 w-full gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[12px] text-white shadow-[0_8px_24px_rgba(99,102,241,0.3)]">
+                      Upgrade via x402
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
