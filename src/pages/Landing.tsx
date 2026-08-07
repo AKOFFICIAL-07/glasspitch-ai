@@ -3,7 +3,7 @@ import { Brand, BrandMark } from "@/components/brand";
 import { SlideContent } from "@/components/deck/slides";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import LiquidMetalHero from "@/components/ui/liquid-metal-hero";
+import { BeamsBackground } from "@/components/ui/beams-background";
 import {
   SAMPLE_README_RICH,
   SECTION_META,
@@ -47,7 +47,7 @@ const FEATURES: { icon: LucideIcon; title: string; copy: string }[] = [
   {
     icon: FileText,
     title: "Paste, drop, or pull from GitHub",
-    copy: "Upload a README, Markdown, PDF, or DOCX — or paste a GitHub repository URL. PitchForge AI reads the structure, not just the words.",
+    copy: "Upload a README, Markdown, PDF, or DOCX — or paste a GitHub repository URL. Deckify AI reads the structure, not just the words.",
   },
   {
     icon: Wand2,
@@ -298,6 +298,11 @@ export default function Landing() {
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
+      {/* Beams background — fixed full-viewport procedural canvas */}
+      <div className="fixed inset-0 z-0" aria-hidden>
+        <BeamsBackground intensity="strong" />
+      </div>
+
       {/* Nav */}
       <header className="no-print relative z-30 px-4 pt-4 sm:px-6">
         <div className="glass-strong mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-4 py-3 sm:px-5">
@@ -337,7 +342,7 @@ export default function Landing() {
               </Button>
             </Link>
             <Link to="/auth?returnTo=/dashboard">
-              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 text-white shadow-[0_10px_26px_rgba(0,168,107,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(0,168,107,0.45)]">
+              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-500 px-4 text-neutral-950 shadow-[0_10px_26px_rgba(34,211,238,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(34,211,238,0.45)]">
                 Open the forge
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -346,18 +351,57 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero — liquid metal background + glass CTA buttons */}
+      {/* Hero — beams background + liquid glass CTA buttons */}
       <section id="product" className="relative z-10">
-        <LiquidMetalHero
-          badge="README → investor-ready pitch deck · for web3 teams"
-          title="Transform technical documentation into investor-ready pitch decks"
-          subtitle="Upload a README or GitHub repository and let AI analyze your project, enrich missing business insights, and generate a professional investor presentation."
-          primaryCtaLabel="Upload README — free"
-          secondaryCtaLabel="Paste GitHub Repository"
-          onPrimaryCtaClick={goForge}
-          onSecondaryCtaClick={goForge}
-          features={["13 slides in seconds", "AI readiness score", "PDF · PPTX · share link"]}
-        />
+        <div className="mx-auto flex min-h-[calc(100vh-5.5rem)] max-w-5xl flex-col items-center justify-center px-6 pb-16 pt-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center gap-6"
+          >
+            <Badge className="border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200 backdrop-blur-md">
+              README → investor-ready pitch deck · for web3 teams
+            </Badge>
+            <h1 className="text-5xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Transform technical documentation into{" "}
+              <span className="text-gradient">investor-ready pitch decks</span>
+            </h1>
+            <p className="max-w-2xl text-[16px] leading-relaxed text-white/60 sm:text-lg">
+              Upload a README or GitHub repository and let AI analyze your
+              project, enrich missing business insights, and generate a
+              professional investor presentation.
+            </p>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+              <Button
+                size="lg"
+                onClick={goForge}
+                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-teal-500 px-8 text-[15px] font-semibold text-neutral-950 shadow-[0_16px_44px_rgba(34,211,238,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_56px_rgba(34,211,238,0.45)]"
+              >
+                Upload README — free
+                <ArrowRight className="h-[18px] w-[18px]" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={goForge}
+                className="glass-soft rounded-2xl px-7 text-[15px] text-white/85 hover:bg-white/10"
+              >
+                Paste GitHub Repository
+              </Button>
+            </div>
+            <div className="glass-soft mt-4 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 rounded-2xl px-6 py-3.5 text-[13px] font-medium text-white/70">
+              {["13 slides in seconds", "AI readiness score", "PDF · PPTX · share link"].map(
+                (f) => (
+                  <span key={f} className="flex items-center gap-2">
+                    <Check className="h-3.5 w-3.5 text-cyan-300" strokeWidth={2.5} />
+                    {f}
+                  </span>
+                ),
+              )}
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       {/* Section marquee */}
@@ -399,7 +443,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+          <Badge className="border-transparent bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
             How it works
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -444,7 +488,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+          <Badge className="border-transparent bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
             AI Features
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -504,7 +548,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+          <Badge className="border-transparent bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
             Showcase
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -546,7 +590,7 @@ export default function Landing() {
           <Link to="/auth?returnTo=/dashboard">
             <Button
               size="lg"
-              className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-7 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.35)]"
+              className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-teal-500 px-7 text-[15px] text-neutral-950 shadow-[0_16px_40px_rgba(34,211,238,0.35)]"
             >
               Forge my repo into this
               <ArrowRight className="h-[18px] w-[18px]" />
@@ -572,7 +616,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+          <Badge className="border-transparent bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
             Pricing
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -597,7 +641,7 @@ export default function Landing() {
             <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-white/70">
               {["2 pitch decks", "PDF export", "Share links", "Comment on any deck"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 shrink-0 text-cyan-300" strokeWidth={2.5} />
                   {f}
                 </li>
               ))}
@@ -614,9 +658,9 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="edge-highlight relative flex flex-col overflow-hidden rounded-2xl border border-emerald-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_160/0.7)] to-[oklch(0.18_0.03_160/0.6)] p-8 backdrop-blur-xl"
+            className="edge-highlight relative flex flex-col overflow-hidden rounded-2xl border border-cyan-300/30 bg-gradient-to-b from-[oklch(0.26_0.05_200/0.7)] to-[oklch(0.18_0.03_200/0.6)] p-8 backdrop-blur-xl"
           >
-            <Badge className="absolute right-5 top-5 border-transparent bg-emerald-500/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide text-emerald-300">
+            <Badge className="absolute right-5 top-5 border-transparent bg-cyan-400/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide text-cyan-200">
               One-time
             </Badge>
             <h3 className="text-lg font-semibold text-white">Founder</h3>
@@ -628,13 +672,13 @@ export default function Landing() {
             <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-white/80">
               {["Unlimited pitch decks", "Publish to the catalog", "Premium x402 exports", "AI voice pitch & templates"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 shrink-0 text-emerald-300" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 shrink-0 text-cyan-300" strokeWidth={2.5} />
                   {f}
                 </li>
               ))}
             </ul>
             <Link to="/auth?returnTo=/wallet" className="mt-7">
-              <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_12px_30px_rgba(0,168,107,0.35)]">
+              <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-500 text-neutral-950 shadow-[0_12px_30px_rgba(34,211,238,0.35)]">
                 Upgrade to Founder
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -656,7 +700,7 @@ export default function Landing() {
             className="pointer-events-none absolute inset-0 opacity-25"
             style={{
               background:
-                "linear-gradient(120deg, rgba(0,168,107,0.4), rgba(0,224,143,0.3), rgba(94,234,212,0.35))",
+                "linear-gradient(120deg, rgba(34,211,238,0.4), rgba(45,212,191,0.35), rgba(56,189,248,0.28))",
             }}
           />
           <AuroraBlobs className="absolute inset-0 opacity-50" />
@@ -674,7 +718,7 @@ export default function Landing() {
               <Link to="/auth?returnTo=/dashboard">
                 <Button
                   size="lg"
-                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-8 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.4)] transition-transform hover:-translate-y-0.5"
+                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-teal-500 px-8 text-[15px] font-semibold text-neutral-950 shadow-[0_16px_40px_rgba(34,211,238,0.4)] transition-transform hover:-translate-y-0.5"
                 >
                   <FileText className="h-[18px] w-[18px]" />
                   Upload README — free

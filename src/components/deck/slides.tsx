@@ -173,7 +173,7 @@ function Watermark({ deck, index, total }: { deck: PitchDeck; index: number; tot
         >
           <Rocket className="h-3 w-3" />
         </span>
-        PitchForge AI
+        Deckify AI
       </span>
       <span>
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}

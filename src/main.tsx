@@ -43,7 +43,7 @@ function RouteLoading() {
           </div>
         </div>
         <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
-          PitchForge AI
+          Deckify AI
         </p>
       </div>
     </div>

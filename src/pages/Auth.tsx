@@ -168,7 +168,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     <BrandMark className="mt-2 h-14 w-14" />
                   </div>
                   <CardTitle className="mt-3 text-2xl tracking-tight text-white">
-                    Get started with PitchForge AI
+                    Get started with Deckify AI
                   </CardTitle>
                   <CardDescription className="text-[13.5px] text-white/50">
                     Continue with Google or GitHub — or use your email

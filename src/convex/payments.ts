@@ -111,7 +111,7 @@ export const requestX402Authorization = mutation({
       assetId: 0, // native ALGO
       status: "authorized",
       network: net.network,
-      memo: args.memo ?? "PitchForge AI — premium deck generation",
+      memo: args.memo ?? "Deckify AI — premium deck generation",
     });
 
     return {
@@ -189,7 +189,7 @@ export const verifyX402Payment = mutation({
       throw new Error("This is not a payment transaction.");
     }
     if (pay.receiver !== receiver) {
-      throw new Error("Receiver mismatch — the payment did not go to PitchForge's wallet.");
+      throw new Error("Receiver mismatch — the payment did not go to Deckify AI's wallet.");
     }
     const paid = Number(pay.amount ?? 0);
     if (paid < payment.amount) {

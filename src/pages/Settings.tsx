@@ -321,7 +321,7 @@ export default function Settings() {
           </SettingsSection>
 
           {/* Plan & billing */}
-          <SettingsSection icon={CreditCard} title="Plan & billing" desc="Your PitchForge plan and usage">
+          <SettingsSection icon={CreditCard} title="Plan & billing" desc="Your Deckify AI plan and usage">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[15px] font-semibold text-white">

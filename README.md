@@ -270,3 +270,72 @@ When using convex, make sure:
 - This includes importing generated files like `@/convex/_generated/server`, `@/convex/_generated/api`
 - Remember to import functions like useQuery, useMutation, useAction, etc. from `convex/react`
 - NEVER have return type validators.
+
+---
+
+# Deckify AI — Blockchain & x402 Payments
+
+Deckify AI is an AI Startup Analyst: it converts a project's README, docs, or
+GitHub repository into a professional, investor-ready pitch deck. The premium
+generation + export flow is payment-gated with **Algorand x402** — a real,
+on-chain micro-payment gate, not a mock.
+
+## The premium x402 flow (how it works)
+
+1. User clicks a premium action (e.g. PPTX export) in the deck view.
+2. The client connects a real Algorand wallet — **Pera** or **Lute** — and
+   requests authorization from `requestX402Authorization`.
+3. The client builds and signs a native **ALGO payment transaction** with
+   `algosdk` (exact amount + receiver from `getX402Config`), submits it to the
+   network, and calls `verifyX402Payment` with the txid.
+4. `verifyX402Payment` looks the transaction up on the **AlgoNode indexer** and
+   only marks the payment `verified` when it is confirmed on-chain, the sender
+   matches the requesting user, the receiver is ours, and the amount matches.
+5. The premium deck generation unlocks **only after** a `verified` payment
+   exists. No payment, no premium deck — every tx hash is stored.
+
+Key modules:
+- `src/convex/payments.ts` — x402 request / verify / list + unlock checks
+- `src/lib/algorand.ts` — algosdk helpers, Pera & Lute connect, ARC-3 NFT minting
+- `src/convex/nfts.ts` — NFT records (mint a 1-of-1 ARC-3 token of your deck)
+
+## Environment variables (Convex Keys tab)
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `ALGORAND_NETWORK` | `testnet` or `mainnet` | `testnet` |
+| `ALGORAND_RECEIVER_ADDRESS` | Wallet that receives ALGO payments | shared demo address |
+| `ALGORAND_ALGOD_URL` | algod node override | AlgoNode public |
+| `ALGORAND_INDEXER_URL` | indexer override | AlgoNode public |
+
+> **Important:** set `ALGORAND_RECEIVER_ADDRESS` to a wallet **you control** so
+> you can receive and track the demo payments.
+
+## Funding the receiver on TestNet (don't skip this!)
+
+1. Open the Algorand TestNet Dispenser: <https://bank.testnet.algorand.network/>
+2. Paste your `ALGORAND_RECEIVER_ADDRESS` and request ALGO (the dispenser sends
+   a small amount immediately; larger amounts arrive within ~1 hour).
+3. Fund the **sender** wallet too — import it into Pera or Lute and use the
+   dispenser so it can pay the 2.5 ALGO premium + network fee.
+4. Verify a payment end-to-end: connect the wallet in the deck view, run the
+   premium export, and confirm the tx on the TestNet explorer.
+
+## Demo script (for judges)
+
+1. Landing → **Upload README** (or paste a GitHub repo) → watch the AI stages.
+2. Review the 13-slide deck, readiness score, competitors, risks, and the
+   extracted tech stack.
+3. **Mint NFT** with Pera or Lute — sign the 1-of-1 ARC-3 asset creation.
+4. Run a **premium export** — the x402 gate opens the wallet, you approve the
+   2.5 ALGO payment, the tx verifies on-chain, and the deck unlocks.
+5. Show the tx hash on the TestNet explorer and the NFT in the Wallet page.
+
+## Submission checklist (Block Hack)
+
+- [ ] Real x402 endpoint wired (`requestX402Authorization` / `verifyX402Payment`)
+- [ ] Wallet connection (Pera + Lute) works on TestNet
+- [ ] Payment verification is indexer-backed (no mock or hard-coded passes)
+- [ ] Transaction hash stored and displayed after every payment
+- [ ] Receiver funded on TestNet with ALGO
+- [ ] README documents setup (this file)

@@ -52,7 +52,7 @@ export function Brand({
       {!compact && (
         <span className="flex flex-col leading-none">
           <span className="text-[15px] font-semibold tracking-tight text-foreground">
-            PitchForge <span className="text-gradient">AI</span>
+            Deckify <span className="text-gradient">AI</span>
           </span>
           <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             Docs → Investor deck

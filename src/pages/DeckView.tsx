@@ -188,7 +188,7 @@ export default function DeckView() {
   };
 
   useEffect(() => {
-    if (deckDoc) document.title = `${deckDoc.title} — PitchForge AI`;
+    if (deckDoc) document.title = `${deckDoc.title} — Deckify AI`;
     return () => window.speechSynthesis.cancel();
   }, [deckDoc]);
 
@@ -616,7 +616,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
       const res = await requestAuth({
         walletAddress: walletAddress.trim(),
         deckId,
-        memo: `PitchForge AI premium deck — ${deck?.title ?? ""}`,
+        memo: `Deckify AI premium deck — ${deck?.title ?? ""}`,
       });
       setPaymentId(res.paymentId);
       setStep("verify");
@@ -643,7 +643,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
         walletAddress: walletAddress.trim(),
         to: config.receiverAddress,
         amountMicro: config.amountMicro,
-        note: `PitchForge AI premium deck — ${deck?.title ?? ""}`,
+        note: `Deckify AI premium deck — ${deck?.title ?? ""}`,
         algodUrl: config.algodUrl,
       });
       setTxHash(txId);

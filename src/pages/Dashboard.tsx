@@ -219,7 +219,7 @@ export default function Dashboard() {
             </h1>
             <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-white/55">
               Upload a README, Markdown, PDF, or DOCX — or paste a GitHub
-              repository — and PitchForge AI analyzes your project, enriches
+              repository — and Deckify AI analyzes your project, enriches
               missing business insights, and generates a professional
               investor presentation.
             </p>
@@ -380,7 +380,7 @@ export default function Dashboard() {
                 </span>
                 <div className="leading-tight">
                   <p className="text-[15px] font-semibold text-white">Live analysis</p>
-                  <p className="text-[12px] text-white/45">What PitchForge AI sees — updates as you type</p>
+                  <p className="text-[12px] text-white/45">What Deckify AI sees — updates as you type</p>
                 </div>
               </div>
 

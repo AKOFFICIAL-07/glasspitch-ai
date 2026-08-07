@@ -33,7 +33,7 @@ export const createCheckoutSession = action({
           price_data: {
             currency: "usd",
             product_data: {
-              name: "Pitch Forge Pro",
+              name: "Deckify Pro",
               description:
                 "Unlimited pitch decks, catalog publishing, PDF export, priority support.",
             },

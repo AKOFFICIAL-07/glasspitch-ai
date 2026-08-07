@@ -84,7 +84,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
   const pptx = new mod.default();
   pptx.defineLayout({ name: "WIDE", width: 13.33, height: 7.5 });
   pptx.layout = "WIDE";
-  pptx.author = "PitchForge AI";
+  pptx.author = "Deckify AI";
   pptx.title = deck.title;
 
   const t = getTemplate(deck.template ?? "glass");
@@ -124,7 +124,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       line: { color: accent },
       rectRadius: 0.1,
     });
-    pptx.addText("PitchForge AI", {
+    pptx.addText("Deckify AI", {
       x: 0.7,
       y: 0.68,
       w: 2.1,

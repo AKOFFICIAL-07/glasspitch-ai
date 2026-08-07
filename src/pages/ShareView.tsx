@@ -202,7 +202,7 @@ export default function ShareView() {
           <span className="grid h-4 w-4 place-items-center rounded bg-gradient-to-br from-emerald-400 to-teal-600 text-[7px] font-bold text-white">
             PF
           </span>
-          Forged with PitchForge AI —{" "}
+          Forged with Deckify AI —{" "}
           <Link to="/" className="text-emerald-300 underline-offset-2 hover:underline">
             turn your repo into a deck
           </Link>
