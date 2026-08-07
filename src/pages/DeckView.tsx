@@ -340,7 +340,7 @@ export default function DeckView() {
                     type="button"
                     aria-label="Previous slide"
                     onClick={prev}
-                    className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-emerald-300"
+                    className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-indigo-300"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -350,7 +350,7 @@ export default function DeckView() {
                     type="button"
                     aria-label="Next slide"
                     onClick={next}
-                    className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-emerald-300"
+                    className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-indigo-300"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -371,7 +371,7 @@ export default function DeckView() {
                 </Button>
                 <div className="relative h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
                   <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-500 to-blue-400"
                     animate={{ width: `${((index + 1) / total) * 100}%` }}
                     transition={{ ease: "easeInOut", duration: 0.4 }}
                   />
@@ -400,7 +400,7 @@ export default function DeckView() {
                       <span className="w-24 shrink-0 text-[12px] font-semibold text-white/70">{m.label}</span>
                       <div className="h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
                         <motion.div
-                          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-blue-400"
                           initial={{ width: 0 }}
                           animate={{ width: `${m.score}%` }}
                           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
@@ -578,7 +578,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
     setTxHash("");
   };
 
-  /** Connect a real wallet (Pera or Lute) or accept a manual address. */
+  /** Connect a real wallet (Pera or Defly) or accept a manual address. */
   const handleWalletConnect = async (kind: WalletKind) => {
     setBusy(true);
     try {
@@ -588,10 +588,10 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
         setWalletKind("pera");
         setWalletAddress(address);
         setStep("authorize");
-      } else if (kind === "lute") {
-        const { connectLute } = await import("@/lib/algorand");
-        const address = await connectLute(config?.genesisID ?? "testnet-v1.0");
-        setWalletKind("lute");
+      } else if (kind === "defly") {
+        const { connectDefly } = await import("@/lib/algorand");
+        const address = await connectDefly();
+        setWalletKind("defly");
         setWalletAddress(address);
         setStep("authorize");
       } else if (kind === "manual") {
@@ -754,12 +754,12 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                   Pera
                 </Button>
                 <Button
-                  onClick={() => handleWalletConnect("lute")}
+                  onClick={() => handleWalletConnect("defly")}
                   disabled={busy}
                   className="h-11 gap-2 rounded-xl border border-white/15 bg-white/5 text-white/85 backdrop-blur-md transition hover:bg-white/10"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 text-emerald-300" />}
-                  Lute
+                  Defly
                 </Button>
               </div>
 
@@ -998,7 +998,7 @@ function MintNftGate({
     setError(null);
   };
 
-  /** Connect a real wallet (Pera or Lute) for signing the mint. */
+  /** Connect a real wallet (Pera or Defly) for signing the mint. */
   const handleWalletConnect = async (kind: Exclude<WalletKind, "manual">) => {
     setBusy(true);
     setError(null);
@@ -1010,11 +1010,11 @@ function MintNftGate({
         setWalletAddress(address);
         toast.success("Pera wallet connected");
       } else {
-        const { connectLute } = await import("@/lib/algorand");
-        const address = await connectLute(config?.genesisID ?? "testnet-v1.0");
-        setWalletKind("lute");
+        const { connectDefly } = await import("@/lib/algorand");
+        const address = await connectDefly();
+        setWalletKind("defly");
         setWalletAddress(address);
-        toast.success("Lute wallet connected");
+        toast.success("Defly wallet connected");
       }
     } catch (err) {
       console.error(err);
@@ -1039,11 +1039,11 @@ function MintNftGate({
         sections: deck.sections.map((s) => ({ key: s.key, title: s.title })),
       });
       const result = await mintDeckNft({
-        kind: walletKind === "pera" ? "pera" : "lute",
+        kind: walletKind === "pera" ? "pera" : "defly",
         walletAddress,
         metadata: meta,
         algodUrl: config.algodUrl,
-        genesisID: config.genesisID,
+        
       });
       await recordMint({
         deckId,
@@ -1190,12 +1190,12 @@ function MintNftGate({
                     Pera
                   </Button>
                   <Button
-                    onClick={() => handleWalletConnect("lute")}
+                    onClick={() => handleWalletConnect("defly")}
                     disabled={busy}
                     className="h-11 gap-2 rounded-xl border border-white/15 bg-white/5 text-white/85 backdrop-blur-md transition hover:bg-white/10"
                   >
                     {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 text-purple-300" />}
-                    Lute
+                    Defly
                   </Button>
                 </div>
               </div>

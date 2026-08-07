@@ -73,7 +73,18 @@ export type TemplateId =
   | "yc"
   | "sequoia"
   | "startup-dark"
-  | "minimal";
+  | "minimal"
+  | "amber"
+  | "rose"
+  | "ocean"
+  | "violet"
+  | "sunset"
+  | "teal"
+  | "midnight"
+  | "forest"
+  | "slate"
+  | "coral"
+  | "electric";
 
 export interface DeckTemplate {
   id: TemplateId;
@@ -88,11 +99,11 @@ export interface DeckTemplate {
 export const DECK_TEMPLATES: DeckTemplate[] = [
   {
     id: "glass",
-    name: "Glassmorphism",
-    tagline: "Frosted emerald glass",
-    accent: "#00A86B",
-    accent2: "#00E08F",
-    bg: ["oklch(0.2 0.05 160)", "oklch(0.155 0.03 170)", "oklch(0.17 0.045 150)"],
+    name: "Indigo Frost",
+    tagline: "Deep indigo glass",
+    accent: "#6366f1",
+    accent2: "#818cf8",
+    bg: ["oklch(0.2 0.05 262)", "oklch(0.155 0.03 270)", "oklch(0.17 0.045 255)"],
     dark: true,
   },
   {
@@ -101,7 +112,7 @@ export const DECK_TEMPLATES: DeckTemplate[] = [
     tagline: "Clean light minimal",
     accent: "#0a0a0a",
     accent2: "#555555",
-    bg: ["oklch(0.99 0 0)", "oklch(0.96 0.005 160)", "oklch(0.985 0 0)"],
+    bg: ["oklch(0.99 0 0)", "oklch(0.96 0.005 260)", "oklch(0.985 0 0)"],
     dark: false,
   },
   {
@@ -124,8 +135,8 @@ export const DECK_TEMPLATES: DeckTemplate[] = [
   },
   {
     id: "startup-dark",
-    name: "Startup Dark",
-    tagline: "Charcoal & lime",
+    name: "Neon Lime",
+    tagline: "Charcoal & electric lime",
     accent: "#A3E635",
     accent2: "#D9F99D",
     bg: ["oklch(0.2 0.02 130)", "oklch(0.15 0.015 140)", "oklch(0.17 0.02 120)"],
@@ -138,6 +149,105 @@ export const DECK_TEMPLATES: DeckTemplate[] = [
     accent: "#e4e4e7",
     accent2: "#71717a",
     bg: ["oklch(0.19 0 0)", "oklch(0.15 0 0)", "oklch(0.17 0 0)"],
+    dark: true,
+  },
+  {
+    id: "amber",
+    name: "Amber Luxe",
+    tagline: "Warm gold & charcoal",
+    accent: "#F59E0B",
+    accent2: "#FBBF24",
+    bg: ["oklch(0.2 0.04 60)", "oklch(0.15 0.03 55)", "oklch(0.17 0.035 65)"],
+    dark: true,
+  },
+  {
+    id: "rose",
+    name: "Rose Quartz",
+    tagline: "Soft rose & slate",
+    accent: "#F43F5E",
+    accent2: "#FB7185",
+    bg: ["oklch(0.2 0.04 350)", "oklch(0.15 0.025 345)", "oklch(0.17 0.03 5)"],
+    dark: true,
+  },
+  {
+    id: "ocean",
+    name: "Deep Ocean",
+    tagline: "Navy & cyan depths",
+    accent: "#06B6D4",
+    accent2: "#22D3EE",
+    bg: ["oklch(0.18 0.04 210)", "oklch(0.14 0.03 215)", "oklch(0.16 0.035 205)"],
+    dark: true,
+  },
+  {
+    id: "violet",
+    name: "Royal Violet",
+    tagline: "Purple & lavender glow",
+    accent: "#8B5CF6",
+    accent2: "#A78BFA",
+    bg: ["oklch(0.2 0.05 280)", "oklch(0.15 0.035 275)", "oklch(0.17 0.04 285)"],
+    dark: true,
+  },
+  {
+    id: "sunset",
+    name: "Sunset Blaze",
+    tagline: "Coral & warm amber",
+    accent: "#F97316",
+    accent2: "#FB923C",
+    bg: ["oklch(0.2 0.05 30)", "oklch(0.15 0.035 25)", "oklch(0.17 0.04 35)"],
+    dark: true,
+  },
+  {
+    id: "teal",
+    name: "Teal Steel",
+    tagline: "Teal & cool slate",
+    accent: "#14B8A6",
+    accent2: "#2DD4BF",
+    bg: ["oklch(0.18 0.04 170)", "oklch(0.14 0.03 165)", "oklch(0.16 0.035 175)"],
+    dark: true,
+  },
+  {
+    id: "midnight",
+    name: "Midnight Blue",
+    tagline: "Slate & electric blue",
+    accent: "#3B82F6",
+    accent2: "#60A5FA",
+    bg: ["oklch(0.18 0.04 230)", "oklch(0.14 0.03 225)", "oklch(0.16 0.035 235)"],
+    dark: true,
+  },
+  {
+    id: "forest",
+    name: "Forest Pine",
+    tagline: "Deep green & earth",
+    accent: "#22C55E",
+    accent2: "#4ADE80",
+    bg: ["oklch(0.18 0.04 145)", "oklch(0.14 0.03 150)", "oklch(0.16 0.035 140)"],
+    dark: true,
+  },
+  {
+    id: "slate",
+    name: "Slate Pro",
+    tagline: "Professional grey",
+    accent: "#94A3B8",
+    accent2: "#CBD5E1",
+    bg: ["oklch(0.19 0.01 240)", "oklch(0.15 0.008 235)", "oklch(0.17 0.01 245)"],
+    dark: true,
+  },
+  {
+    id: "coral",
+    name: "Coral Reef",
+    tagline: "Warm coral & blush",
+    accent: "#FB7185",
+    accent2: "#FDA4AF",
+    bg: ["oklch(0.2 0.04 355)", "oklch(0.15 0.03 350)", "oklch(0.17 0.035 0)"],
+    dark: true,
+  },
+  {
+    id: "electric",
+    name: "Electric Cyan",
+    tagline: "Vivid cyan & navy",
+    accent: "#22D3EE",
+    accent2: "#67E8F9",
+    bg: ["oklch(0.18 0.04 195)", "oklch(0.14 0.03 200)", "oklch(0.16 0.035 190)"],
     dark: true,
   },
 ];
@@ -159,12 +269,12 @@ export const SECTION_META: Record<
   SectionKey,
   { title: string; eyebrow: string; icon: string; accent: string }
 > = {
-  problem: { title: "Problem", eyebrow: "The pain", icon: "flame", accent: "#00A86B" },
-  features: { title: "Solution", eyebrow: "How we fix it", icon: "sparkles", accent: "#00E08F" },
-  tech: { title: "Technology", eyebrow: "Built on", icon: "cpu", accent: "#34d399" },
-  market: { title: "Market Opportunity", eyebrow: "The opportunity", icon: "trending-up", accent: "#5eead4" },
-  revenue: { title: "Business Model", eyebrow: "The model", icon: "line-chart", accent: "#86efac" },
-  competitors: { title: "Competitive Landscape", eyebrow: "The landscape", icon: "crosshair", accent: "#a7f3d0" },
+  problem: { title: "Problem", eyebrow: "The pain", icon: "flame", accent: "#F43F5E" },
+  features: { title: "Solution", eyebrow: "How we fix it", icon: "sparkles", accent: "#6366f1" },
+  tech: { title: "Technology", eyebrow: "Built on", icon: "cpu", accent: "#06B6D4" },
+  market: { title: "Market Opportunity", eyebrow: "The opportunity", icon: "trending-up", accent: "#F59E0B" },
+  revenue: { title: "Business Model", eyebrow: "The model", icon: "line-chart", accent: "#22C55E" },
+  competitors: { title: "Competitive Landscape", eyebrow: "The landscape", icon: "crosshair", accent: "#8B5CF6" },
 };
 
 /* ------------------------------------------------------------------ */

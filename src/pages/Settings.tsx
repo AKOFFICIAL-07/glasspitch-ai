@@ -115,12 +115,12 @@ export default function Settings() {
         const { connectPera } = await import("@/lib/algorand");
         address = await connectPera();
       } else {
-        const { connectLute } = await import("@/lib/algorand");
-        address = await connectLute(x402Config?.genesisID ?? "testnet-v1.0");
+        const { connectDefly } = await import("@/lib/algorand");
+        address = await connectDefly();
       }
       await saveWalletAddress({ walletAddress: address });
       setWalletAddress(address);
-      toast.success(`${kind === "pera" ? "Pera" : "Lute"} wallet connected`);
+      toast.success(`${kind === "pera" ? "Pera" : "Defly"} wallet connected`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not connect the wallet");
     } finally {
@@ -283,12 +283,12 @@ export default function Settings() {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => handleConnectWallet("lute")}
+                  onClick={() => handleConnectWallet("defly")}
                   disabled={savingWallet}
                   className="gap-1.5 rounded-lg border border-white/15 bg-white/5 text-white/85 hover:bg-white/10"
                 >
                   {savingWallet ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5 text-emerald-300" />}
-                  Connect Lute
+                  Connect Defly
                 </Button>
                 <Button
                   size="sm"

@@ -20,7 +20,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 
-type WalletKind = "pera" | "lute";
+type WalletKind = "pera" | "defly";
 type FounderStep = "idle" | "wallet" | "pay" | "done";
 
 function FounderUpgradeDialog({
@@ -60,10 +60,10 @@ function FounderUpgradeDialog({
         const address = await connectPera();
         setWalletKind("pera");
         setWalletAddress(address);
-      } else if (kind === "lute") {
-        const { connectLute } = await import("@/lib/algorand");
-        const address = await connectLute(config?.genesisID ?? "testnet-v1.0");
-        setWalletKind("lute");
+      } else if (kind === "defly") {
+        const { connectDefly } = await import("@/lib/algorand");
+        const address = await connectDefly();
+        setWalletKind("defly");
         setWalletAddress(address);
       }
       setStep("pay");
@@ -136,14 +136,14 @@ function FounderUpgradeDialog({
               </span>
             </button>
             <button
-              onClick={() => handleWalletConnect("lute")}
+              onClick={() => handleWalletConnect("defly")}
               disabled={busy}
               className="glass w-full rounded-2xl px-4 py-3.5 text-left text-[14px] font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50"
             >
               <span className="flex items-center gap-3">
                 <WalletIcon className="h-5 w-5 text-[#818cf8]" />
                 <span>
-                  <span className="block">Lute Wallet</span>
+                  <span className="block">Defly Wallet</span>
                   <span className="text-[11px] font-normal text-white/60">Algorand Desktop</span>
                 </span>
               </span>
