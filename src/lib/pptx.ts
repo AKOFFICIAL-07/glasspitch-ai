@@ -72,6 +72,9 @@ interface PptxGenLike {
 }
 
 const EMERALD = "00A86B";
+const WHITE = "FFFFFF";
+const BODY = "E4E4E7";
+const MUTED = "A1A1AA";
 
 /** Export the deck as a .pptx file and trigger a download. */
 export async function exportPptx(deck: PitchDeck): Promise<void> {
@@ -87,6 +90,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
   const t = getTemplate(deck.template ?? "glass");
   const accent = t.accent.replace("#", "");
   const slides = deckSlides(deck);
+  const total = slides.length;
 
   const addBullets = (
     body: string[],
@@ -100,18 +104,15 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         w: opts.w ?? 11.5,
         h: opts.h ?? 4.2,
         fontSize: opts.fontSize ?? 16,
-        color: "E4E4E7",
+        color: BODY,
         valign: "top",
         breakLine: false,
       },
     );
   };
 
-  slides.forEach((slide, i) => {
-    const label = slideLabel(slide);
-    pptx.addSlide();
-
-    // background
+  const addPageFrame = (i: number) => {
+    // background + emerald top accent
     pptx.background = { color: "0A0A0A" };
     pptx.addShape("rect", { x: 0, y: 0, w: 13.33, h: 0.12, fill: { color: accent } });
     pptx.addShape("roundRect", {
@@ -129,81 +130,110 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       w: 2.1,
       h: 0.4,
       fontSize: 12,
-      color: "FFFFFF",
+      color: WHITE,
       align: "center",
       bold: true,
       charSpacing: 2,
     });
-    pptx.addText([{ text: "13", options: { fontSize: 36, bold: true, color: "3F3F46" } }], {
+    // real per-slide numbering
+    pptx.addText([{ text: String(i + 1).padStart(2, "0"), options: { fontSize: 36, bold: true, color: "3F3F46" } }], {
       x: 11.4,
       y: 0.35,
       w: 1.2,
       h: 0.9,
       align: "right",
     });
-    pptx.addText("SLIDE", {
+    pptx.addText(`/ ${String(total).padStart(2, "0")}`, {
       x: 11.4,
       y: 1.05,
       w: 1.2,
       h: 0.3,
-      fontSize: 9,
+      fontSize: 11,
       color: "52525B",
       align: "right",
-      charSpacing: 3,
+      charSpacing: 2,
     });
+  };
+
+  slides.forEach((slide, i) => {
+    const label = slideLabel(slide);
+    pptx.addSlide();
+    addPageFrame(i);
 
     if (i === 0) {
       // Cover
       pptx.addText(deck.title, {
         x: 0.9,
-        y: 2.1,
+        y: 1.9,
         w: 11.5,
         h: 1.6,
         fontSize: 44,
         bold: true,
-        color: "FFFFFF",
+        color: WHITE,
         align: "center",
         fontFace: "Arial",
       });
       pptx.addText(deck.tagline, {
         x: 2.2,
-        y: 3.8,
+        y: 3.6,
         w: 8.9,
         h: 1.2,
         fontSize: 18,
-        color: "A1A1AA",
+        color: MUTED,
         align: "center",
       });
       pptx.addText(
         deck.sections.map((s) => ({ text: s.title, options: { breakLine: true } })),
-        { x: 2.2, y: 5.3, w: 8.9, h: 1.2, fontSize: 13, color: EMERALD, align: "center" },
+        { x: 2.2, y: 5.1, w: 8.9, h: 1.4, fontSize: 13, color: EMERALD, align: "center" },
       );
+      pptx.addText(`Investor Readiness ${deck.readiness.overall}/100 · ${deck.stats.words.toLocaleString()} words distilled`, {
+        x: 2.2,
+        y: 6.6,
+        w: 8.9,
+        h: 0.5,
+        fontSize: 13,
+        color: MUTED,
+        align: "center",
+      });
       return;
     }
 
     if (slide.kind === "closing") {
       pptx.addText("Let's build this together.", {
         x: 0.9,
-        y: 2.6,
+        y: 1.6,
         w: 11.5,
         h: 1.2,
         fontSize: 40,
         bold: true,
-        color: "FFFFFF",
+        color: WHITE,
         align: "center",
       });
       pptx.addText(deck.insights.fundingAsk, {
         x: 2.2,
-        y: 4.2,
+        y: 3.0,
         w: 8.9,
         h: 1,
         fontSize: 18,
-        color: "A1A1AA",
+        color: MUTED,
         align: "center",
       });
+
+      // Readiness metrics breakdown
+      const metrics = deck.readiness.metrics.map(
+        (m) => ({ text: `${m.label}: ${m.score}/100  —  ${m.note}`, options: { breakLine: true, fontSize: 14, color: BODY } }),
+      );
+      pptx.addText([{ text: `Investor Readiness ${deck.readiness.overall}/100`, options: { breakLine: true, fontSize: 20, bold: true, color: EMERALD } }, ...metrics], {
+        x: 1.7,
+        y: 4.2,
+        w: 9.9,
+        h: 2.2,
+        align: "center",
+        valign: "top",
+      });
       pptx.addText(
-        `Investor Readiness ${deck.readiness.overall}/100`,
-        { x: 2.2, y: 5.4, w: 8.9, h: 0.7, fontSize: 16, color: EMERALD, align: "center", bold: true },
+        `${deck.stats.sectionsFound}/6 story sections found in your docs · ${deck.stats.lines.toLocaleString()} lines analyzed`,
+        { x: 2.2, y: 6.7, w: 8.9, h: 0.4, fontSize: 12, color: "71717A", align: "center" },
       );
       return;
     }
@@ -228,9 +258,41 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         h: 0.9,
         fontSize: 32,
         bold: true,
-        color: "FFFFFF",
+        color: WHITE,
       });
-      addBullets(slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
+      // Competitive Landscape → render the real competitor cards
+      if (slide.section.key === "competitors" && deck.insights.competitors.length > 0) {
+        const cards = deck.insights.competitors.slice(0, 3);
+        cards.forEach((card, ci) => {
+          const cx = 6.6 + ci * 2.2;
+          const cw = 2.05;
+          pptx.addShape("roundRect", {
+            x: cx,
+            y: 1.6,
+            w: cw,
+            h: 5.2,
+            fill: { color: "101414", transparency: 0 },
+            line: { color: "2A2E2E", width: 1 },
+            rectRadius: 0.12,
+          });
+          const rows: PptxTextItem[] = [
+            { text: card.name, options: { breakLine: true, fontSize: 15, bold: true, color: WHITE } },
+            { text: card.category, options: { breakLine: true, fontSize: 11, color: EMERALD, charSpacing: 1 } },
+            { text: " ", options: { breakLine: true, fontSize: 6 } },
+            { text: "STRENGTHS", options: { breakLine: true, fontSize: 9, bold: true, color: "86efac", charSpacing: 1 } },
+            ...card.strengths.slice(0, 3).map((s) => ({ text: `• ${s}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
+            { text: " ", options: { breakLine: true, fontSize: 6 } },
+            { text: "WEAKNESSES", options: { breakLine: true, fontSize: 9, bold: true, color: "FCA5A5", charSpacing: 1 } },
+            ...card.weaknesses.slice(0, 3).map((w) => ({ text: `• ${w}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
+            { text: " ", options: { breakLine: true, fontSize: 6 } },
+            { text: "OUR EDGE", options: { breakLine: true, fontSize: 9, bold: true, color: EMERALD, charSpacing: 1 } },
+            { text: card.advantage, options: { breakLine: true, fontSize: 10.5, color: MUTED } },
+          ];
+          pptx.addText(rows, { x: cx + 0.15, y: 1.8, w: cw - 0.3, h: 4.9, valign: "top" });
+        });
+      } else {
+        addBullets(slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
+      }
       if (slide.section.derived) {
         pptx.addText("AI-DERIVED", {
           x: 0.9,
@@ -254,7 +316,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         gtm: ins.gtm,
         roadmap: ins.roadmap.flatMap((p) => [`${p.phase} (${p.timeline})`, ...p.items]),
         financials: [ins.businessModel, ins.pricingStrategy],
-        ask: [ins.fundingAsk, ...ins.useOfFunds],
+        ask: [ins.fundingAsk, ...ins.useOfFunds, "Key risks:", ...ins.risks],
       };
       const titleMap: Record<string, string> = {
         product: "Product",
@@ -271,7 +333,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         h: 0.9,
         fontSize: 32,
         bold: true,
-        color: "FFFFFF",
+        color: WHITE,
       });
       addBullets(content[slide.insight] ?? [], { y: 2.8, fontSize: 15 });
       pptx.addText("AI-GENERATED — REVIEW BEFORE PITCHING", {
@@ -283,6 +345,13 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         color: "F59E0B",
         charSpacing: 2,
       });
+      // Surface the assumptions the docs didn't state — investor-relevant.
+      if (slide.insight === "ask" && ins.missing.length > 0) {
+        pptx.addText(
+          ins.missing.map((m) => ({ text: `⚠ ${m}`, options: { breakLine: true, fontSize: 11, color: MUTED } })),
+          { x: 0.9, y: 6.35, w: 10.2, h: 1.0, valign: "top" },
+        );
+      }
     }
   });
 
