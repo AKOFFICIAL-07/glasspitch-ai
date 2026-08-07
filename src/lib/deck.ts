@@ -663,10 +663,11 @@ export function buildDeck(markdown: string): PitchDeck {
     let derived = false;
 
     if (block) {
+      // Section found in the README — never "derived". We may still pad thin
+      // sections with sensible fallback bullets, but the section is real.
       bullets = [...block.bullets];
       if (bullets.length < 3) {
         bullets.push(...smartFallback(key, fallbackCtx));
-        derived = block.bullets.length < 3;
       }
     } else {
       bullets = smartFallback(key, fallbackCtx);

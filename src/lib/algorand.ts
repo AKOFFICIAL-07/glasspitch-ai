@@ -58,7 +58,7 @@ async function buildPaymentTxn(opts: {
 }
 
 /** Uint8Array -> base64 (Lute expects msgpack txns as base64 strings). */
-function bytesToBase64(bytes: Uint8Array): string {
+export function bytesToBase64(bytes: Uint8Array): string {
   let binary = "";
   const chunk = 0x8000;
   for (let i = 0; i < bytes.length; i += chunk) {
