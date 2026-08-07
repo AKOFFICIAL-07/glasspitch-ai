@@ -56,6 +56,12 @@ npm run dev          # starts on http://localhost:4021
 | `DECK_PRICE_USD`  | Price of `POST /generate-deck` in USDC                                      | `1.00` |
 | `X402_VERIFY`     | `indexer` = real on-chain verification · `demo` = trust header (tests/demos) | `indexer` |
 
+> **Keep this server and the Convex backend in sync:** `AVM_ADDRESS` here must
+> match the Convex `ALGORAND_RECEIVER_ADDRESS` key (Keys tab), and
+> `AVM_NETWORK` must match Convex `ALGORAND_NETWORK` — otherwise the gate
+> quotes one wallet and Convex records payments to another. See the
+> architecture + env table in the repo root `README.md`.
+
 ```bash
 # .env
 AVM_ADDRESS=YOUR_ALGORAND_ADDRESS_HERE

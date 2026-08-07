@@ -17,6 +17,103 @@ All relevant files live in the 'src' directory.
 
 Use bun for the package manager.
 
+## Architecture — the three backends
+
+Deckify AI has **three backend layers**. Two are ours (Convex + the x402
+server); one is external (Algorand).
+
+```
+┌──────────────────────────── FRONTEND (React + Vite) ───────────────────────────┐
+│  Dashboard · DeckView (pitch editor + premium gate) · Wallet · Settings · Admin │
+└───────┬──────────────────────────────┬─────────────────────────────────────────┘
+        │ auth, decks, ingestion        │ payment gate (X402Gate)
+        ▼                               ▼
+┌────────────────────────┐   ┌────────────────────────────────────────────┐
+│ CONVEX (app backend)   │   │ x402-demo-server/ (payment gateway)        │
+│ src/convex/            │   │ Hono + TS · port 4021 · Docker/Fly.io      │
+│                        │   │                                            │
+│ • users / auth         │   │ POST /generate-deck   $1.00 USDC           │
+│ • decks (CRUD, share)  │   │ GET  /weather         $0.005 USDC          │
+│ • github.ts action     │   │ POST /ai-analysis     $0.001 USDC          │
+│   (repo ingestion)     │   │ ... (endpoints.config.ts)                  │
+│ • payments.ts          │   │  402 → USDC quote (receiver, ASA, amount)  │
+│   (unlock records)     │   │  Payment-Signature → on-chain verify       │
+│ • settings / comments  │   └───────────────┬────────────────────────────┘
+│ • admin                │                   │ indexer lookups (AlgoNode)
+└────────────┬───────────┘                   ▼
+             │                ┌──────────────────────────────┐
+             │                │ ALGORAND (settlement layer)  │
+             │                │ • TestNet/MainNet USDC (ASA) │
+             │                │ • AlgoNode API + indexer     │
+             │                │ • Pera / Defly wallet signs  │
+             │                └──────────────────────────────┘
+             ▼
+┌───────────────────────────────────────────────────────────────────────┐
+│  EXTERNAL: GitHub API (repo metadata + README via fetchGithubRepo)    │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+### Who owns what
+
+| Concern | Owner | Where |
+| ------- | ----- | ----- |
+| Auth + user data + decks | Convex | `src/convex/` (schema: `users`, `decks`, `payments`, …) |
+| GitHub ingestion (README, repo scan, branch detection) | Convex action | `src/convex/github.ts` |
+| USDC payment quotes + on-chain verification | x402 server | `x402-demo-server/` |
+| Unlock persistence (deck premium state) | Convex mutation | `src/convex/payments.ts` → `recordX402Unlock` |
+| Transaction settlement + confirmation | Algorand | TestNet/MainNet USDC via AlgoNode indexer |
+
+### Payment flow (end to end)
+
+```
+User clicks "Premium deck" in DeckView (X402Gate)
+  → wallet connects (Pera / Defly)
+  → POST {x402-server}/generate-deck            (no payment header)
+  → 402 + USDC quote: { amountUsd, receiver, assetId, algodUrl }
+  → wallet signs & submits USDC asset transfer (payUsdcWithWallet)
+  → POST /generate-deck with Payment-Signature: {"txId": "..."}
+  → server verifies on-chain (indexer: confirmed, receiver, ASA, amount)
+  → 200 + generation receipt
+  → recordX402Unlock (Convex) → deck is premium, exports unlocked
+```
+
+### Environment variables (aligned across backends)
+
+The two backends must agree on **who receives payments**. Point both at the
+same wallet:
+
+| Purpose | Convex (Keys tab) | x402 server (.env / Fly secrets) |
+| ------- | ----------------- | -------------------------------- |
+| Network | `ALGORAND_NETWORK` (`testnet`/`mainnet`) | `AVM_NETWORK` |
+| Receiver wallet | `ALGORAND_RECEIVER_ADDRESS` | `AVM_ADDRESS` |
+| Algod API (optional) | `ALGORAND_ALGOD_URL` | (derived from network) |
+| Indexer (optional) | `ALGORAND_INDEXER_URL` | `AVM_INDEXER_URL` |
+| Deck price (USDC) | — | `DECK_PRICE_USD` |
+| Verification mode | — (always indexer) | `X402_VERIFY` (`indexer`/`demo`) |
+| Payment server URL for the gate | `VITE_X402_SERVER_URL` (frontend key) | — |
+
+> If `ALGORAND_RECEIVER_ADDRESS` / `AVM_ADDRESS` are left unset, Convex falls
+> back to a shared demo address and the x402 server logs `(not configured)` —
+> set them to your own funded wallet before taking real payments.
+
+### Running the backends locally
+
+```bash
+# 1. App + Convex (already running in the sandbox; locally:)
+bun install && bun run dev
+
+# 2. x402 payment server
+cd x402-demo-server
+cp .env.example .env   # AVM_ADDRESS=YOUR_ALGORAND_ADDRESS
+npm install && npm run dev     # → http://localhost:4021
+
+# 3. Point the gate at it
+# Keys tab → VITE_X402_SERVER_URL=http://localhost:4021 (or your deployed URL)
+```
+
+Full deployment instructions for the x402 server (Docker, Fly.io, Render) live
+in [`x402-demo-server/README.md`](x402-demo-server/README.md).
+
 ## Setup
 
 This project is set up already and running on a cloud environment, as well as a convex development in the sandbox.
