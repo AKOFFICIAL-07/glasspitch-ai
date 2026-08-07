@@ -48,7 +48,7 @@ export default function Admin() {
       >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-violet-300">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-teal-300">
               Console
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-100">Admin</h1>
@@ -56,7 +56,7 @@ export default function Admin() {
               Manage users, moderate decks, and keep the catalog clean.
             </p>
           </div>
-          <Badge className="w-fit border-transparent bg-violet-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-violet-300">
+          <Badge className="w-fit border-transparent bg-teal-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-teal-300">
             <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
             Administrator
           </Badge>
@@ -71,7 +71,7 @@ export default function Admin() {
               className={cn(
                 "flex items-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold transition-all duration-200",
                 tab === t.id
-                  ? "bg-gradient-to-r from-cyan-500/90 to-violet-500/90 text-white shadow-[0_8px_20px_rgba(34,211,238,0.2)]"
+                  ? "bg-gradient-to-r from-emerald-500/90 to-teal-500/90 text-white shadow-[0_8px_20px_rgba(34,211,238,0.2)]"
                   : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
               )}
             >
@@ -114,7 +114,7 @@ function UsersTab() {
       {users.length === 0 && <p className="text-center text-[13.5px] text-slate-500">No users yet.</p>}
       {users.map((u) => (
         <div key={u._id} className="glass flex flex-wrap items-center gap-3 rounded-2xl px-5 py-3.5">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 text-[12px] font-bold text-white">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-[12px] font-bold text-white">
             {(u.name || u.email || "U")
               .split(/\s+/)
               .map((p) => p[0])
@@ -127,11 +127,11 @@ function UsersTab() {
             <p className="truncate text-[12px] text-slate-500">{u.email || "no email"}</p>
           </div>
           <Badge className={cn("border-transparent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-            u.role === "admin" ? "bg-violet-500/15 text-violet-300" : "bg-white/5 text-slate-400")}>
+            u.role === "admin" ? "bg-teal-500/15 text-teal-300" : "bg-white/5 text-slate-400")}>
             {u.role ?? "user"}
           </Badge>
           <Badge className={cn("border-transparent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-            (u.plan ?? "free") === "pro" ? "bg-cyan-500/15 text-cyan-300" : "bg-white/5 text-slate-500")}>
+            (u.plan ?? "free") === "pro" ? "bg-emerald-500/15 text-emerald-300" : "bg-white/5 text-slate-500")}>
             {(u.plan ?? "free") === "pro" ? "Pro" : "Free"}
           </Badge>
           <div className="flex items-center gap-1.5">
@@ -200,7 +200,7 @@ function DecksTab() {
       {decks.length === 0 && <p className="text-center text-[13.5px] text-slate-500">No decks yet.</p>}
       {decks.map((d) => (
         <div key={d._id} className="glass flex flex-wrap items-center gap-3 rounded-2xl px-5 py-3.5">
-          <span className="glass-soft grid h-9 w-9 shrink-0 place-items-center rounded-xl text-violet-300">
+          <span className="glass-soft grid h-9 w-9 shrink-0 place-items-center rounded-xl text-teal-300">
             <Presentation className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
@@ -271,7 +271,7 @@ function CommentsTab() {
       {comments.length === 0 && <p className="text-center text-[13.5px] text-slate-500">No comments yet.</p>}
       {comments.map((c) => (
         <div key={c._id} className="glass flex flex-wrap items-center gap-3 rounded-2xl px-5 py-3.5">
-          <span className="glass-soft grid h-9 w-9 shrink-0 place-items-center rounded-xl text-cyan-300">
+          <span className="glass-soft grid h-9 w-9 shrink-0 place-items-center rounded-xl text-emerald-300">
             <MessageSquare className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">

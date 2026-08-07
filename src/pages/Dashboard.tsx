@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { TransformExperience } from "@/components/deck/transform";
-import { SectionIcon } from "@/components/deck/slides";
+import { ReadinessRing, SectionIcon } from "@/components/deck/slides";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +15,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import {
   SAMPLE_README_MINIMAL,
@@ -31,24 +30,79 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   FileText,
+  FileUp,
+  Github,
+  Loader2,
   Presentation,
   Sparkles,
   Trash2,
-  Upload,
   Wand2,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
+
+/** Extract text from an uploaded file: markdown/txt, PDF, or DOCX. */
+async function parseFileToText(file: File): Promise<string> {
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".pdf")) {
+    const pdfjs = await import("pdfjs-dist");
+    const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+    pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+    const buf = await file.arrayBuffer();
+    const doc = await pdfjs.getDocument({ data: buf }).promise;
+    let text = "";
+    for (let i = 1; i <= Math.min(doc.numPages, 24); i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      text +=
+        content.items
+          .map((it) => ("str" in it ? (it as { str: string }).str : ""))
+          .join(" ") + "\n\n";
+    }
+    return text.trim() || "# Extracted PDF — no text found";
+  }
+  if (name.endsWith(".docx")) {
+    const mammoth = await import("mammoth");
+    const buf = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: buf });
+    return result.value.trim() || "# Extracted DOCX — no text found";
+  }
+  return await file.text();
+}
+
+/** Resolve a GitHub repo URL to its README (raw.githubusercontent). */
+async function fetchGithubReadme(url: string): Promise<string> {
+  const m = /github\.com\/([^/]+)\/([^/?#]+)/.exec(url);
+  if (!m) throw new Error("That doesn't look like a GitHub repository URL.");
+  const [, owner, repo] = m;
+  const candidates = [
+    `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/README.md`,
+    `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/readme.md`,
+    `https://raw.githubusercontent.com/${owner}/${repo}/master/README.md`,
+  ];
+  for (const c of candidates) {
+    try {
+      const res = await fetch(c);
+      if (res.ok) return await res.text();
+    } catch {
+      /* try next */
+    }
+  }
+  throw new Error("Could not fetch a README from that repository.");
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const [markdown, setMarkdown] = useState("");
   const [phase, setPhase] = useState<"idle" | "transforming">("idle");
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState<"file" | "github" | null>(null);
+  const [githubUrl, setGithubUrl] = useState("");
 
   const createDeck = useMutation(api.decks.createDeck);
   const deleteDeck = useMutation(api.decks.deleteDeck);
@@ -63,15 +117,39 @@ export default function Dashboard() {
     }
   }, [markdown]);
 
-  const handleFile = async (file: File | undefined) => {
+  const handleFile = useCallback(async (file: File | undefined) => {
     if (!file) return;
-    const text = await file.text();
-    setMarkdown(text);
+    setImporting("file");
+    try {
+      const text = await parseFileToText(file);
+      setMarkdown(text);
+      toast.success(`Imported ${file.name} (${text.length.toLocaleString()} chars)`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not read that file — try a .md, .txt, .pdf, or .docx");
+    } finally {
+      setImporting(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, []);
+
+  const handleGithub = async () => {
+    if (!githubUrl.trim()) return;
+    setImporting("github");
+    try {
+      const text = await fetchGithubReadme(githubUrl.trim());
+      setMarkdown(text);
+      toast.success("Repository README imported");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not fetch the repository");
+    } finally {
+      setImporting(null);
+    }
   };
 
   const handleGenerate = () => {
     if (markdown.trim().length < 20) {
-      toast.error("Paste a README first — a few sentences is enough to start.");
+      toast.error("Add a README first — a few sentences is enough to start.");
       return;
     }
     setPhase("transforming");
@@ -105,7 +183,9 @@ export default function Dashboard() {
       console.error(error);
       setSaving(false);
       setPhase("idle");
-      toast.error("Could not save the deck. Please try again.");
+      toast.error(
+        error instanceof Error ? error.message : "Could not save the deck. Please try again.",
+      );
     }
   };
 
@@ -131,21 +211,21 @@ export default function Dashboard() {
         {/* Header */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
               Deck studio
             </p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-100">
-              Turn a README into a pitch deck
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
+              Forge an investor pitch from your repo
             </h1>
-            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-slate-400">
-              Paste your project&apos;s README, documentation, or technical
-              description and Pitch Forge will extract the story — Problem,
-              Features, Tech Stack, Market, Revenue and Competitors — then
-              assemble it into a polished deck.
+            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-white/55">
+              Upload a README, Markdown, PDF, or DOCX — or paste a GitHub
+              repository — and PitchForge AI analyzes your project, enriches
+              missing business insights, and generates a professional
+              investor presentation.
             </p>
           </div>
           <Link to="/decks">
-            <Button variant="outline" className="glass-soft gap-2 rounded-xl text-slate-300 hover:bg-white/10">
+            <Button variant="outline" className="glass-soft gap-2 rounded-xl text-white/70 hover:bg-white/10">
               <Presentation className="h-4 w-4" />
               My decks
             </Button>
@@ -157,63 +237,117 @@ export default function Dashboard() {
           {/* Input */}
           <div className="glass overflow-hidden">
             <div className="flex h-full flex-col p-6">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-cyan-300">
-                    <FileText className="h-[18px] w-[18px]" strokeWidth={1.9} />
-                  </span>
-                  <div className="leading-tight">
-                    <p className="text-[15px] font-semibold text-slate-100">Source README</p>
-                    <p className="text-[12px] text-slate-500">Markdown or plain text</p>
-                  </div>
-                </div>
+              {/* Drag & drop zone */}
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  handleFile(e.dataTransfer.files?.[0]);
+                }}
+                className={cn(
+                  "relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition-all duration-300",
+                  dragOver
+                    ? "border-emerald-400/70 bg-emerald-500/10 shadow-[0_0_40px_rgba(0,168,107,0.2)]"
+                    : "border-white/15 bg-white/[0.03] hover:border-emerald-400/40 hover:bg-white/[0.05]",
+                )}
+              >
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".md,.markdown,.txt,text/markdown,text/plain"
+                  accept=".md,.markdown,.txt,.pdf,.docx,text/markdown,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                   className="hidden"
                   onChange={(e) => handleFile(e.target.files?.[0])}
+                />
+                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-emerald-300">
+                  <FileUp className="h-5 w-5" strokeWidth={1.9} />
+                </span>
+                <div>
+                  <p className="text-[14px] font-semibold text-white/85">
+                    Drop your README here
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-white/45">
+                    Markdown · PDF · DOCX · TXT
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="glass-soft gap-2 rounded-lg text-[12.5px] text-white/70 hover:bg-white/10"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={importing === "file"}
+                >
+                  {importing === "file" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <FileText className="h-3.5 w-3.5" />
+                  )}
+                  {importing === "file" ? "Reading…" : "Browse files"}
+                </Button>
+              </div>
+
+              {/* GitHub import */}
+              <div className="mt-3 flex items-center gap-2">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/5 text-white/60">
+                  <Github className="h-4 w-4" />
+                </span>
+                <input
+                  value={githubUrl}
+                  onChange={(e) => setGithubUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleGithub()}
+                  placeholder="Paste GitHub repository URL — github.com/owner/repo"
+                  className="h-9 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
                 />
                 <Button
                   variant="outline"
                   size="sm"
-                  className="glass-soft gap-2 rounded-lg text-[12.5px] text-slate-300 hover:bg-white/10"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={handleGithub}
+                  disabled={!githubUrl.trim() || importing === "github"}
+                  className="glass-soft shrink-0 gap-1.5 rounded-lg text-[12.5px] text-white/70 hover:bg-white/10"
                 >
-                  <Upload className="h-3.5 w-3.5" />
-                  Upload
+                  {importing === "github" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Github className="h-3.5 w-3.5" />
+                  )}
+                  Fetch
                 </Button>
               </div>
 
-              <div className="relative mt-4 flex-1">
-                <Textarea
+              {/* Editor */}
+              <div className="relative mt-3 flex-1">
+                <textarea
                   value={markdown}
                   onChange={(e) => setMarkdown(e.target.value)}
                   placeholder={"# My Startup\n\nWe fix the way teams…\n\n## Features\n- …"}
-                  className="h-full min-h-[280px] resize-none rounded-2xl border-white/10 bg-white/5 font-mono text-[13px] leading-relaxed text-slate-200 shadow-inner backdrop-blur-md placeholder:text-slate-600 focus-visible:border-cyan-400/40 focus-visible:ring-cyan-400/20"
+                  className="h-full min-h-[240px] w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-[13px] leading-relaxed text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
                   spellCheck={false}
                 />
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[12px] font-medium text-slate-500">Try a sample:</span>
+                  <span className="text-[12px] font-medium text-white/45">Try a sample:</span>
                   <button
                     type="button"
                     onClick={() => setMarkdown(SAMPLE_README_RICH)}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[12px] font-medium text-slate-300 backdrop-blur-md transition hover:bg-white/10"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[12px] font-medium text-white/70 backdrop-blur-md transition hover:bg-white/10"
                   >
-                    ⛓️ Volta · Liquid staking
+                    ⛓️ Volta · Liquid restaking
                   </button>
                   <button
                     type="button"
                     onClick={() => setMarkdown(SAMPLE_README_MINIMAL)}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[12px] font-medium text-slate-300 backdrop-blur-md transition hover:bg-white/10"
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[12px] font-medium text-white/70 backdrop-blur-md transition hover:bg-white/10"
                   >
                     ⚡ merkle-feed · EVM CLI
                   </button>
                 </div>
-                <span className="text-[12px] tabular-nums text-slate-500">
+                <span className="text-[12px] tabular-nums text-white/45">
                   {markdown.length.toLocaleString()} chars
                 </span>
               </div>
@@ -222,7 +356,7 @@ export default function Dashboard() {
                 size="lg"
                 onClick={handleGenerate}
                 disabled={markdown.trim().length < 20 || phase === "transforming"}
-                className="shimmer mt-5 h-12 w-full gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 text-[15px] font-semibold shadow-[0_14px_34px_rgba(34,211,238,0.25)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(99,102,241,0.35)] disabled:opacity-40"
+                className="shimmer mt-4 h-12 w-full gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-[15px] font-semibold text-white shadow-[0_14px_34px_rgba(0,168,107,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,168,107,0.45)] disabled:opacity-40"
               >
                 <Wand2 className="h-5 w-5" />
                 Generate pitch deck
@@ -230,7 +364,7 @@ export default function Dashboard() {
               </Button>
               <Link
                 to="/wallet"
-                className="mt-2.5 block text-center text-[11.5px] text-slate-500 underline-offset-2 transition hover:text-cyan-300 hover:underline"
+                className="mt-2.5 block text-center text-[11.5px] text-white/45 underline-offset-2 transition hover:text-emerald-300 hover:underline"
               >
                 Free plan includes 2 decks — upgrade to Founder for unlimited.
               </Link>
@@ -240,36 +374,41 @@ export default function Dashboard() {
           {/* Live analysis */}
           <div className="glass overflow-hidden">
             <div className="flex h-full flex-col p-6">
-              <div className="flex items-center gap-2.5">                  <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-emerald-300">
-                    <Sparkles className="h-[18px] w-[18px]" strokeWidth={1.9} />
-                  </span>
-                  <div className="leading-tight">
-                    <p className="text-[15px] font-semibold text-slate-100">Live analysis</p>
-                    <p className="text-[12px] text-slate-500">What Pitch Forge sees — updates as you type</p>
-                  </div>
+              <div className="flex items-center gap-2.5">
+                <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-emerald-300">
+                  <Sparkles className="h-[18px] w-[18px]" strokeWidth={1.9} />
+                </span>
+                <div className="leading-tight">
+                  <p className="text-[15px] font-semibold text-white">Live analysis</p>
+                  <p className="text-[12px] text-white/45">What PitchForge AI sees — updates as you type</p>
+                </div>
               </div>
 
               {analysis ? (
                 <div className="mt-4 flex flex-1 flex-col">
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { label: "Words", value: analysis.stats.words.toLocaleString() },
-                      { label: "Lines", value: analysis.stats.lines.toLocaleString() },
-                      {
-                        label: "Sections",
-                        value: `${analysis.stats.sectionsFound}/${analysis.sections.length}`,
-                      },
-                    ].map((s) => (
-                      <div
-                        key={s.label}
-                        className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center backdrop-blur-md"
-                      >
-                        <div className="text-xl font-bold tabular-nums text-slate-100">{s.value}</div>
-                        <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-slate-500">
-                          {s.label}
+                  <div className="flex items-center gap-4">
+                    <ReadinessRing score={analysis.readiness.overall} size={116} stroke={9} label="Readiness" />
+                    <div className="grid flex-1 grid-cols-2 gap-2.5">
+                      {[
+                        { label: "Words", value: analysis.stats.words.toLocaleString() },
+                        { label: "Lines", value: analysis.stats.lines.toLocaleString() },
+                        {
+                          label: "Sections",
+                          value: `${analysis.stats.sectionsFound}/${analysis.sections.length}`,
+                        },
+                        { label: "Slides", value: "13" },
+                      ].map((s) => (
+                        <div
+                          key={s.label}
+                          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-center backdrop-blur-md"
+                        >
+                          <div className="text-lg font-bold tabular-nums text-white">{s.value}</div>
+                          <div className="mt-0.5 text-[10px] font-medium uppercase tracking-wider text-white/45">
+                            {s.label}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
                   <div className="mt-4 flex-1 space-y-2 overflow-y-auto pr-1 no-scrollbar">
@@ -289,10 +428,10 @@ export default function Dashboard() {
                           >
                             <SectionIcon name={section.key === "tech" ? "cpu" : section.key === "revenue" ? "line-chart" : section.key} className="h-3.5 w-3.5" />
                           </span>
-                          <span className="flex-1 text-[13.5px] font-semibold text-slate-200">
+                          <span className="flex-1 text-[13.5px] font-semibold text-white/85">
                             {section.title}
                           </span>
-                          <span className="text-[11px] tabular-nums text-slate-500">
+                          <span className="text-[11px] tabular-nums text-white/45">
                             {section.bullets.length} pts
                           </span>
                           <Badge
@@ -309,15 +448,30 @@ export default function Dashboard() {
                       );
                     })}
                   </div>
+
+                  {analysis.insights.missing.length > 0 && (
+                    <div className="mt-3 rounded-xl border border-amber-400/20 bg-amber-500/[0.06] px-3.5 py-2.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-300">
+                        Suggested business assumptions
+                      </p>
+                      <ul className="mt-1 space-y-1">
+                        {analysis.insights.missing.slice(0, 3).map((m) => (
+                          <li key={m} className="text-[12px] leading-snug text-amber-100/70">
+                            • {m}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-12 text-center">
-                  <span className="glass-soft grid h-14 w-14 place-items-center rounded-2xl text-slate-600">
+                  <span className="glass-soft grid h-14 w-14 place-items-center rounded-2xl text-white/40">
                     <FileText className="h-6 w-6" />
                   </span>
-                  <p className="mt-4 max-w-[260px] text-[13.5px] leading-relaxed text-slate-500">
-                    Start typing (or paste) on the left — your six story sections
-                    will surface here in real time.
+                  <p className="mt-4 max-w-[260px] text-[13.5px] leading-relaxed text-white/45">
+                    Add a README on the left — your story sections and investor
+                    readiness score will surface here in real time.
                   </p>
                 </div>
               )}
@@ -328,12 +482,12 @@ export default function Dashboard() {
         {/* Recent decks */}
         <section className="mt-12">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold tracking-tight text-slate-100">
+            <h2 className="text-lg font-semibold tracking-tight text-white">
               Your recent decks
             </h2>
             <Link
               to="/decks"
-              className="flex items-center gap-1 text-[13px] font-semibold text-cyan-300 transition hover:text-cyan-200"
+              className="flex items-center gap-1 text-[13px] font-semibold text-emerald-300 transition hover:text-emerald-200"
             >
               View all <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -342,16 +496,16 @@ export default function Dashboard() {
           {decks === undefined ? (
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[0, 1, 2].map((i) => (
-                <Skeleton key={i} className="h-36 rounded-2xl bg-white/60" />
+                <Skeleton key={i} className="h-36 rounded-2xl bg-white/5" />
               ))}
             </div>
           ) : decks.length === 0 ? (
             <div className="glass-soft mt-4 flex flex-col items-center gap-3 rounded-2xl px-6 py-12 text-center">
-              <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-slate-300">
+              <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-white/70">
                 <Presentation className="h-5 w-5" />
               </span>
-              <p className="text-[14px] text-slate-400">
-                No decks yet{user?.name ? `, ${user.name}` : ""}. Paste a README
+              <p className="text-[14px] text-white/60">
+                No decks yet{user?.name ? `, ${user.name}` : ""}. Add a README
                 above and forge your first one.
               </p>
             </div>
@@ -367,11 +521,11 @@ export default function Dashboard() {
                 >
                   <div
                     className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-15 blur-2xl transition-opacity group-hover:opacity-30"
-                    style={{ background: deck.sections[0]?.accent ?? "#6366f1" }}
+                    style={{ background: deck.sections[0]?.accent ?? "#00A86B" }}
                   />
                   <div className="relative flex h-full flex-col">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="line-clamp-1 text-[15.5px] font-bold text-slate-100">
+                      <h3 className="line-clamp-1 text-[15.5px] font-bold text-white">
                         {deck.title}
                       </h3>
                       <AlertDialog>
@@ -379,7 +533,7 @@ export default function Dashboard() {
                           <button
                             type="button"
                             aria-label="Delete deck"
-                            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-600 opacity-0 transition hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
+                            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-white/40 opacity-0 transition hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -410,7 +564,7 @@ export default function Dashboard() {
                         </AlertDialogContent>
                       </AlertDialog>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-400">
+                    <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-white/55">
                       {deck.tagline}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-1.5">
@@ -425,12 +579,12 @@ export default function Dashboard() {
                       ))}
                     </div>
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="text-[11.5px] font-medium text-slate-500">
-                        {deck.sections.length + 2} slides
+                      <span className="text-[11.5px] font-medium text-white/45">
+                        13 slides
                       </span>
                       <Link
                         to={`/deck/${deck._id}`}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(34,211,238,0.25)] transition hover:-translate-y-0.5"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(0,168,107,0.3)] transition hover:-translate-y-0.5"
                       >
                         Open <ArrowRight className="h-3 w-3" />
                       </Link>

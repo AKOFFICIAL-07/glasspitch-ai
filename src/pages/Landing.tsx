@@ -20,14 +20,15 @@ import {
   Crosshair,
   FileText,
   Flame,
-  Link2,
-  MonitorDown,
+  Gauge,
+  Github,
+  Mic,
+  Palette,
   Presentation,
   Rocket,
-  Search,
   Sparkles,
   TrendingUp,
-  Wallet,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -45,33 +46,33 @@ const SECTION_ICONS: Record<SectionKey, LucideIcon> = {
 const FEATURES: { icon: LucideIcon; title: string; copy: string }[] = [
   {
     icon: FileText,
-    title: "Paste a README, docs, or spec",
-    copy: "Any markdown — a hackathon repo, technical write-up, or protocol design doc. Pitch Forge reads the structure, not just the words.",
+    title: "Paste, drop, or pull from GitHub",
+    copy: "Upload a README, Markdown, PDF, or DOCX — or paste a GitHub repository URL. PitchForge AI reads the structure, not just the words.",
   },
   {
-    icon: Sparkles,
-    title: "Watch it forge your story",
-    copy: "Your docs reorganize into floating glass cards for Problem, Features, Tech Stack, Market, Revenue and Competitors — then merge into a deck.",
+    icon: Wand2,
+    title: "AI enriches your business story",
+    copy: "Beyond extraction: executive summary, elevator pitch, TAM/SAM/SOM, pricing, go-to-market, roadmap, risks, and a funding ask — flagged for review.",
+  },
+  {
+    icon: Gauge,
+    title: "Investor readiness score",
+    copy: "Six scored dimensions — innovation, technology, business, scalability, market, presentation — rolled into one animated readiness ring.",
   },
   {
     icon: Presentation,
-    title: "A deck that presents itself",
-    copy: "Eight polished 16:9 slides, navigable by keyboard, built to survive a demo-day room or a 10-minute investor call.",
+    title: "A 13-slide deck that presents itself",
+    copy: "Cover, Problem, Solution, Product, Market, Technology, Business Model, Competitors, GTM, Roadmap, Financials, Ask, and Thank You — keyboard-navigable.",
   },
   {
-    icon: MonitorDown,
-    title: "Export a pixel-perfect PDF",
-    copy: "One click downloads your full deck at print quality — share it as an artifact, not a screenshot.",
+    icon: Mic,
+    title: "AI voice pitch",
+    copy: "Generate a narrated 30-second, 60-second, or 3-minute pitch read aloud — perfect for practice runs before the real room.",
   },
   {
-    icon: Link2,
-    title: "Share, publish, and collect feedback",
-    copy: "Every deck gets a public share link. Publish to the catalog so judges and investors can find it — and comment on it.",
-  },
-  {
-    icon: Wallet,
-    title: "Built for demo day economics",
-    copy: "Start free with two decks. Upgrade to Pro for unlimited decks, catalog visibility, and priority support.",
+    icon: Palette,
+    title: "Templates & every export",
+    copy: "Switch between Glassmorphism, Apple, YC, Sequoia, Startup Dark, and Minimal. Export PDF or PPTX, or share a public link.",
   },
 ];
 
@@ -80,20 +81,26 @@ const STEPS = [
     icon: FileText,
     step: "01",
     title: "Point it at your repo",
-    copy: "Paste your README or technical description. Use a sample if you want to see the forge run in seconds.",
+    copy: "Upload a README, paste a GitHub repository, or use a sample to watch the forge run in seconds.",
   },
   {
     icon: Sparkles,
     step: "02",
     title: "Watch it think",
-    copy: "Pitch Forge scans, extracts and rebuilds your content into floating story cards, then assembles the deck.",
+    copy: "Nine AI stages — reading, architecture, features, market, business, revenue, competitors, story, slides — animate live.",
   },
   {
     icon: Rocket,
     step: "03",
-    title: "Present, publish, and raise",
-    copy: "Flip through your deck, export the PDF, publish it to the catalog, or share a link with anyone.",
+    title: "Present, export, and raise",
+    copy: "Flip through your deck, play the voice pitch, export PDF or PPTX, or unlock premium exports with an x402 payment.",
   },
+];
+
+const AI_FEATURES: { icon: LucideIcon; title: string; copy: string }[] = [
+  { icon: FileText, title: "Extract", copy: "Project name, problem, solution, features, audience, stack, architecture, APIs, and future scope — straight from your docs." },
+  { icon: TrendingUp, title: "Generate", copy: "Executive summary, business model, market opportunity, TAM/SAM/SOM, competitor analysis, pricing, GTM, risks, and the ask." },
+  { icon: Gauge, title: "Detect & suggest", copy: "Missing sections are flagged and replaced with sensible business assumptions — honest AI, clearly labeled." },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -118,7 +125,7 @@ function HeroDemo() {
   return (
     <div className="glass-strong relative overflow-hidden rounded-3xl p-3 shadow-[0_30px_80px_rgba(0,0,0,0.5)]">
       <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10" />
-      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-[linear-gradient(145deg,oklch(0.21_0.03_262),oklch(0.165_0.024_265))]">
+      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-[linear-gradient(145deg,oklch(0.21_0.045_160),oklch(0.165_0.03_170))]">
         <AuroraBlobs className="absolute inset-0 opacity-90" />
         <div className="bg-grid absolute inset-0 opacity-70" />
         <ParticleField count={26} className="absolute inset-0" />
@@ -138,11 +145,11 @@ function HeroDemo() {
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-400/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
-                  <span className="ml-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                  <span className="ml-2 text-[10px] font-semibold uppercase tracking-widest text-white/45">
                     README.md
                   </span>
                 </div>
-                <div className="mt-4 space-y-1.5 font-mono text-[10px] leading-relaxed text-slate-500">
+                <div className="mt-4 space-y-1.5 font-mono text-[10px] leading-relaxed text-white/45">
                   {demoLines.map((line, i) => (
                     <div key={i} className={cn("whitespace-pre-wrap truncate", i > 3 && "opacity-25")}>
                       {line.slice(0, 52) || " "}
@@ -152,7 +159,7 @@ function HeroDemo() {
                 <div
                   className="pointer-events-none absolute inset-x-4 h-6"
                   style={{
-                    background: "linear-gradient(180deg, transparent, rgba(34,211,238,0.2), transparent)",
+                    background: "linear-gradient(180deg, transparent, rgba(0,168,107,0.25), transparent)",
                     animation: "scan-line 1.6s ease-in-out infinite alternate",
                   }}
                 />
@@ -195,7 +202,7 @@ function HeroDemo() {
                     className="absolute left-1/2 top-1/2"
                     style={{ marginLeft: -78, marginTop: -34 }}
                   >
-                    <div className="shimmer w-40 overflow-hidden rounded-xl border border-white/10 bg-[oklch(0.22_0.028_262/0.6)] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+                    <div className="shimmer w-40 overflow-hidden rounded-xl border border-white/10 bg-[oklch(0.22_0.05_160/0.6)] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
                       <div className="flex items-center gap-2">
                         <span
                           className="grid h-7 w-7 place-items-center rounded-lg text-white"
@@ -204,8 +211,8 @@ function HeroDemo() {
                           <Icon className="h-3.5 w-3.5" />
                         </span>
                         <div className="leading-tight">
-                          <div className="text-[11px] font-bold text-slate-200">{meta.title}</div>
-                          <div className="text-[9px] uppercase tracking-wider text-slate-500">
+                          <div className="text-[11px] font-bold text-white/85">{meta.title}</div>
+                          <div className="text-[9px] uppercase tracking-wider text-white/45">
                             {meta.eyebrow}
                           </div>
                         </div>
@@ -230,17 +237,17 @@ function HeroDemo() {
                 initial={{ scale: 0.6, rotate: -3, opacity: 0 }}
                 animate={{ scale: 1, rotate: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 16 }}
-                className="relative h-full max-h-[280px] w-full max-w-[500px] overflow-hidden rounded-xl bg-[oklch(0.2_0.028_262/0.7)] shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                className="relative h-full max-h-[280px] w-full max-w-[500px] overflow-hidden rounded-xl bg-[oklch(0.2_0.045_160/0.7)] shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
                 style={{ aspectRatio: "16/10" }}
               >
                 <div
                   className="absolute inset-0 opacity-25"
-                  style={{ background: "linear-gradient(135deg,#22d3ee,#6366f1,#a855f7)" }}
+                  style={{ background: "linear-gradient(135deg,#00A86B,#00E08F,#5eead4)" }}
                 />
                 <div className="relative flex h-full flex-col items-center justify-center px-8 text-center">
                   <BrandMark className="h-9 w-9" />
-                  <p className="mt-3 text-[15px] font-bold text-slate-100">Volta</p>
-                  <p className="mt-1 text-[10px] text-slate-400">
+                  <p className="mt-3 text-[15px] font-bold text-white">Volta</p>
+                  <p className="mt-1 text-[10px] text-white/55">
                     Liquid Staking — investor pitch
                   </p>
                   <div className="mt-3 flex gap-1.5">
@@ -267,11 +274,11 @@ function HeroDemo() {
               key={p}
               className={cn(
                 "h-1.5 rounded-full transition-all duration-300",
-                phase === p ? "w-5 bg-cyan-400" : "w-1.5 bg-slate-600",
+                phase === p ? "w-5 bg-emerald-400" : "w-1.5 bg-white/30",
               )}
             />
           ))}
-          <span className="ml-2 text-[10px] font-medium text-slate-500">live demo</span>
+          <span className="ml-2 text-[10px] font-medium text-white/45">live demo</span>
         </div>
       </div>
     </div>
@@ -304,14 +311,14 @@ export default function Landing() {
             {[
               ["/catalog", "Catalog"],
               ["#how-it-works", "How it works"],
-              ["#features", "Sections"],
+              ["#features", "AI Features"],
               ["#pricing", "Pricing"],
             ].map(([href, label]) =>
               href.startsWith("/") ? (
                 <Link
                   key={href}
                   to={href}
-                  className="rounded-lg px-3.5 py-2 text-[13.5px] font-medium text-slate-400 transition hover:bg-white/5 hover:text-white"
+                  className="rounded-lg px-3.5 py-2 text-[13.5px] font-medium text-white/55 transition hover:bg-white/5 hover:text-white"
                 >
                   {label}
                 </Link>
@@ -319,7 +326,7 @@ export default function Landing() {
                 <a
                   key={href}
                   href={href}
-                  className="rounded-lg px-3.5 py-2 text-[13.5px] font-medium text-slate-400 transition hover:bg-white/5 hover:text-white"
+                  className="rounded-lg px-3.5 py-2 text-[13.5px] font-medium text-white/55 transition hover:bg-white/5 hover:text-white"
                 >
                   {label}
                 </a>
@@ -328,12 +335,12 @@ export default function Landing() {
           </nav>
           <div className="flex items-center gap-2">
             <Link to="/auth">
-              <Button variant="ghost" className="rounded-xl text-[13.5px] font-medium text-slate-300 hover:bg-white/10 hover:text-white">
+              <Button variant="ghost" className="rounded-xl text-[13.5px] font-medium text-white/70 hover:bg-white/10 hover:text-white">
                 Sign in
               </Button>
             </Link>
             <Link to="/auth?returnTo=/dashboard">
-              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-4 shadow-[0_10px_26px_rgba(34,211,238,0.3)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(99,102,241,0.4)]">
+              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 text-white shadow-[0_10px_26px_rgba(0,168,107,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(0,168,107,0.45)]">
                 Open the forge
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -353,11 +360,11 @@ export default function Landing() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12.5px] font-semibold text-cyan-300 backdrop-blur-md"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12.5px] font-semibold text-emerald-300 backdrop-blur-md"
           >
             <Sparkles className="h-3.5 w-3.5" />
             README → investor-ready pitch deck
-            <span className="ml-1 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-cyan-300">
+            <span className="ml-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-emerald-300">
               for web3 teams
             </span>
           </motion.div>
@@ -366,21 +373,21 @@ export default function Landing() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 text-[42px] font-bold leading-[1.05] tracking-tight text-slate-100 sm:text-[54px]"
+            className="mt-6 text-[42px] font-bold leading-[1.05] tracking-tight text-white sm:text-[54px]"
           >
-            Forge your repo into a pitch deck <span className="text-gradient">investors take seriously.</span>
+            Transform technical documentation into{" "}
+            <span className="text-gradient">investor-ready pitch decks.</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-lg text-[16.5px] leading-relaxed text-slate-400"
+            className="mt-6 max-w-lg text-[16.5px] leading-relaxed text-white/60"
           >
-            Pitch Forge reads your README, documentation, or technical spec and
-            rebuilds it into structured investor slides — Problem, Features, Tech
-            Stack, Market, Revenue and Competitors. Built for hackathon teams
-            shipping on-chain, ready before demo day.
+            Upload a README or GitHub repository and let AI analyze your
+            project, enrich missing business insights, and generate a
+            professional investor presentation.
           </motion.p>
 
           <motion.div
@@ -392,20 +399,21 @@ export default function Landing() {
             <Link to="/auth?returnTo=/dashboard">
               <Button
                 size="lg"
-                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 px-7 text-[15px] shadow-[0_16px_40px_rgba(34,211,238,0.3)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(99,102,241,0.4)]"
+                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-7 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(0,168,107,0.45)]"
               >
-                Forge my deck — free
+                <FileText className="h-[18px] w-[18px]" />
+                Upload README
                 <ArrowRight className="h-[18px] w-[18px]" />
               </Button>
             </Link>
-            <Link to="/catalog">
+            <Link to="/auth?returnTo=/dashboard">
               <Button
                 size="lg"
                 variant="outline"
-                className="glass-soft gap-2 rounded-2xl px-6 text-[15px] text-slate-200 hover:bg-white/10"
+                className="glass-soft gap-2 rounded-2xl px-6 text-[15px] text-white/80 hover:bg-white/10"
               >
-                <Search className="h-4 w-4" />
-                Browse the catalog
+                <Github className="h-4 w-4" />
+                Paste GitHub Repository
               </Button>
             </Link>
           </motion.div>
@@ -414,9 +422,9 @@ export default function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.45 }}
-            className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] font-medium text-slate-500"
+            className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] font-medium text-white/50"
           >
-            {["No design skills needed", "8 slides in seconds", "Free plan: 2 decks"].map((t) => (
+            {["13 slides in seconds", "AI readiness score", "PDF · PPTX · share link", "Free plan: 2 decks"].map((t) => (
               <span key={t} className="flex items-center gap-1.5">
                 <Check className="h-4 w-4 text-emerald-400" strokeWidth={2.5} />
                 {t}
@@ -431,23 +439,23 @@ export default function Landing() {
           transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
           className="relative"
         >
-          <div className="animate-float absolute -left-6 top-10 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.028_262/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block">
-            <div className="flex items-center gap-2 text-[12px] font-semibold text-slate-300">
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-cyan-500/15 text-cyan-300">
+          <div className="animate-float absolute -left-6 top-10 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.05_160/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block">
+            <div className="flex items-center gap-2 text-[12px] font-semibold text-white/70">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-500/15 text-emerald-300">
                 <Sparkles className="h-4 w-4" />
               </span>
               6 story cards extracted
             </div>
           </div>
           <div
-            className="animate-float-x absolute -right-4 bottom-16 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.028_262/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block"
+            className="animate-float-x absolute -right-4 bottom-16 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.05_160/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block"
             style={{ animationDelay: "-3s" }}
           >
-            <div className="flex items-center gap-2 text-[12px] font-semibold text-slate-300">
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-500/15 text-emerald-300">
-                <Link2 className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-[12px] font-semibold text-white/70">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-teal-500/15 text-teal-300">
+                <Gauge className="h-4 w-4" />
               </span>
-              Publish to catalog
+              Readiness 84/100
             </div>
           </div>
           <HeroDemo />
@@ -466,7 +474,7 @@ export default function Landing() {
                   return (
                     <span
                       key={`${dup}-${key}`}
-                      className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[13px] font-semibold text-slate-300"
+                      className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[13px] font-semibold text-white/70"
                     >
                       <span
                         className="grid h-5 w-5 place-items-center rounded-md text-white"
@@ -493,10 +501,10 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
             How it works
           </Badge>
-          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-slate-100">
+          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
             From raw docs to pitch-ready in <span className="text-gradient">three moves</span>
           </h2>
         </motion.div>
@@ -514,22 +522,22 @@ export default function Landing() {
               <div className="shimmer pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               <div className="relative">
                 <div className="flex items-center justify-between">
-                  <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-cyan-300">
+                  <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-emerald-300">
                     <step.icon className="h-[22px] w-[22px]" strokeWidth={1.8} />
                   </span>
-                  <span className="text-[44px] font-black leading-none text-white/5 transition-colors duration-300 group-hover:text-cyan-400/10">
+                  <span className="text-[44px] font-black leading-none text-white/5 transition-colors duration-300 group-hover:text-emerald-400/10">
                     {step.step}
                   </span>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-slate-100">{step.title}</h3>
-                <p className="mt-2 text-[14px] leading-relaxed text-slate-400">{step.copy}</p>
+                <h3 className="mt-5 text-lg font-semibold text-white">{step.title}</h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-white/55">{step.copy}</p>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Features */}
+      {/* AI features */}
       <section id="features" className="relative z-10 mx-auto max-w-6xl scroll-mt-8 px-4 pb-24 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -538,19 +546,38 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-            Product
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+            AI Features
           </Badge>
-          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-slate-100">
-            Everything a founder needs to <span className="text-gradient">go raise</span>
+          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
+            An AI that <span className="text-gradient">thinks like an analyst</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-slate-400">
-            Focused on one job: turning technical documentation into a structured,
-            credible investor story — fast enough for a hackathon weekend.
+          <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-white/55">
+            Every slide, score, and suggestion is generated from your docs —
+            with missing business facts detected and sensibly assumed.
           </p>
         </motion.div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid gap-5 md:grid-cols-3">
+          {AI_FEATURES.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="glass glass-hover group relative overflow-hidden p-6"
+            >
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300 transition-transform duration-300 group-hover:scale-110">
+                <f.icon className="h-5 w-5" strokeWidth={1.9} />
+              </span>
+              <h3 className="mt-4 text-[16.5px] font-semibold text-white">{f.title}</h3>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-white/55">{f.copy}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f, i) => (
             <motion.div
               key={f.title}
@@ -560,11 +587,11 @@ export default function Landing() {
               transition={{ duration: 0.5, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="glass glass-hover group relative overflow-hidden p-6"
             >
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-cyan-300 transition-transform duration-300 group-hover:scale-110">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300 transition-transform duration-300 group-hover:scale-110">
                 <f.icon className="h-5 w-5" strokeWidth={1.9} />
               </span>
-              <h3 className="mt-4 text-[16.5px] font-semibold text-slate-100">{f.title}</h3>
-              <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">{f.copy}</p>
+              <h3 className="mt-4 text-[16.5px] font-semibold text-white">{f.title}</h3>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-white/55">{f.copy}</p>
             </motion.div>
           ))}
         </div>
@@ -579,15 +606,15 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
             Showcase
           </Badge>
-          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-slate-100">
+          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
             Forged from a README, <span className="text-gradient">zero hand-holding</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-slate-400">
-            Real slides from the sample deck — a liquid-staking protocol. Every
-            card, bullet and accent was extracted automatically.
+          <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-white/55">
+            Real slides from the sample deck — a liquid-restaking protocol.
+            Every card, bullet, and accent was extracted automatically.
           </p>
         </motion.div>
 
@@ -610,7 +637,7 @@ export default function Landing() {
                         />
                       </div>
                     </div>
-                    <p className="mt-2.5 text-center text-[12.5px] font-semibold text-slate-400">
+                    <p className="mt-2.5 text-center text-[12.5px] font-semibold text-white/55">
                       {section.title}
                     </p>
                   </div>
@@ -621,7 +648,7 @@ export default function Landing() {
           <Link to="/auth?returnTo=/dashboard">
             <Button
               size="lg"
-              className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 px-7 text-[15px] shadow-[0_16px_40px_rgba(34,211,238,0.3)]"
+              className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-7 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.35)]"
             >
               Forge my repo into this
               <ArrowRight className="h-[18px] w-[18px]" />
@@ -639,10 +666,10 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
             Pricing
           </Badge>
-          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-slate-100">
+          <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
             Start free. <span className="text-gradient">Upgrade when you&apos;re raising.</span>
           </h2>
         </motion.div>
@@ -655,13 +682,13 @@ export default function Landing() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="glass glass-hover relative flex flex-col p-8"
           >
-            <h3 className="text-lg font-semibold text-slate-100">Hacker</h3>
-            <p className="mt-1 text-[13px] text-slate-400">For the demo-day MVP</p>
+            <h3 className="text-lg font-semibold text-white">Hacker</h3>
+            <p className="mt-1 text-[13px] text-white/55">For the demo-day MVP</p>
             <div className="mt-5 flex items-baseline gap-1">
-              <span className="text-4xl font-bold tracking-tight text-slate-100">$0</span>
-              <span className="text-[13px] text-slate-500">forever</span>
+              <span className="text-4xl font-bold tracking-tight text-white">$0</span>
+              <span className="text-[13px] text-white/45">forever</span>
             </div>
-            <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-slate-300">
+            <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-white/70">
               {["2 pitch decks", "PDF export", "Share links", "Comment on any deck"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
                   <Check className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={2.5} />
@@ -670,7 +697,7 @@ export default function Landing() {
               ))}
             </ul>
             <Link to="/auth?returnTo=/dashboard" className="mt-7">
-              <Button variant="outline" className="glass-soft w-full rounded-xl text-slate-200 hover:bg-white/10">
+              <Button variant="outline" className="glass-soft w-full rounded-xl text-white/80 hover:bg-white/10">
                 Start free
               </Button>
             </Link>
@@ -681,27 +708,27 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="edge-highlight relative flex flex-col overflow-hidden rounded-2xl border border-cyan-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-8 backdrop-blur-xl"
+            className="edge-highlight relative flex flex-col overflow-hidden rounded-2xl border border-emerald-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_160/0.7)] to-[oklch(0.18_0.03_160/0.6)] p-8 backdrop-blur-xl"
           >
-            <Badge className="absolute right-5 top-5 border-transparent bg-cyan-500/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide text-cyan-300">
+            <Badge className="absolute right-5 top-5 border-transparent bg-emerald-500/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide text-emerald-300">
               One-time
             </Badge>
-            <h3 className="text-lg font-semibold text-slate-100">Founder</h3>
-            <p className="mt-1 text-[13px] text-slate-400">For teams actually raising</p>
+            <h3 className="text-lg font-semibold text-white">Founder</h3>
+            <p className="mt-1 text-[13px] text-white/55">For teams actually raising</p>
             <div className="mt-5 flex items-baseline gap-1">
-              <span className="text-4xl font-bold tracking-tight text-slate-100">$19</span>
-              <span className="text-[13px] text-slate-500">one-time</span>
+              <span className="text-4xl font-bold tracking-tight text-white">$19</span>
+              <span className="text-[13px] text-white/45">one-time</span>
             </div>
-            <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-slate-200">
-              {["Unlimited pitch decks", "Publish to the catalog", "Priority deck quality", "Early access to new formats"].map((f) => (
+            <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-white/80">
+              {["Unlimited pitch decks", "Publish to the catalog", "Premium x402 exports", "AI voice pitch & templates"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 shrink-0 text-cyan-300" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 shrink-0 text-emerald-300" strokeWidth={2.5} />
                   {f}
                 </li>
               ))}
             </ul>
             <Link to="/auth?returnTo=/wallet" className="mt-7">
-              <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 shadow-[0_12px_30px_rgba(34,211,238,0.3)]">
+              <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_12px_30px_rgba(0,168,107,0.35)]">
                 Upgrade to Founder
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -723,17 +750,17 @@ export default function Landing() {
             className="pointer-events-none absolute inset-0 opacity-25"
             style={{
               background:
-                "linear-gradient(120deg, rgba(34,211,238,0.35), rgba(99,102,241,0.3), rgba(168,85,247,0.35))",
+                "linear-gradient(120deg, rgba(0,168,107,0.4), rgba(0,224,143,0.3), rgba(94,234,212,0.35))",
             }}
           />
           <AuroraBlobs className="absolute inset-0 opacity-50" />
           <div className="relative">
             <BrandMark className="mx-auto h-14 w-14" />
-            <h2 className="mx-auto mt-6 max-w-2xl text-4xl font-bold tracking-tight text-slate-100 sm:text-5xl">
+            <h2 className="mx-auto mt-6 max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
               Your repo is already your pitch.{" "}
               <span className="text-gradient">Forge it.</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-slate-400">
+            <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-white/55">
               Free to start. No design skills required. Your first deck is one
               paste away — before demo day.
             </p>
@@ -741,9 +768,10 @@ export default function Landing() {
               <Link to="/auth?returnTo=/dashboard">
                 <Button
                   size="lg"
-                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-600 px-8 text-[15px] shadow-[0_16px_40px_rgba(34,211,238,0.35)] transition-transform hover:-translate-y-0.5"
+                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-8 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.4)] transition-transform hover:-translate-y-0.5"
                 >
-                  Forge my deck — free
+                  <FileText className="h-[18px] w-[18px]" />
+                  Upload README — free
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </Button>
               </Link>
@@ -751,7 +779,7 @@ export default function Landing() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="glass-soft rounded-2xl px-7 text-[15px] text-slate-200 hover:bg-white/10"
+                  className="glass-soft rounded-2xl px-7 text-[15px] text-white/80 hover:bg-white/10"
                 >
                   Continue as guest
                 </Button>
@@ -765,19 +793,19 @@ export default function Landing() {
       <footer className="relative z-10 border-t border-white/5 bg-white/[0.02] py-10 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6">
           <Brand />
-          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] font-medium text-slate-400">
+          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] font-medium text-white/55">
             <Link to="/catalog" className="transition hover:text-white">Catalog</Link>
             <a href="#how-it-works" className="transition hover:text-white">How it works</a>
             <a href="#pricing" className="transition hover:text-white">Pricing</a>
             <Link to="/auth" className="transition hover:text-white">Sign in</Link>
           </nav>
-          <p className="text-[12px] text-slate-500">
+          <p className="text-[12px] text-white/40">
             Secured by{" "}
             <a
               href="https://freebuff.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-slate-400 underline-offset-2 hover:underline"
+              className="font-medium text-white/55 underline-offset-2 hover:underline"
             >
               freebuff.com
             </a>

@@ -49,7 +49,7 @@ export default function Decks() {
       >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
               Library
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-100">Decks</h1>
@@ -59,7 +59,7 @@ export default function Decks() {
             </p>
           </div>
           <Link to="/dashboard">
-            <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 shadow-[0_10px_24px_rgba(34,211,238,0.25)]">
+            <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 shadow-[0_10px_24px_rgba(34,211,238,0.25)]">
               <Plus className="h-4 w-4" strokeWidth={2.5} />
               New deck
             </Button>
@@ -81,7 +81,7 @@ export default function Decks() {
               Nothing here yet — your forged decks will live in this library.
             </p>
             <Link to="/dashboard">
-              <Button className="mt-2 gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600">
+              <Button className="mt-2 gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600">
                 <Plus className="h-4 w-4" />
                 Forge your first deck
               </Button>
@@ -170,13 +170,13 @@ export default function Decks() {
                         type="button"
                         aria-label="Copy share link"
                         onClick={() => handleShare(deck)}
-                        className="glass-soft grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-cyan-300"
+                        className="glass-soft grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-emerald-300"
                       >
                         <Link2 className="h-3.5 w-3.5" />
                       </button>
                       <Link
                         to={`/deck/${deck._id}`}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(34,211,238,0.25)] transition hover:-translate-y-0.5"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(34,211,238,0.25)] transition hover:-translate-y-0.5"
                       >
                         {copiedId === deck._id ? "Copied" : "Open"} <ArrowRight className="h-3 w-3" />
                       </Link>

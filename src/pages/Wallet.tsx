@@ -67,7 +67,7 @@ export default function Wallet() {
       >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
               Billing
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-100">Wallet</h1>
@@ -79,7 +79,7 @@ export default function Wallet() {
             <Badge
               className={
                 isPro
-                  ? "w-fit border-transparent bg-cyan-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-cyan-300"
+                  ? "w-fit border-transparent bg-emerald-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300"
                   : "w-fit border-transparent bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-400"
               }
             >
@@ -97,7 +97,7 @@ export default function Wallet() {
           <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
             {/* Usage */}
             <div className="glass flex flex-col rounded-3xl p-7">
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-cyan-300">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300">
                 <WalletIcon className="h-5 w-5" strokeWidth={1.9} />
               </span>
               <h2 className="mt-5 text-lg font-semibold text-slate-100">Deck usage</h2>
@@ -116,7 +116,7 @@ export default function Wallet() {
                 </div>
                 <div className="relative mt-3 h-2.5 overflow-hidden rounded-full border border-white/10 bg-white/5">
                   <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all duration-700"
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-700"
                     style={{ width: isPro ? "100%" : `${pct}%` }}
                   />
                 </div>
@@ -156,8 +156,8 @@ export default function Wallet() {
               </div>
 
               {/* Pro */}
-              <div className="edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-cyan-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-6 backdrop-blur-xl">
-                <Badge className="absolute right-4 top-4 border-transparent bg-cyan-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-cyan-300">
+              <div className="edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-emerald-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-6 backdrop-blur-xl">
+                <Badge className="absolute right-4 top-4 border-transparent bg-emerald-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-300">
                   One-time
                 </Badge>
                 <h3 className="text-[15px] font-semibold text-slate-100">Founder</h3>
@@ -169,7 +169,7 @@ export default function Wallet() {
                 <ul className="mt-5 flex-1 space-y-2 text-[13px] text-slate-200">
                   {["Unlimited pitch decks", "Publish to the catalog", "Priority deck quality", "Early access to new formats"].map((f) => (
                     <li key={f} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 shrink-0 text-cyan-300" strokeWidth={2.5} />
+                      <Check className="h-4 w-4 shrink-0 text-emerald-300" strokeWidth={2.5} />
                       {f}
                     </li>
                   ))}
@@ -183,7 +183,7 @@ export default function Wallet() {
                   <Button
                     onClick={handleUpgrade}
                     disabled={checkingOut}
-                    className="shimmer mt-6 w-full gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 shadow-[0_12px_30px_rgba(34,211,238,0.25)]"
+                    className="shimmer mt-6 w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 shadow-[0_12px_30px_rgba(34,211,238,0.25)]"
                   >
                     {checkingOut ? (
                       <>

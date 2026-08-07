@@ -2,8 +2,8 @@
 
 import { convexAuth } from "@convex-dev/auth/server";
 import { Anonymous } from "@convex-dev/auth/providers/Anonymous";
-import { GitHub } from "@convex-dev/auth/providers/GitHub";
-import { Google } from "@convex-dev/auth/providers/Google";
+import GitHub from "@auth/core/providers/github";
+import Google from "@auth/core/providers/google";
 import { emailOtp } from "./auth/emailOtp";
 
 

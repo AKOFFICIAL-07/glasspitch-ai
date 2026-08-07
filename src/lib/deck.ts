@@ -462,7 +462,6 @@ function generateInsights(
   title: string,
   tagline: string,
   sections: DeckSection[],
-  stats: DeckStats,
 ): AIInsights {
   const byKey = Object.fromEntries(sections.map((s) => [s.key, s]));
   const featureBullets = byKey.features?.bullets ?? [];
@@ -704,7 +703,7 @@ export function buildDeck(markdown: string): PitchDeck {
     parsed.tagline ||
     (parsed.preamble[0] ? stripInlineMarkdown(parsed.preamble[0]) : "A focused solution to a real problem — built to ship.");
 
-  const insights = generateInsights(title, tagline, sections, stats);
+  const insights = generateInsights(title, tagline, sections);
   // Re-run missing detection with the raw markdown so it can check for teams/roadmaps.
   insights.missing = detectMissingInfo(sections, markdown);
   const readiness = computeReadiness(sections, stats, insights);
