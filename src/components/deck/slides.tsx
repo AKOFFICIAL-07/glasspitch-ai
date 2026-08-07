@@ -408,9 +408,9 @@ function SectionSlide({
               ? "sparkles"
               : "flame";
   return (
-    <div className="flex h-full w-full items-center px-20">
+    <div className="flex h-full w-full items-center overflow-hidden px-20">
       {/* Left column */}
-      <div className="relative z-10 w-[46%] shrink-0">
+      <div className="relative z-10 w-[46%] shrink-0 pt-44">
         <motion.div
           initial={{ opacity: 0, x: -26 }}
           animate={{ opacity: 1, x: 0 }}
@@ -425,7 +425,7 @@ function SectionSlide({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center gap-2"
+          className="relative z-10 flex items-center gap-2"
         >
           <span
             className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-lg"
@@ -732,8 +732,8 @@ function InsightSlide({
   };
 
   return (
-    <div className="flex h-full w-full items-center px-20">
-      <div className="relative z-10 w-[44%] shrink-0">
+    <div className="flex h-full w-full items-center overflow-hidden px-20">
+      <div className="relative z-10 w-[44%] shrink-0 pt-44">
         <motion.div
           initial={{ opacity: 0, x: -26 }}
           animate={{ opacity: 1, x: 0 }}
@@ -747,7 +747,7 @@ function InsightSlide({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center gap-2"
+          className="relative z-10 flex items-center gap-2"
         >
           <span
             className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-lg"
