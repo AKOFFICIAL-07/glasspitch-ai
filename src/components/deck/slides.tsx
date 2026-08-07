@@ -1,5 +1,5 @@
 import { AuroraBlobs } from "@/components/background";
-import { getTemplate, type DeckSection, type PitchDeck } from "@/lib/deck";
+import { extractTechStack, getTemplate, type DeckSection, type PitchDeck } from "@/lib/deck";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -486,6 +486,24 @@ function SectionSlide({
         className="ml-10 w-[54%]"
       >
         <div className={cn("relative rounded-3xl border p-9 backdrop-blur-xl", panelBg)}>
+          {section.key === "tech" && extractTechStack(section.bullets).length > 0 && (
+            <div className="mb-6 flex flex-wrap gap-2.5">
+              {extractTechStack(section.bullets).map((tech) => (
+                <span
+                  key={tech}
+                  className="rounded-full border px-3.5 py-1.5 text-[15px] font-semibold"
+                  style={{
+                    borderColor: `${section.accent}55`,
+                    background: `${section.accent}14`,
+                    color: section.accent,
+                    boxShadow: `0 0 14px ${section.accent}22`,
+                  }}
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="space-y-5">
             {section.bullets.map((bullet, bi) => (
               <motion.div

@@ -418,6 +418,49 @@ function smartFallback(
 }
 
 /* ------------------------------------------------------------------ */
+/* Tech stack extraction                                               */
+/* ------------------------------------------------------------------ */
+
+/** Curated set of recognizable languages, frameworks, and APIs. */
+const TECH_KEYWORDS = [
+  // languages
+  "TypeScript", "JavaScript", "Python", "Go", "Golang", "Rust", "Solidity", "C++", "C#",
+  "Java", "Kotlin", "Swift", "Ruby", "PHP", "SQL", "Bash", "Shell", "Zig", "Move", "Cairo",
+  // web & app frameworks
+  "React", "Next.js", "Vue", "Angular", "Svelte", "Node.js", "Deno", "Express", "FastAPI",
+  "Django", "Flask", "Spring", "Laravel", "Rails", "Tailwind", "Vite", "React Native",
+  "Flutter", "WebAssembly", "GraphQL", "REST API", "tRPC", "gRPC",
+  // data & infra
+  "PostgreSQL", "Redis", "MongoDB", "MySQL", "SQLite", "Kafka", "Docker", "Kubernetes",
+  "Terraform", "AWS", "Azure", "GCP", "Cloudflare", "IPFS", "Filecoin", "Arweave",
+  // blockchain
+  "Ethereum", "EVM", "Algorand", "Solana", "Polygon", "Arbitrum", "Base", "Optimism",
+  "Foundry", "Hardhat", "Truffle", "Viem", "Ethers.js", "Wagmi", "Web3.js", "EigenLayer",
+  "smart contracts", "ERC-20", "ERC-721", "ZK", "zkSync", "Starknet", "Chainlink", "The Graph",
+  // AI
+  "OpenAI", "Gemini", "Llama", "Hugging Face", "PyTorch", "TensorFlow", "LangChain", "RAG",
+];
+
+/**
+ * Scan doc content for recognizable tech keywords and return a clean,
+ * de-duplicated stack list (max 10). Used to surface real languages and
+ * APIs on the Technology slide and in the PPTX export.
+ */
+export function extractTechStack(texts: string[]): string[] {
+  const joined = " " + texts.join(" ") + " ";
+  const found = new Set<string>();
+  for (const kw of TECH_KEYWORDS) {
+    // Word-boundary match: "Go" matches "Go", not "going"; "SQL" matches
+    // "SQL", not "PostgreSQL". Non-alphanumeric keyword chars (+, ., #) are
+    // kept literal via escaping, and the char before/after must be non-alnum.
+    const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i");
+    if (re.test(joined)) found.add(kw);
+  }
+  return [...found].slice(0, 10);
+}
+
+/* ------------------------------------------------------------------ */
 /* AI insights engine (rule-based synthesis)                           */
 /* ------------------------------------------------------------------ */
 

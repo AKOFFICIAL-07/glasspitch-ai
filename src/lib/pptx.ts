@@ -1,5 +1,5 @@
 import { deckSlides, slideLabel } from "@/components/deck/slides";
-import { getTemplate, type PitchDeck } from "@/lib/deck";
+import { extractTechStack, getTemplate, type PitchDeck } from "@/lib/deck";
 
 /**
  * Minimal surface of pptxgenjs we use. The upstream package's type resolution
@@ -260,6 +260,56 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
         bold: true,
         color: WHITE,
       });
+      // Technology → render the real extracted stack as chips, bullets below
+      if (slide.section.key === "tech") {
+        const stack = extractTechStack(slide.section.bullets);
+        const chips = stack.length > 0 ? stack : null;
+        if (chips) {
+          const rows = Math.ceil(chips.length / 2);
+          chips.forEach((tech, ti) => {
+            const col = ti % 2;
+            const row = Math.floor(ti / 2);
+            const cx = 6.7 + col * 2.95;
+            const cy = 1.6 + row * 0.75;
+            pptx.addShape("roundRect", {
+              x: cx,
+              y: cy,
+              w: 2.8,
+              h: 0.62,
+              fill: { color: "13201B" },
+              line: { color: "1F3D31", width: 1 },
+              rectRadius: 0.12,
+            });
+            pptx.addText(tech, {
+              x: cx + 0.1,
+              y: cy + 0.08,
+              w: 2.6,
+              h: 0.46,
+              fontSize: 14,
+              bold: true,
+              color: EMERALD,
+              align: "center",
+              valign: "middle",
+            });
+          });
+          addBullets(slide.section.bullets, { x: 6.7, y: 1.7 + rows * 0.75 + 0.25, w: 5.7, fontSize: 14 });
+        } else {
+          addBullets(slide.section.bullets, { x: 6.9, y: 1.65, w: 5.6, fontSize: 15 });
+        }
+        if (slide.section.derived) {
+          pptx.addText("AI-DERIVED", {
+            x: 0.9,
+            y: 6.8,
+            w: 2.4,
+            h: 0.4,
+            fontSize: 10,
+            color: "F59E0B",
+            charSpacing: 2,
+          });
+        }
+        return;
+      }
+
       // Competitive Landscape → render the real competitor cards
       if (slide.section.key === "competitors" && deck.insights.competitors.length > 0) {
         const cards = deck.insights.competitors.slice(0, 3);
