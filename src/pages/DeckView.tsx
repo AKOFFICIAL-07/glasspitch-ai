@@ -985,17 +985,51 @@ function MintNftGate({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [walletKind, setWalletKind] = useState<WalletKind | null>(null);
+  const [walletAddress, setWalletAddress] = useState("");
 
   if (nft === undefined) return null;
 
   const alreadyMinted = !!nft;
 
-  const handleMint = async () => {
-    if (!deck || !config || busy) return;
+  const reset = () => {
+    setWalletKind(null);
+    setWalletAddress("");
+    setError(null);
+  };
+
+  /** Connect a real wallet (Pera or Lute) for signing the mint. */
+  const handleWalletConnect = async (kind: Exclude<WalletKind, "manual">) => {
     setBusy(true);
     setError(null);
     try {
-      const { mintDeckNft, buildArc3Metadata, connectPera } = await import("@/lib/algorand");
+      if (kind === "pera") {
+        const { connectPera } = await import("@/lib/algorand");
+        const address = await connectPera();
+        setWalletKind("pera");
+        setWalletAddress(address);
+        toast.success("Pera wallet connected");
+      } else {
+        const { connectLute } = await import("@/lib/algorand");
+        const address = await connectLute(config?.genesisID ?? "testnet-v1.0");
+        setWalletKind("lute");
+        setWalletAddress(address);
+        toast.success("Lute wallet connected");
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Could not connect the wallet");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleMint = async () => {
+    if (!deck || !config || busy || !walletKind || !walletAddress) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const { mintDeckNft, buildArc3Metadata } = await import("@/lib/algorand");
       const meta = buildArc3Metadata({
         title: deck.title,
         tagline: deck.tagline,
@@ -1004,10 +1038,8 @@ function MintNftGate({
         origin: window.location.origin,
         sections: deck.sections.map((s) => ({ key: s.key, title: s.title })),
       });
-      toast.info("Connect your Pera wallet to sign the mint transaction.");
-      const walletAddress = await connectPera();
       const result = await mintDeckNft({
-        kind: "pera",
+        kind: walletKind === "pera" ? "pera" : "lute",
         walletAddress,
         metadata: meta,
         algodUrl: config.algodUrl,
@@ -1026,6 +1058,7 @@ function MintNftGate({
       });
       toast.success(`NFT minted! Asset #${result.assetId}`);
       setOpen(false);
+      reset();
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Minting failed — check your wallet.");
@@ -1035,7 +1068,7 @@ function MintNftGate({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { setOpen(o); setError(null); }}>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -1139,19 +1172,62 @@ function MintNftGate({
                 </div>
               </div>
             )}
-            {error && (
-              <p className="text-[12px] text-rose-300">{error}</p>
+
+            {/* Wallet selector */}
+            {!walletAddress ? (
+              <div className="space-y-2">
+                <p className="text-[12.5px] text-white/60">
+                  Connect an Algorand wallet to sign the mint. Network:{" "}
+                  <span className="font-semibold text-purple-300">{config?.network ?? "testnet"}</span>
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    onClick={() => handleWalletConnect("pera")}
+                    disabled={busy}
+                    className="h-11 gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-[0_10px_24px_rgba(139,92,246,0.3)]"
+                  >
+                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+                    Pera
+                  </Button>
+                  <Button
+                    onClick={() => handleWalletConnect("lute")}
+                    disabled={busy}
+                    className="h-11 gap-2 rounded-xl border border-white/15 bg-white/5 text-white/85 backdrop-blur-md transition hover:bg-white/10"
+                  >
+                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 text-purple-300" />}
+                    Lute
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-purple-400/25 bg-purple-500/[0.07] px-4 py-3">
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="text-white/50">Signing wallet</span>
+                  <span className="font-semibold uppercase tracking-wide text-[11px] text-purple-300">
+                    {walletKind}
+                  </span>
+                </div>
+                <div className="mt-1.5 flex items-center justify-between text-[13px]">
+                  <span className="text-white/50">Address</span>
+                  <span className="max-w-[220px] truncate font-mono text-[11px] text-purple-300">
+                    {walletAddress}
+                  </span>
+                </div>
+              </div>
             )}
+
+            {error && <p className="text-[12px] text-rose-300">{error}</p>}
+
             <Button
               onClick={handleMint}
-              disabled={busy || !config}
+              disabled={busy || !config || !walletAddress}
               className="w-full gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-[0_10px_24px_rgba(139,92,246,0.3)]"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Box className="h-4 w-4" />}
-              {busy ? "Signing in wallet…" : "Mint NFT on Algorand"}
+              {busy ? "Signing & confirming…" : "Mint NFT on Algorand"}
             </Button>
             <p className="text-center text-[11px] text-white/35">
-              Connect your wallet when prompted to sign the asset creation transaction.
+              The wallet opens to confirm the asset creation transaction — 1 of 1 supply, 0 decimals.
             </p>
           </div>
         )}

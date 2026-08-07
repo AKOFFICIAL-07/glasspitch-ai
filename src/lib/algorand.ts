@@ -173,7 +173,7 @@ async function sha256Bytes(input: string): Promise<Uint8Array> {
 
 /** Mint a pitch deck as an ARC-3 NFT on Algorand. Returns asset ID + tx hash. */
 export async function mintDeckNft(opts: {
-  kind: WalletKind;
+  kind: Exclude<WalletKind, "manual">;
   walletAddress: string;
   metadata: Arc3Metadata;
   algodUrl: string;
