@@ -1,0 +1,34 @@
+# Render Blueprint — deploy the Deckify AI x402 payment server.
+#
+# Option A (dashboard): New → Web Service → Connect your repo → pick the
+# `x402-demo-server` root → Environment: Docker → set the env vars below.
+#
+# Option B (blueprint): commit this file to the repo root and use
+# "Blueprint" when creating a new service — Render provisions it for you.
+#
+# Free instances sleep after 15 min of inactivity and wake on the next
+# request (a few seconds of cold start). Upgrade to Starter ($7/mo) for
+# always-on, or use Fly.io (fly.toml in this folder) for true always-on free.
+
+services:
+  - type: web
+    name: deckify-x402
+    runtime: docker
+    repo: https://github.com/YOUR_ORG/YOUR_REPO # ← your repo URL
+    rootDir: x402-demo-server
+    dockerfilePath: Dockerfile
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 4021
+      - key: AVM_NETWORK
+        value: testnet
+      - key: DECK_PRICE_USD
+        value: "1.00"
+      - key: X402_VERIFY
+        value: indexer
+      # Required: your Algorand receiver address.
+      - key: AVM_ADDRESS
+        sync: false # set in the Render dashboard after provisioning

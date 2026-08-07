@@ -152,6 +152,45 @@ server instead of the old Convex payment mutations:
 Point the frontend at your server with `VITE_X402_SERVER_URL`
 (default `http://localhost:4021`).
 
+## Deploy (so the gate works without localhost)
+
+The server is a long-running Node process (`@hono/node-server`), so it needs a
+container host — not a serverless platform. A multi-stage `Dockerfile` compiles
+with `tsc` and runs `node dist/index.js` (no `tsx` at boot, small image).
+
+```bash
+# Build + run the container locally to verify
+cd x402-demo-server
+docker build -t deckify-x402 .
+docker run --rm -p 4021:4021 --env-file .env deckify-x402
+curl http://localhost:4021/    # → health check 200
+```
+
+### Option A — Fly.io (recommended, always-on free tier)
+
+`fly.toml` is included in this folder.
+
+```bash
+cd x402-demo-server
+fly launch --dockerfile Dockerfile --name deckify-x402 --no-deploy
+fly secrets set AVM_ADDRESS=YOUR_ALGORAND_ADDRESS AVM_NETWORK=testnet DECK_PRICE_USD=1.00
+fly deploy
+curl https://deckify-x402.fly.dev/   # → health check 200
+```
+
+### Option B — Render
+
+`render.yaml` (Blueprint) is included. In the dashboard: **New → Web Service** →
+connect your repo → root `x402-demo-server` → **Environment: Docker** → set env
+vars (`AVM_ADDRESS` required) → deploy. Render serves `https://<name>.onrender.com`.
+Note: free instances sleep after 15 min idle and cold-start on the next request.
+
+### Wire the frontend
+
+Set the **`VITE_X402_SERVER_URL`** key in the Freebuff Keys tab to your deployed
+URL (e.g. `https://deckify-x402.fly.dev`). The DeckView gate uses it for quotes
+and verification; without it, the gate falls back to `http://localhost:4021`.
+
 ## Production hardening
 
 - `X402_VERIFY=indexer` (default) already verifies every payment on-chain via

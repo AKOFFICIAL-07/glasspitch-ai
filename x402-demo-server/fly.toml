@@ -1,0 +1,41 @@
+# Fly.io app configuration for the Deckify AI x402 payment server.
+#
+# Deploy:
+#   fly launch --dockerfile Dockerfile --name deckify-x402 --no-deploy
+#   fly secrets set AVM_ADDRESS=<your-address> AVM_NETWORK=testnet DECK_PRICE_USD=1.00
+#   fly deploy
+#
+# The app then lives at https://deckify-x402.fly.dev — point the frontend's
+# VITE_X402_SERVER_URL key at that URL.
+
+app = "deckify-x402"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "4021"
+  AVM_NETWORK = "testnet"
+  DECK_PRICE_USD = "1.00"
+  X402_VERIFY = "indexer"
+  # AVM_ADDRESS is required — set it with `fly secrets set AVM_ADDRESS=...`
+
+[http_service]
+  internal_port = 4021
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 100
+    soft_limit = 50
+
+  [http_service.checks]
+    [http_service.checks.health]
+      grace_period = "10s"
+      interval = "30s"
+      timeout = "5s"
+      method = "GET"
+      path = "/"
