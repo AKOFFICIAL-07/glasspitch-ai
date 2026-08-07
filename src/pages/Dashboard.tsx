@@ -71,25 +71,200 @@ async function parseFileToText(file: File): Promise<string> {
   return await file.text();
 }
 
-/** Resolve a GitHub repo URL to its README (raw.githubusercontent). */
-async function fetchGithubReadme(url: string): Promise<string> {
-  const m = /github\.com\/([^/]+)\/([^/?#]+)/.exec(url);
-  if (!m) throw new Error("That doesn't look like a GitHub repository URL.");
-  const [, owner, repo] = m;
-  const candidates = [
-    `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/README.md`,
-    `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/readme.md`,
-    `https://raw.githubusercontent.com/${owner}/${repo}/master/README.md`,
+/** Normalize a GitHub URL to extract owner and repo. */
+function normalizeGithubUrl(url: string): { owner: string; repo: string } {
+  // Remove .git suffix, trailing slashes, query params, fragments
+  const cleaned = url.trim().replace(/\.git$/, '').replace(/[?#].*$/, '').replace(/\/$/, '');
+  
+  // Handle various URL formats
+  const patterns = [
+    /github\.com\/([^/]+)\/([^/]+)/,  // github.com/owner/repo
+    /^([^/]+)\/([^/]+)$/,              // owner/repo (bare format)
   ];
-  for (const c of candidates) {
-    try {
-      const res = await fetch(c);
-      if (res.ok) return await res.text();
-    } catch {
-      /* try next */
+  
+  for (const pattern of patterns) {
+    const match = pattern.exec(cleaned);
+    if (match) {
+      return { owner: match[1], repo: match[2] };
     }
   }
-  throw new Error("Could not fetch a README from that repository.");
+  
+  throw new Error("That doesn't look like a GitHub repository URL. Use format: github.com/owner/repo");
+}
+
+/** Fetch the default branch from GitHub API. */
+async function getDefaultBranch(owner: string, repo: string): Promise<string> {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+    if (res.ok) {
+      const data = await res.json();
+      return data.default_branch || 'main';
+    }
+  } catch {
+    // Fallback to trying common branch names
+  }
+  return 'main';
+}
+
+/** Try to fetch content from raw.githubusercontent. */
+async function tryFetchRaw(owner: string, repo: string, branch: string, path: string): Promise<string | null> {
+  const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      const text = await res.text();
+      if (text.trim().length > 20) return text;
+    }
+  } catch {
+    // Continue to next candidate
+  }
+  return null;
+}
+
+/** Scan repository contents via GitHub API. */
+async function scanRepositoryContents(owner: string, repo: string, branch: string): Promise<string> {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents?ref=${branch}`);
+    if (!res.ok) return '';
+    
+    const contents = await res.json();
+    if (!Array.isArray(contents)) return '';
+    
+    // Build a summary of the repository structure
+    const files: string[] = [];
+    const dirs: string[] = [];
+    
+    for (const item of contents) {
+      if (item.type === 'file') {
+        files.push(item.name);
+      } else if (item.type === 'dir') {
+        dirs.push(item.name);
+      }
+    }
+    
+    // Look for important config files
+    const importantFiles = [
+      'package.json', 'requirements.txt', 'Cargo.toml', 'pom.xml',
+      'pubspec.yaml', 'Dockerfile', 'docker-compose.yml', 'go.mod',
+      'Gemfile', 'composer.json', 'build.gradle', 'CMakeLists.txt',
+    ];
+    
+    const foundConfigs = files.filter(f => importantFiles.includes(f));
+    
+    // Build a synthetic README from repository structure
+    let summary = `# ${repo}\n\n`;
+    summary += `Repository: ${owner}/${repo}\n`;
+    summary += `Branch: ${branch}\n\n`;
+    
+    if (foundConfigs.length > 0) {
+      summary += `## Configuration Files\n`;
+      summary += foundConfigs.map(f => `- ${f}`).join('\n') + '\n\n';
+    }
+    
+    if (dirs.length > 0) {
+      summary += `## Directory Structure\n`;
+      summary += dirs.map(d => `- ${d}/`).join('\n') + '\n\n';
+    }
+    
+    if (files.length > 0) {
+      summary += `## Files\n`;
+      summary += files.slice(0, 20).map(f => `- ${f}`).join('\n');
+      if (files.length > 20) {
+        summary += `\n- ... and ${files.length - 20} more files`;
+      }
+    }
+    
+    return summary;
+  } catch {
+    return '';
+  }
+}
+
+/** Resolve a GitHub repo URL to its content with robust fallback chain. */
+async function fetchGithubContent(
+  url: string,
+  onProgress?: (step: string) => void
+): Promise<{ content: string; source: string }> {
+  const { owner, repo } = normalizeGithubUrl(url);
+  
+  onProgress?.('Detecting default branch...');
+  const branch = await getDefaultBranch(owner, repo);
+  
+  onProgress?.('Searching for README...');
+  
+  // Try README variants in order
+  const readmeCandidates = [
+    'README.md', 'README.MD', 'readme.md', 'Readme.md',
+    'README.txt', 'README', 'readme.txt',
+    'docs/README.md', 'docs/readme.md',
+  ];
+  
+  for (const candidate of readmeCandidates) {
+    const content = await tryFetchRaw(owner, repo, branch, candidate);
+    if (content) {
+      onProgress?.('README found!');
+      return { content, source: `GitHub: ${owner}/${repo} (${candidate})` };
+    }
+  }
+  
+  // Try other branches if main branch didn't work
+  const fallbackBranches = ['master', 'dev', 'develop', 'main'].filter(b => b !== branch);
+  for (const fallbackBranch of fallbackBranches) {
+    for (const candidate of ['README.md', 'readme.md']) {
+      const content = await tryFetchRaw(owner, repo, fallbackBranch, candidate);
+      if (content) {
+        onProgress?.('README found!');
+        return { content, source: `GitHub: ${owner}/${repo} (${candidate} on ${fallbackBranch})` };
+      }
+    }
+  }
+  
+  // No README found - scan repository structure
+  onProgress?.('No README found. Scanning repository structure...');
+  const repoContent = await scanRepositoryContents(owner, repo, branch);
+  
+  if (repoContent) {
+    return { content: repoContent, source: `GitHub: ${owner}/${repo} (repository scan)` };
+  }
+  
+  throw new Error(
+    `We couldn't find a README in ${owner}/${repo}, but we'll continue with whatever content you provide. ` +
+    `You can paste your project description manually below.`
+  );
+}
+
+/** Progress step indicator for GitHub import */
+function ProgressSteps({ steps, currentStep }: { steps: string[]; currentStep: string }) {
+  return (
+    <div className="mt-3 space-y-1.5">
+      {steps.map((step, i) => {
+        const isActive = step === currentStep;
+        const isPast = steps.indexOf(currentStep) > i;
+        return (
+          <div
+            key={step}
+            className={cn(
+              "flex items-center gap-2 text-[12px]",
+              isActive ? "text-indigo-300" : isPast ? "text-white/50" : "text-white/30"
+            )}
+          >
+            {isPast ? (
+              <span className="grid h-4 w-4 place-items-center rounded-full bg-indigo-500/20 text-indigo-300">
+                <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+            ) : isActive ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-300" />
+            ) : (
+              <span className="h-1.5 w-1.5 rounded-full bg-white/20" />
+            )}
+            <span className={cn(isActive && "font-medium")}>{step}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function Dashboard() {
@@ -103,6 +278,8 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState<"file" | "github" | null>(null);
   const [githubUrl, setGithubUrl] = useState("");
+  const [githubProgress, setGithubProgress] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState("");
 
   const createDeck = useMutation(api.decks.createDeck);
   const deleteDeck = useMutation(api.decks.deleteDeck);
@@ -136,14 +313,50 @@ export default function Dashboard() {
   const handleGithub = async () => {
     if (!githubUrl.trim()) return;
     setImporting("github");
+    
+    const steps = [
+      "Connecting...",
+      "Fetching Repository...",
+      "Detecting Default Branch...",
+      "Reading README...",
+      "Scanning Files...",
+      "Analyzing Dependencies...",
+      "Generating Repository Intelligence...",
+      "Investor Analysis Ready",
+    ];
+    
+    setGithubProgress(steps);
+    setCurrentStep(steps[0]);
+    
     try {
-      const text = await fetchGithubReadme(githubUrl.trim());
-      setMarkdown(text);
-      toast.success("Repository README imported");
+      // Simulate progress steps
+      for (let i = 0; i < steps.length - 2; i++) {
+        setCurrentStep(steps[i]);
+        await new Promise(r => setTimeout(r, 300 + Math.random() * 200));
+      }
+      
+      const { content, source } = await fetchGithubContent(
+        githubUrl.trim(),
+        (step) => setCurrentStep(step)
+      );
+      
+      setCurrentStep(steps[steps.length - 1]);
+      await new Promise(r => setTimeout(r, 200));
+      
+      setMarkdown(content);
+      toast.success(`Repository imported: ${source}`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not fetch the repository");
+      // Show helpful message instead of immediate error
+      const message = error instanceof Error ? error.message : "Could not fetch the repository";
+      toast.error(message, {
+        duration: 6000,
+        description: "You can paste your project description manually below.",
+      });
+      // Don't set markdown to empty - let user keep what they have
     } finally {
       setImporting(null);
+      setGithubProgress([]);
+      setCurrentStep("");
     }
   };
 
@@ -211,7 +424,7 @@ export default function Dashboard() {
         {/* Header */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-400">
               Deck studio
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
@@ -219,7 +432,7 @@ export default function Dashboard() {
             </h1>
             <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-white/55">
               Upload a README, Markdown, PDF, or DOCX — or paste a GitHub
-              repository — and PitchForge AI analyzes your project, enriches
+              repository — and Deckify AI analyzes your project, enriches
               missing business insights, and generates a professional
               investor presentation.
             </p>
@@ -252,8 +465,8 @@ export default function Dashboard() {
                 className={cn(
                   "relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition-all duration-300",
                   dragOver
-                    ? "border-emerald-400/70 bg-emerald-500/10 shadow-[0_0_40px_rgba(0,168,107,0.2)]"
-                    : "border-white/15 bg-white/[0.03] hover:border-emerald-400/40 hover:bg-white/[0.05]",
+                    ? "border-indigo-400/70 bg-indigo-500/10 shadow-[0_0_40px_rgba(99,102,241,0.2)]"
+                    : "border-white/15 bg-white/[0.03] hover:border-indigo-400/40 hover:bg-white/[0.05]",
                 )}
               >
                 <input
@@ -263,7 +476,7 @@ export default function Dashboard() {
                   className="hidden"
                   onChange={(e) => handleFile(e.target.files?.[0])}
                 />
-                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-emerald-300">
+                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-indigo-300">
                   <FileUp className="h-5 w-5" strokeWidth={1.9} />
                 </span>
                 <div>
@@ -300,7 +513,7 @@ export default function Dashboard() {
                   onChange={(e) => setGithubUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleGithub()}
                   placeholder="Paste GitHub repository URL — github.com/owner/repo"
-                  className="h-9 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                  className="h-9 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
                 />
                 <Button
                   variant="outline"
@@ -317,6 +530,13 @@ export default function Dashboard() {
                   Fetch
                 </Button>
               </div>
+              
+              {/* Progress indicator */}
+              {githubProgress.length > 0 && (
+                <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                  <ProgressSteps steps={githubProgress} currentStep={currentStep} />
+                </div>
+              )}
 
               {/* Editor */}
               <div className="relative mt-3 flex-1">
@@ -324,7 +544,7 @@ export default function Dashboard() {
                   value={markdown}
                   onChange={(e) => setMarkdown(e.target.value)}
                   placeholder={"# My Startup\n\nWe fix the way teams…\n\n## Features\n- …"}
-                  className="h-full min-h-[240px] w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-[13px] leading-relaxed text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                  className="h-full min-h-[240px] w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-[13px] leading-relaxed text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
                   spellCheck={false}
                 />
               </div>
@@ -356,7 +576,7 @@ export default function Dashboard() {
                 size="lg"
                 onClick={handleGenerate}
                 disabled={markdown.trim().length < 20 || phase === "transforming"}
-                className="shimmer mt-4 h-12 w-full gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-[15px] font-semibold text-white shadow-[0_14px_34px_rgba(0,168,107,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,168,107,0.45)] disabled:opacity-40"
+                className="shimmer mt-4 h-12 w-full gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[15px] font-semibold text-white shadow-[0_14px_34px_rgba(99,102,241,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(99,102,241,0.45)] disabled:opacity-40"
               >
                 <Wand2 className="h-5 w-5" />
                 Generate pitch deck
@@ -364,7 +584,7 @@ export default function Dashboard() {
               </Button>
               <Link
                 to="/wallet"
-                className="mt-2.5 block text-center text-[11.5px] text-white/45 underline-offset-2 transition hover:text-emerald-300 hover:underline"
+                className="mt-2.5 block text-center text-[11.5px] text-white/45 underline-offset-2 transition hover:text-indigo-300 hover:underline"
               >
                 Free plan includes 2 decks — upgrade to Founder for unlimited.
               </Link>
@@ -375,12 +595,12 @@ export default function Dashboard() {
           <div className="glass overflow-hidden">
             <div className="flex h-full flex-col p-6">
               <div className="flex items-center gap-2.5">
-                <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-emerald-300">
+                <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-indigo-300">
                   <Sparkles className="h-[18px] w-[18px]" strokeWidth={1.9} />
                 </span>
                 <div className="leading-tight">
                   <p className="text-[15px] font-semibold text-white">Live analysis</p>
-                  <p className="text-[12px] text-white/45">What PitchForge AI sees — updates as you type</p>
+                  <p className="text-[12px] text-white/45">What Deckify AI sees — updates as you type</p>
                 </div>
               </div>
 
@@ -439,7 +659,7 @@ export default function Dashboard() {
                               "border-transparent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
                               section.derived
                                 ? "bg-amber-500/10 text-amber-300"
-                                : "bg-emerald-500/10 text-emerald-300",
+                                : "bg-indigo-500/10 text-indigo-300",
                             )}
                           >
                             {section.derived ? "derived" : "found"}
@@ -487,7 +707,7 @@ export default function Dashboard() {
             </h2>
             <Link
               to="/decks"
-              className="flex items-center gap-1 text-[13px] font-semibold text-emerald-300 transition hover:text-emerald-200"
+              className="flex items-center gap-1 text-[13px] font-semibold text-indigo-300 transition hover:text-indigo-200"
             >
               View all <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -521,7 +741,7 @@ export default function Dashboard() {
                 >
                   <div
                     className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-15 blur-2xl transition-opacity group-hover:opacity-30"
-                    style={{ background: deck.sections[0]?.accent ?? "#00A86B" }}
+                    style={{ background: deck.sections[0]?.accent ?? "#6366f1" }}
                   />
                   <div className="relative flex h-full flex-col">
                     <div className="flex items-start justify-between gap-2">
@@ -540,7 +760,7 @@ export default function Dashboard() {
                         </AlertDialogTrigger>
                         <AlertDialogContent className="glass-strong rounded-2xl">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete “{deck.title}”?</AlertDialogTitle>
+                            <AlertDialogTitle>Delete "{deck.title}"?</AlertDialogTitle>
                             <AlertDialogDescription>
                               This removes the deck permanently. This action cannot be undone.
                             </AlertDialogDescription>
@@ -584,7 +804,7 @@ export default function Dashboard() {
                       </span>
                       <Link
                         to={`/deck/${deck._id}`}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(0,168,107,0.3)] transition hover:-translate-y-0.5"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.3)] transition hover:-translate-y-0.5"
                       >
                         Open <ArrowRight className="h-3 w-3" />
                       </Link>

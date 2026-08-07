@@ -213,8 +213,19 @@ export default function Wallet() {
   const plan = billing?.plan ?? "free";
   const deckCount = billing?.deckCount ?? 0;
   const isPro = plan === "pro";
-  const freeLimit = 2;
-  const pct = Math.min(100, (deckCount / freeLimit) * 100);
+
+  // Mock usage data (in production, this would come from the backend)
+  const usageData = {
+    decksToday: Math.min(deckCount, 3),
+    usdcSpentToday: "1.70",
+    dailyBudget: isPro ? "20.00" : "5.00",
+    history: [
+      { operation: "README Analysis", cost: "0.10 USDC" },
+      { operation: "Market Research", cost: "0.25 USDC" },
+      { operation: "Competitor Analysis", cost: "0.20 USDC" },
+      { operation: "Deck Generation", cost: "1.15 USDC" },
+    ],
+  };
 
   return (
     <AppShell>
@@ -256,177 +267,260 @@ export default function Wallet() {
           </div>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-            {/* Usage */}
+            {/* Connected Wallet Card */}
             <div className="glass flex flex-col rounded-3xl p-7">
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300">
-                <WalletIcon className="h-5 w-5" strokeWidth={1.9} />
-              </span>
-              <h2 className="mt-5 text-lg font-semibold text-slate-100">Deck usage</h2>
-              <p className="mt-1 text-[13px] text-slate-400">
-                {isPro
-                  ? "Founder plan — forge unlimited decks."
-                  : `Free plan includes ${freeLimit} decks.`}
-              </p>
-              <div className="mt-6">
-                <div className="flex items-end justify-between">
-                  <span className="text-3xl font-bold tabular-nums tracking-tight text-slate-100">
-                    {deckCount}
-                    <span className="text-base font-semibold text-slate-500"> / {isPro ? "∞" : freeLimit}</span>
-                  </span>
-                  <span className="text-[12px] font-medium text-slate-500">decks forged</span>
-                </div>
-                <div className="relative mt-3 h-2.5 overflow-hidden rounded-full border border-white/10 bg-white/5">
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-400 to-indigo-500 transition-all duration-700"
-                    style={{ width: isPro ? "100%" : `${pct}%` }}
-                  />
-                </div>
-                {!isPro && deckCount >= freeLimit && (
-                  <p className="mt-3 text-[12.5px] text-amber-300">
-                    You&apos;ve hit the free limit — upgrade to keep forging.
+              <div className="flex items-center gap-3">
+                <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300">
+                  <WalletIcon className="h-5 w-5" strokeWidth={1.9} />
+                </span>
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-100">Connected Wallet</h2>
+                  <p className="text-[13px] text-slate-400">
+                    {isPro ? "Founder plan — forge unlimited decks." : "Free plan — pay per deck with crypto."}
                   </p>
-                )}
+                </div>
+              </div>
+              
+              <div className="mt-6 space-y-4">
+                {/* Balance */}
+                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-[12px] font-medium text-slate-500">Balance</p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-100">
+                    {isPro ? "∞" : "0.00"} USDC
+                  </p>
+                </div>
+                
+                {/* Network & Wallet */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className="text-[11px] font-medium text-slate-500">Network</p>
+                    <p className="mt-0.5 text-[13px] font-semibold text-slate-200">Algorand {x402Config?.network ?? "Testnet"}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className="text-[11px] font-medium text-slate-500">Wallet</p>
+                    <p className="mt-0.5 text-[13px] font-semibold text-slate-200">
+                      {x402Config ? "Connected" : "Not connected"}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Daily Spending Limit */}
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-medium text-slate-500">Daily Spending Limit</p>
+                    <p className="text-[13px] font-semibold text-slate-200">{usageData.dailyBudget} USDC</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Pricing comparison */}
-            <div className="grid gap-4 sm:grid-cols-3">
-              {/* Free */}
-              <div className={cn(
-                "glass relative flex flex-col rounded-3xl p-5 transition-all duration-300",
-                plan === "free" && "ring-1 ring-indigo-400/30",
-              )}>
-                {plan === "free" && (
-                  <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
-                    Current
-                  </Badge>
-                )}
-                <h3 className="text-[14px] font-semibold text-slate-100">Free</h3>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-2xl font-bold tracking-tight text-slate-100">0</span>
-                  <span className="text-[11px] text-slate-500">ALGO</span>
+            {/* Today's AI Usage */}
+            <div className="glass flex flex-col rounded-3xl p-7">
+              <h2 className="text-lg font-semibold text-slate-100">Today's AI Usage</h2>
+              <p className="mt-1 text-[13px] text-slate-400">
+                Usage-based crypto billing — pay only for what you use.
+              </p>
+              
+              {/* Usage Stats */}
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+                  <p className="text-2xl font-bold tabular-nums text-slate-100">{usageData.decksToday}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">Decks Generated</p>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-500">No wallet needed</p>
-                <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-400">
-                  {[
-                    [true, "2 pitch decks"],
-                    [true, "PDF export"],
-                    [true, "Share links"],
-                    [true, "Comment on any deck"],
-                    [false, "PPTX export"],
-                    [false, "Publish to catalog"],
-                    [false, "Priority quality"],
-                  ].map(([ok, label]) => (
-                    <li key={String(label)} className="flex items-center gap-2">
-                      {ok ? (
-                        <Check className="h-3.5 w-3.5 shrink-0 text-indigo-400" strokeWidth={2.5} />
-                      ) : (
-                        <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
-                      )}
-                      {label}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="outline" disabled className="glass-soft mt-4 w-full rounded-xl text-[12px] text-slate-500">
-                  Free forever
-                </Button>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+                  <p className="text-2xl font-bold tabular-nums text-slate-100">{usageData.usdcSpentToday}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">USDC Spent</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+                  <p className="text-2xl font-bold tabular-nums text-indigo-300">
+                    {(parseFloat(usageData.dailyBudget) - parseFloat(usageData.usdcSpentToday)).toFixed(2)}
+                  </p>
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">Remaining</p>
+                </div>
               </div>
-
-              {/* Per-Deck */}
-              <div className="glass relative flex flex-col rounded-3xl p-5">
-                <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
-                  crypto
-                </Badge>
-                <h3 className="text-[14px] font-semibold text-slate-100">Per-Deck</h3>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-2xl font-bold tracking-tight text-slate-100">2.5</span>
-                  <span className="text-[11px] text-slate-500">ALGO</span>
-                </div>
-                <p className="mt-1 text-[11px] text-slate-500">Pay only for what you use</p>
-                <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-400">
-                  {[
-                    [true, "Unlimited premium decks"],
-                    [true, "Full AI analysis + scoring"],
-                    [true, "PDF + PPTX export"],
-                    [true, "Share links"],
-                    [true, "Comment on any deck"],
-                    [false, "Publish to catalog"],
-                    [false, "Priority quality"],
-                  ].map(([ok, label]) => (
-                    <li key={String(label)} className="flex items-center gap-2">
-                      {ok ? (
-                        <Check className="h-3.5 w-3.5 shrink-0 text-indigo-400" strokeWidth={2.5} />
-                      ) : (
-                        <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
-                      )}
-                      {label}
-                    </li>
+              
+              {/* Generation History */}
+              <div className="mt-5">
+                <h3 className="text-[13px] font-semibold text-slate-300">Generation History</h3>
+                <div className="mt-3 space-y-2">
+                  {usageData.history.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5"
+                    >
+                      <span className="text-[13px] text-slate-300">{item.operation}</span>
+                      <span className="text-[12px] font-semibold text-indigo-300">{item.cost}</span>
+                    </div>
                   ))}
-                </ul>
-                <Button disabled className="mt-4 w-full gap-1.5 rounded-xl bg-indigo-500/15 text-[12px] text-indigo-300">
-                  <Zap className="h-3.5 w-3.5" />
-                  Pay per deck in DeckView
-                </Button>
+                </div>
               </div>
-
-              {/* Founder */}
-              <div className={cn(
-                "edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-indigo-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-5 backdrop-blur-xl",
-                isPro && "ring-1 ring-indigo-400/50",
-              )}>
-                {isPro ? (
-                  <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-200">
-                    Active
-                  </Badge>
-                ) : (
-                  <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
-                    Best value
-                  </Badge>
-                )}
-                <h3 className="text-[14px] font-semibold text-slate-100">Founder</h3>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-2xl font-bold tracking-tight text-slate-100">19</span>
-                  <span className="text-[11px] text-slate-500">ALGO</span>
+              
+              {/* Pricing breakdown */}
+              <div className="mt-5 rounded-xl border border-indigo-400/20 bg-indigo-500/[0.06] p-4">
+                <h4 className="text-[12px] font-semibold text-indigo-300">Per-Operation Pricing</h4>
+                <div className="mt-2 space-y-1.5 text-[12px] text-slate-400">
+                  <div className="flex justify-between"><span>README Parsing</span><span>0.10 USDC</span></div>
+                  <div className="flex justify-between"><span>Market Research</span><span>0.25 USDC</span></div>
+                  <div className="flex justify-between"><span>Competitor Analysis</span><span>0.20 USDC</span></div>
+                  <div className="flex justify-between"><span>Deck Generation</span><span>1.15 USDC</span></div>
+                  <div className="border-t border-indigo-400/20 pt-1.5 flex justify-between font-semibold text-indigo-300">
+                    <span>Total</span><span>1.70 USDC</span>
+                  </div>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-500">One-time, lifetime access</p>
-                <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-300">
-                  {[
-                    [true, "Everything in Per-Deck"],
-                    [true, "Unlimited premium decks"],
-                    [true, "Publish to the catalog"],
-                    [true, "Priority deck quality"],
-                    [true, "Early access to new formats"],
-                    [true, "AI voice pitch"],
-                    [true, "Custom templates"],
-                  ].map(([ok, label]) => (
-                    <li key={String(label)} className="flex items-center gap-2">
-                      {ok ? (
-                        <Check className="h-3.5 w-3.5 shrink-0 text-indigo-300" strokeWidth={2.5} />
-                      ) : (
-                        <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
-                      )}
-                      {label}
-                    </li>
-                  ))}
-                </ul>
-                {isPro ? (
-                  <Button disabled className="mt-4 w-full rounded-xl bg-indigo-500/15 text-[12px] text-indigo-300">
-                    <Check className="mr-1.5 h-3.5 w-3.5" />
-                    Founder active
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => setFounderOpen(true)}
-                    className="mt-4 w-full gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[12px] font-semibold text-white shadow-[0_8px_24px_rgba(99,102,241,0.3)] hover:-translate-y-0.5"
-                  >
-                    <ArrowRight className="h-3.5 w-3.5" />
-                    Upgrade via crypto
-                  </Button>
-                )}
               </div>
             </div>
           </div>
         )}
+
+        {/* Pricing comparison */}
+        <section className="mt-12">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
+                Plans
+              </p>
+              <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-100">
+                Choose your plan
+              </h2>
+            </div>
+          </div>
+          
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            {/* Free */}
+            <div className={cn(
+              "glass relative flex flex-col rounded-3xl p-5 transition-all duration-300",
+              plan === "free" && "ring-1 ring-indigo-400/30",
+            )}>
+              {plan === "free" && (
+                <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
+                  Current
+                </Badge>
+              )}
+              <h3 className="text-[14px] font-semibold text-slate-100">Free</h3>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-2xl font-bold tracking-tight text-slate-100">0</span>
+                <span className="text-[11px] text-slate-500">ALGO</span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500">No wallet needed</p>
+              <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-400">
+                {[
+                  [true, "2 pitch decks"],
+                  [true, "PDF export"],
+                  [true, "Share links"],
+                  [true, "Comment on any deck"],
+                  [false, "PPTX export"],
+                  [false, "Publish to catalog"],
+                  [false, "Priority quality"],
+                ].map(([ok, label]) => (
+                  <li key={String(label)} className="flex items-center gap-2">
+                    {ok ? (
+                      <Check className="h-3.5 w-3.5 shrink-0 text-indigo-400" strokeWidth={2.5} />
+                    ) : (
+                      <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
+                    )}
+                    {label}
+                  </li>
+                ))}
+              </ul>
+              <Button variant="outline" disabled className="glass-soft mt-4 w-full rounded-xl text-[12px] text-slate-500">
+                Free forever
+              </Button>
+            </div>
+
+            {/* Per-Deck */}
+            <div className="glass relative flex flex-col rounded-3xl p-5">
+              <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
+                crypto
+              </Badge>
+              <h3 className="text-[14px] font-semibold text-slate-100">Per-Deck</h3>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-2xl font-bold tracking-tight text-slate-100">2.5</span>
+                <span className="text-[11px] text-slate-500">ALGO</span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500">Pay only for what you use</p>
+              <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-400">
+                {[
+                  [true, "Unlimited premium decks"],
+                  [true, "Full AI analysis + scoring"],
+                  [true, "PDF + PPTX export"],
+                  [true, "Share links"],
+                  [true, "Comment on any deck"],
+                  [false, "Publish to catalog"],
+                  [false, "Priority quality"],
+                ].map(([ok, label]) => (
+                  <li key={String(label)} className="flex items-center gap-2">
+                    {ok ? (
+                      <Check className="h-3.5 w-3.5 shrink-0 text-indigo-400" strokeWidth={2.5} />
+                    ) : (
+                      <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
+                    )}
+                    {label}
+                  </li>
+                ))}
+              </ul>
+              <Button disabled className="mt-4 w-full gap-1.5 rounded-xl bg-indigo-500/15 text-[12px] text-indigo-300">
+                <Zap className="h-3.5 w-3.5" />
+                Pay per deck in DeckView
+              </Button>
+            </div>
+
+            {/* Founder */}
+            <div className={cn(
+              "edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-indigo-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-5 backdrop-blur-xl",
+              isPro && "ring-1 ring-indigo-400/50",
+            )}>
+              {isPro ? (
+                <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-200">
+                  Active
+                </Badge>
+              ) : (
+                <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
+                  Best value
+                </Badge>
+              )}
+              <h3 className="text-[14px] font-semibold text-slate-100">Founder</h3>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-2xl font-bold tracking-tight text-slate-100">19</span>
+                <span className="text-[11px] text-slate-500">ALGO</span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500">One-time, lifetime access</p>
+              <ul className="mt-4 flex-1 space-y-1.5 text-[12px] text-slate-300">
+                {[
+                  [true, "Everything in Per-Deck"],
+                  [true, "Unlimited premium decks"],
+                  [true, "Publish to the catalog"],
+                  [true, "Priority deck quality"],
+                  [true, "Early access to new formats"],
+                  [true, "AI voice pitch"],
+                  [true, "Custom templates"],
+                ].map(([ok, label]) => (
+                  <li key={String(label)} className="flex items-center gap-2">
+                    {ok ? (
+                      <Check className="h-3.5 w-3.5 shrink-0 text-indigo-300" strokeWidth={2.5} />
+                    ) : (
+                      <X className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={2} />
+                    )}
+                    {label}
+                  </li>
+                ))}
+              </ul>
+              {isPro ? (
+                <Button disabled className="mt-4 w-full rounded-xl bg-indigo-500/15 text-[12px] text-indigo-300">
+                  <Check className="mr-1.5 h-3.5 w-3.5" />
+                  Founder active
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => setFounderOpen(true)}
+                  className="mt-4 w-full gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[12px] font-semibold text-white shadow-[0_8px_24px_rgba(99,102,241,0.3)] hover:-translate-y-0.5"
+                >
+                  <ArrowRight className="h-3.5 w-3.5" />
+                  Upgrade via crypto
+                </Button>
+              )}
+            </div>
+          </div>
+        </section>
 
         {/* On-chain crypto payments */}
         <section className="mt-12">
@@ -464,7 +558,7 @@ export default function Wallet() {
                 </span>
                 <p className="text-[14px] font-medium text-slate-200">No on-chain payments yet</p>
                 <p className="max-w-sm text-[12.5px] leading-relaxed text-slate-500">
-                  Open a deck and use the premium gate to pay with a Pera or Lute
+                  Open a deck and use the premium gate to pay with a Pera or Defly
                   wallet — your verified transactions will appear here.
                 </p>
               </div>
