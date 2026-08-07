@@ -324,6 +324,8 @@ export default function DeckView() {
                   key={`${i}-${slide.kind}`}
                   deck={deck}
                   slide={slide}
+                  index={i}
+                  total={slides.length}
                   active={i === index}
                   onClick={() => goTo(i)}
                 />

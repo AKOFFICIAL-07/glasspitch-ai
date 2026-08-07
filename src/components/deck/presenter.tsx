@@ -52,18 +52,20 @@ export function useSlideNavigation(total: number) {
 export function SlideThumb({
   deck,
   slide,
+  index,
+  total,
   active,
   onClick,
 }: {
   deck: PitchDeck;
   slide: SlideDef;
+  index: number;
+  total: number;
   active: boolean;
   onClick: () => void;
 }) {
   const W = 168;
   const S = W / 1280;
-  const slides = deckSlides(deck);
-  const index = slides.findIndex((s) => s === slide);
   return (
     <button
       type="button"
@@ -80,7 +82,7 @@ export function SlideThumb({
         className="origin-top-left"
         style={{ width: 1280, height: 720, transform: `scale(${S})` }}
       >
-        <SlideContent deck={deck} slide={slide} index={index} total={slides.length} />
+        <SlideContent deck={deck} slide={slide} index={index} total={total} />
       </div>
     </button>
   );
