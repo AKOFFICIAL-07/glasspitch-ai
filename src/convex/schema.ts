@@ -127,6 +127,23 @@ const schema = defineSchema(
       .index("by_user", ["userId"])
       .index("by_deck", ["deckId"]),
 
+    // NFTs minted from pitch decks
+    nfts: defineTable({
+      deckId: v.id("decks"),
+      userId: v.id("users"),
+      assetId: v.number(), // Algorand ASA ID
+      txHash: v.string(), // asset creation tx hash
+      metadataHash: v.string(), // base64 SHA-256 of ARC-3 metadata JSON
+      network: v.string(), // "testnet" | "mainnet"
+      creatorAddress: v.string(), // wallet that signed the mint
+      assetName: v.string(), // e.g. "Volta — Liquid Restaking #1"
+      unitName: v.string(), // e.g. "PITCH"
+      metadataUrl: v.string(), // data URI or hosted URL of the metadata JSON
+      status: v.string(), // "pending" | "confirmed" | "failed"
+    })
+      .index("by_deck", ["deckId"])
+      .index("by_user", ["userId"]),
+
     // public comments on decks
     comments: defineTable({
       deckId: v.id("decks"),

@@ -47,6 +47,7 @@ import {
   MessageSquare,
   Mic,
   Palette,
+  Box,
   Send,
   Trash2,
   Wallet,
@@ -240,6 +241,7 @@ export default function DeckView() {
           <div className="flex items-center gap-2">
             <VoicePitchMenu playing={voicePlaying} onPlay={handleVoice} deck={deck} />
             <X402Gate deckId={deckId} deck={deck} />
+            <MintNftGate deckId={deckId} deck={deck} shareCode={deckDoc?.shareCode} />
             <Button
               variant="outline"
               onClick={handlePublish}
@@ -958,6 +960,201 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
             </div>
           )}
         </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* NFT minting gate                                                    */
+/* ------------------------------------------------------------------ */
+
+function MintNftGate({
+  deckId,
+  deck,
+  shareCode,
+}: {
+  deckId: Id<"decks">;
+  deck: PitchDeck | null;
+  shareCode?: string;
+}) {
+  const recordMint = useMutation(api.nfts.recordMint);
+  const nft = useQuery(api.nfts.getNftForDeck, { deckId });
+  const config = useQuery(api.payments.getX402Config);
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (nft === undefined) return null;
+
+  const alreadyMinted = !!nft;
+
+  const handleMint = async () => {
+    if (!deck || !config || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const { mintDeckNft, buildArc3Metadata, connectPera } = await import("@/lib/algorand");
+      const meta = buildArc3Metadata({
+        title: deck.title,
+        tagline: deck.tagline,
+        creator: user?.name ?? "Anonymous",
+        shareCode: shareCode ?? "",
+        origin: window.location.origin,
+        sections: deck.sections.map((s) => ({ key: s.key, title: s.title })),
+      });
+      toast.info("Connect your Pera wallet to sign the mint transaction.");
+      const walletAddress = await connectPera();
+      const result = await mintDeckNft({
+        kind: "pera",
+        walletAddress,
+        metadata: meta,
+        algodUrl: config.algodUrl,
+        genesisID: config.genesisID,
+      });
+      await recordMint({
+        deckId,
+        assetId: result.assetId,
+        txHash: result.txHash,
+        metadataHash: btoa(JSON.stringify(meta)),
+        network: config.network,
+        creatorAddress: walletAddress,
+        assetName: meta.name.slice(0, 32),
+        unitName: "PITCH",
+        metadataUrl: result.metadataUrl.slice(0, 200),
+      });
+      toast.success(`NFT minted! Asset #${result.assetId}`);
+      setOpen(false);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Minting failed — check your wallet.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); setError(null); }}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          disabled={!deck}
+          className={cn(
+            "gap-2 rounded-xl text-[13px]",
+            alreadyMinted
+              ? "border-purple-400/40 bg-purple-500/10 text-purple-300"
+              : "glass-soft text-white/70 hover:bg-white/10",
+          )}
+        >
+          <Box className="h-4 w-4" />
+          <span className="hidden sm:inline">{alreadyMinted ? "Minted" : "Mint NFT"}</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="glass-strong max-w-lg rounded-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-white">
+            <Box className="h-4 w-4 text-purple-400" />
+            {alreadyMinted ? "NFT minted" : "Mint as NFT"}
+          </DialogTitle>
+          <DialogDescription className="text-white/50">
+            {alreadyMinted
+              ? "This deck has been minted as an ARC-3 NFT on Algorand."
+              : "Create an immutable on-chain record of this deck as an Algorand Standard Asset (ARC-3 NFT)."}
+          </DialogDescription>
+        </DialogHeader>
+
+        {alreadyMinted ? (
+          <div className="space-y-3">
+            <div className="rounded-xl border border-purple-400/25 bg-purple-500/[0.07] p-4">
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="text-white/60">Asset ID</span>
+                <a
+                  href={config ? `${config.explorerBase}/asset/${nft.assetId}` : "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[13px] font-bold text-purple-300 underline-offset-2 hover:underline"
+                >
+                  {nft.assetId}
+                </a>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[13px]">
+                <span className="text-white/60">Network</span>
+                <span className="font-semibold uppercase tracking-wide text-white/70">
+                  {nft.network}
+                </span>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[13px]">
+                <span className="text-white/60">Creator</span>
+                <span className="max-w-[200px] truncate font-mono text-[11px] text-purple-300">
+                  {nft.creatorAddress}
+                </span>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[13px]">
+                <span className="text-white/60">Transaction</span>
+                <a
+                  href={config ? `${config.explorerBase}/tx/${nft.txHash}` : "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="max-w-[200px] truncate font-mono text-[11px] text-purple-300 underline-offset-2 hover:underline"
+                >
+                  {nft.txHash.slice(0, 16)}…
+                </a>
+              </div>
+            </div>
+            <Button onClick={() => setOpen(false)} className="w-full rounded-xl bg-purple-500 text-white hover:bg-purple-600">
+              Done
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {deck && (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                  ARC-3 metadata preview
+                </p>
+                <div className="mt-2 space-y-1.5 text-[12.5px]">
+                  <div className="flex justify-between">
+                    <span className="text-white/50">Name</span>
+                    <span className="max-w-[260px] truncate font-semibold text-white/85">
+                      {deck.title}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/50">Unit</span>
+                    <span className="font-semibold text-white/85">PITCH</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/50">Total supply</span>
+                    <span className="font-semibold text-white/85">1 (NFT)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/50">Decimals</span>
+                    <span className="font-semibold text-white/85">0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/50">Sections</span>
+                    <span className="font-semibold text-white/85">{deck.sections.length}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            {error && (
+              <p className="text-[12px] text-rose-300">{error}</p>
+            )}
+            <Button
+              onClick={handleMint}
+              disabled={busy || !config}
+              className="w-full gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-[0_10px_24px_rgba(139,92,246,0.3)]"
+            >
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Box className="h-4 w-4" />}
+              {busy ? "Signing in wallet…" : "Mint NFT on Algorand"}
+            </Button>
+            <p className="text-center text-[11px] text-white/35">
+              Connect your wallet when prompted to sign the asset creation transaction.
+            </p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

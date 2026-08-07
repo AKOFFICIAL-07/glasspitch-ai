@@ -8,6 +8,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  Box,
   Check,
   CheckCircle2,
   CreditCard,
@@ -26,6 +27,7 @@ export default function Wallet() {
   const markPro = useMutation(api.billing.markPro);
   const x402Config = useQuery(api.payments.getX402Config);
   const payments = useQuery(api.payments.listPayments);
+  const nfts = useQuery(api.nfts.listMyNfts);
   const [checkingOut, setCheckingOut] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const handled = useRef(false);
@@ -331,6 +333,97 @@ export default function Wallet() {
                         )}
                         <p className="mt-1 text-[11px] text-slate-600">
                           {new Date(p._creationTime).toLocaleString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* NFT collection */}
+        <section className="mt-12">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-purple-300">
+                NFT Collection
+              </p>
+              <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-100">
+                Minted pitch decks
+              </h2>
+              <p className="mt-1 text-[13px] text-slate-400">
+                ARC-3 Algorand Standard Assets — immutable on-chain records of your decks.
+              </p>
+            </div>
+            <Badge className="w-fit border-transparent bg-purple-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-purple-300">
+              {nfts?.length ?? 0} minted
+            </Badge>
+          </div>
+
+          <div className="glass mt-4 overflow-hidden rounded-3xl">
+            {nfts === undefined ? (
+              <div className="space-y-3 p-6">
+                {[0, 1].map((i) => (
+                  <Skeleton key={i} className="h-14 rounded-xl bg-white/5" />
+                ))}
+              </div>
+            ) : nfts.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-purple-300">
+                  <Box className="h-5 w-5" strokeWidth={1.9} />
+                </span>
+                <p className="text-[14px] font-medium text-slate-200">No NFTs minted yet</p>
+                <p className="max-w-sm text-[12.5px] leading-relaxed text-slate-500">
+                  Open a deck and click "Mint NFT" to create an immutable on-chain record on Algorand.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/5">
+                {nfts.map((nft) => {
+                  const explorer = x402Config ? `${x402Config.explorerBase}/asset/${nft.assetId}` : null;
+                  return (
+                    <div key={nft._id} className="flex flex-wrap items-center gap-3 px-5 py-4">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-purple-500/15 text-purple-300">
+                        <Box className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[13.5px] font-semibold text-slate-100">
+                            {nft.assetName}
+                          </span>
+                          <Badge className="border-transparent bg-purple-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-purple-300">
+                            {nft.status}
+                          </Badge>
+                        </div>
+                        <p className="mt-0.5 truncate font-mono text-[11px] text-slate-500">
+                          Asset #{nft.assetId} · {nft.unitName} · Supply 1
+                        </p>
+                      </div>
+                      <div className="hidden text-right sm:block">
+                        {explorer ? (
+                          <a
+                            href={explorer}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-end gap-1 font-mono text-[11px] text-purple-300/80 underline-offset-2 hover:text-purple-300 hover:underline"
+                          >
+                            #{nft.assetId}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          <span className="font-mono text-[11px] text-slate-500">
+                            #{nft.assetId}
+                          </span>
+                        )}
+                        <p className="mt-1 text-[11px] text-slate-600">
+                          {new Date(nft._creationTime).toLocaleString(undefined, {
                             month: "short",
                             day: "numeric",
                             hour: "2-digit",
