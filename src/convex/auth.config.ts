@@ -29,5 +29,16 @@ export default {
       applicationID: "vly-convex",
       algorithm: "RS256",
     },
+    // OAuth — Google & GitHub login. Add GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET
+    // (and GITHUB_CLIENT_ID + GITHUB_CLIENT_SECRET) in the Keys tab, then
+    // register the callback URLs Convex prints in the OAuth provider console.
+    {
+      domain: "accounts.google.com",
+      applicationID: "google",
+    },
+    {
+      domain: "github.com",
+      applicationID: "github",
+    },
   ],
 } satisfies AuthConfig;

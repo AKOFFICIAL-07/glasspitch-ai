@@ -71,12 +71,15 @@ export function SlideThumb({
       className={cn(
         "relative block w-full overflow-hidden rounded-lg transition-all duration-200",
         active
-          ? "ring-2 ring-cyan-400 shadow-[0_10px_26px_rgba(34,211,238,0.35)]"
+          ? "ring-2 ring-emerald-400 shadow-[0_10px_26px_rgba(0,168,107,0.35)]"
           : "opacity-70 ring-1 ring-white/10 hover:opacity-100",
       )}
       style={{ height: S * 720 }}
     >
-      <div className="origin-top-left" style={{ width: 1280, height: 720, transform: `scale(${S})` }}>
+      <div
+        className="origin-top-left"
+        style={{ width: 1280, height: 720, transform: `scale(${S})` }}
+      >
         <SlideContent deck={deck} slide={slide} index={index} total={slides.length} />
       </div>
     </button>

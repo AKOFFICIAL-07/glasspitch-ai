@@ -64,12 +64,66 @@ const schema = defineSchema(
         lines: v.number(),
         sectionsFound: v.number(),
       }),
+      // AI insights persisted with the deck so preview/share can rehydrate
+      insights: v.object({
+        executiveSummary: v.string(),
+        elevatorPitch: v.string(),
+        tam: v.string(),
+        sam: v.string(),
+        som: v.string(),
+        marketNote: v.string(),
+        businessModel: v.string(),
+        pricingStrategy: v.string(),
+        gtm: v.array(v.string()),
+        roadmap: v.array(
+          v.object({ phase: v.string(), timeline: v.string(), items: v.array(v.string()) }),
+        ),
+        risks: v.array(v.string()),
+        fundingAsk: v.string(),
+        useOfFunds: v.array(v.string()),
+        competitors: v.array(
+          v.object({
+            name: v.string(),
+            category: v.string(),
+            strengths: v.array(v.string()),
+            weaknesses: v.array(v.string()),
+            advantage: v.string(),
+          }),
+        ),
+        missing: v.array(v.string()),
+      }),
+      readiness: v.object({
+        overall: v.number(),
+        metrics: v.array(
+          v.object({
+            key: v.string(),
+            label: v.string(),
+            score: v.number(),
+            note: v.string(),
+          }),
+        ),
+      }),
+      template: v.optional(v.string()), // deck template id
       published: v.optional(v.boolean()), // visible in the public catalog
     })
       .index("by_owner", ["ownerId"])
       .index("by_project", ["projectId"])
       .index("by_share_code", ["shareCode"])
       .index("by_published", ["published"]),
+
+    // Algorand x402 payments for premium deck generation
+    payments: defineTable({
+      userId: v.id("users"),
+      deckId: v.optional(v.id("decks")),
+      walletAddress: v.string(),
+      txHash: v.string(),
+      amount: v.number(), // in microAlgos
+      assetId: v.number(), // 0 = ALGO native
+      status: v.string(), // "authorized" | "verified"
+      memo: v.optional(v.string()),
+    })
+      .index("by_user", ["userId"])
+      .index("by_deck", ["deckId"]),
 
     // public comments on decks
     comments: defineTable({
@@ -80,6 +134,7 @@ const schema = defineSchema(
     })
       .index("by_deck", ["deckId"])
       .index("by_author", ["authorId"]),
+
   },
   {
     schemaValidation: false,

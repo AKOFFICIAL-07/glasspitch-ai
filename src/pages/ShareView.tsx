@@ -45,6 +45,17 @@ export default function ShareView() {
         derived: s.derived,
       })),
       stats: deckDoc.stats,
+      insights: deckDoc.insights,
+      readiness: {
+        overall: deckDoc.readiness.overall,
+        metrics: deckDoc.readiness.metrics.map((m) => ({
+          key: m.key as PitchDeck["readiness"]["metrics"][number]["key"],
+          label: m.label,
+          score: m.score,
+          note: m.note,
+        })),
+      },
+      template: deckDoc.template ?? "glass",
     };
   }, [deckDoc]);
 

@@ -1,4 +1,6 @@
 import '@vly-ai/integrations';
+import "@fontsource-variable/geist";
+import "@fontsource-variable/inter";
 import { Toaster } from "@/components/ui/sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
@@ -34,16 +36,16 @@ const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 // Branded loading fallback for route transitions
 function RouteLoading() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[oklch(0.985_0.006_250)]">
+    <div className="flex min-h-screen items-center justify-center bg-[oklch(0.13_0.01_170)]">
       <div className="flex flex-col items-center gap-3">
         <div className="relative">
-          <div className="h-12 w-12 animate-spin rounded-2xl border-2 border-indigo-200 border-t-indigo-500" />
+          <div className="h-12 w-12 animate-spin rounded-2xl border-2 border-emerald-400/30 border-t-emerald-400" />
           <div className="absolute inset-0 grid place-items-center">
-            <span className="h-3 w-3 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500" />
+            <span className="h-3 w-3 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_14px_rgba(0,168,107,0.8)]" />
           </div>
         </div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-          Pitch Forge
+        <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+          PitchForge AI
         </p>
       </div>
     </div>
@@ -228,7 +230,7 @@ createRoot(document.getElementById("root")!).render(
             </Routes>
           </Suspense>
         </BrowserRouter>
-        <Toaster theme="light" richColors position="bottom-right" />
+        <Toaster theme="dark" richColors position="bottom-right" />
       </ConvexAuthProvider>
     </RootErrorBoundary>
   </StrictMode>,

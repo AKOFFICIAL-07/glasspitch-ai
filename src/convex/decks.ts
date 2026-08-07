@@ -17,6 +17,41 @@ const statsValidator = v.object({
   sectionsFound: v.number(),
 });
 
+const insightsValidator = v.object({
+  executiveSummary: v.string(),
+  elevatorPitch: v.string(),
+  tam: v.string(),
+  sam: v.string(),
+  som: v.string(),
+  marketNote: v.string(),
+  businessModel: v.string(),
+  pricingStrategy: v.string(),
+  gtm: v.array(v.string()),
+  roadmap: v.array(
+    v.object({ phase: v.string(), timeline: v.string(), items: v.array(v.string()) }),
+  ),
+  risks: v.array(v.string()),
+  fundingAsk: v.string(),
+  useOfFunds: v.array(v.string()),
+  competitors: v.array(
+    v.object({
+      name: v.string(),
+      category: v.string(),
+      strengths: v.array(v.string()),
+      weaknesses: v.array(v.string()),
+      advantage: v.string(),
+    }),
+  ),
+  missing: v.array(v.string()),
+});
+
+const readinessValidator = v.object({
+  overall: v.number(),
+  metrics: v.array(
+    v.object({ key: v.string(), label: v.string(), score: v.number(), note: v.string() }),
+  ),
+});
+
 /** Generate a short, URL-safe share code. */
 function makeShareCode(): string {
   const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -45,6 +80,9 @@ export const createDeck = mutation({
     tagline: v.string(),
     sections: v.array(sectionValidator),
     stats: statsValidator,
+    insights: insightsValidator,
+    readiness: readinessValidator,
+    template: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -91,6 +129,9 @@ export const createDeck = mutation({
       shareCode: makeShareCode(),
       sections: args.sections,
       stats: args.stats,
+      insights: args.insights,
+      readiness: args.readiness,
+      template: args.template ?? "glass",
     });
 
     return { projectId, deckId };
@@ -193,6 +234,22 @@ export const getDeckByShareCode = query({
       .first();
     if (!deck) return null;
     return deck;
+  },
+});
+
+/** Update a deck's template (owner or admin only). */
+export const setDeckTemplate = mutation({
+  args: { deckId: v.id("decks"), template: v.string() },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Not signed in");
+    const deck = await ctx.db.get(args.deckId);
+    if (!deck) throw new Error("Not found");
+    const isOwner = deck.ownerId === user._id;
+    const isAdmin = user.role === "admin";
+    if (!isOwner && !isAdmin) throw new Error("Not allowed");
+    await ctx.db.patch(args.deckId, { template: args.template });
+    return args.template;
   },
 });
 

@@ -95,6 +95,9 @@ export default function Dashboard() {
           derived: s.derived,
         })),
         stats: deck.stats,
+        insights: deck.insights,
+        readiness: deck.readiness,
+        template: "glass",
       });
       setPhase("idle");
       navigate(`/deck/${deckId}`);
