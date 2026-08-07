@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             cn(
               "group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13.5px] font-medium transition-all duration-200",
               isActive
-                ? "bg-gradient-to-r from-emerald-500/90 to-teal-500/90 text-white shadow-[0_8px_20px_rgba(0,168,107,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                ? "bg-gradient-to-r from-indigo-500/90 to-indigo-500/90 text-white shadow-[0_8px_20px_rgba(99,102,241,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]"
                 : "text-sidebar-foreground/65 hover:bg-white/5 hover:text-foreground",
             )
           }
@@ -88,7 +88,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Link>
         <div className="px-5 pb-3 pt-5">
           <Link to="/dashboard">
-            <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_10px_24px_rgba(0,168,107,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(0,168,107,0.45)]">
+            <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-[0_10px_24px_rgba(99,102,241,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(99,102,241,0.45)]">
               <Plus className="h-4 w-4" strokeWidth={2.5} />
               New deck
             </Button>
@@ -122,7 +122,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </SheetHeader>
             <div className="flex flex-col gap-3 px-4 py-4">
               <Link to="/dashboard" onClick={() => setOpen(false)}>
-                <Button className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                <Button className="w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white">
                   <Plus className="h-4 w-4" strokeWidth={2.5} />
                   New deck
                 </Button>
@@ -171,7 +171,7 @@ function UserChip({ isAdmin }: { isAdmin: boolean }) {
         >
           <Avatar className="h-8 w-8">
             {user?.image && <AvatarImage src={user.image} alt={user.name ?? ""} />}
-            <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-[11px] font-semibold text-white">
+            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-[11px] font-semibold text-white">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -187,7 +187,7 @@ function UserChip({ isAdmin }: { isAdmin: boolean }) {
             <Badge
               className={cn(
                 "border-transparent px-1.5 py-0 text-[9.5px] font-bold uppercase tracking-wide",
-                isPro ? "bg-emerald-500/15 text-emerald-300" : "bg-teal-500/15 text-teal-300",
+                isPro ? "bg-indigo-500/15 text-indigo-300" : "bg-indigo-500/10 text-indigo-200",
               )}
             >
               {isPro ? "Pro" : "Admin"}

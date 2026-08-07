@@ -38,12 +38,12 @@ function RouteLoading() {
     <div className="flex min-h-screen items-center justify-center bg-[oklch(0.13_0.01_170)]">
       <div className="flex flex-col items-center gap-3">
         <div className="relative">
-          <div className="h-12 w-12 animate-spin rounded-2xl border-2 border-emerald-400/30 border-t-emerald-400" />
+          <div className="h-12 w-12 animate-spin rounded-2xl border-2 border-indigo-400/30 border-t-indigo-400" />
           <div className="absolute inset-0 grid place-items-center">
-            <span className="h-3 w-3 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_14px_rgba(0,168,107,0.8)]" />
+            <span className="h-3 w-3 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 shadow-[0_0_14px_rgba(99,102,241,0.8)]" />
           </div>
         </div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+        <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-indigo-300">
           Deckify AI
         </p>
       </div>

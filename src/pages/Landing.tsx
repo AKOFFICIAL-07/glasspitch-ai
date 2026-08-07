@@ -283,10 +283,10 @@ export default function Landing() {
               <div className="shimmer pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               <div className="relative">
                 <div className="flex items-center justify-between">
-                  <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-emerald-300">
+                  <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-indigo-300">
                     <step.icon className="h-[22px] w-[22px]" strokeWidth={1.8} />
                   </span>
-                  <span className="text-[44px] font-black leading-none text-white/5 transition-colors duration-300 group-hover:text-emerald-400/10">
+                  <span className="text-[44px] font-black leading-none text-white/5 transition-colors duration-300 group-hover:text-indigo-400/10">
                     {step.step}
                   </span>
                 </div>
@@ -329,7 +329,7 @@ export default function Landing() {
               transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="glass glass-hover group relative overflow-hidden p-6"
             >
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300 transition-transform duration-300 group-hover:scale-110">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300 transition-transform duration-300 group-hover:scale-110">
                 <f.icon className="h-5 w-5" strokeWidth={1.9} />
               </span>
               <h3 className="mt-4 text-[16.5px] font-semibold text-white">{f.title}</h3>
@@ -348,7 +348,7 @@ export default function Landing() {
               transition={{ duration: 0.5, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="glass glass-hover group relative overflow-hidden p-6"
             >
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300 transition-transform duration-300 group-hover:scale-110">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300 transition-transform duration-300 group-hover:scale-110">
                 <f.icon className="h-5 w-5" strokeWidth={1.9} />
               </span>
               <h3 className="mt-4 text-[16.5px] font-semibold text-white">{f.title}</h3>

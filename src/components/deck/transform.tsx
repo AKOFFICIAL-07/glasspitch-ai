@@ -86,7 +86,7 @@ export function TransformExperience({
       className="fixed inset-0 z-40 overflow-hidden"
       style={{
         background:
-          "linear-gradient(155deg, oklch(0.2 0.045 160) 0%, oklch(0.15 0.03 170) 55%, oklch(0.17 0.045 150) 100%)",
+          "linear-gradient(155deg, oklch(0.2 0.05 255) 0%, oklch(0.15 0.032 262) 55%, oklch(0.17 0.045 245) 100%)",
       }}
     >
       <AuroraBlobs className="absolute inset-0" />
@@ -117,7 +117,7 @@ export function TransformExperience({
                 className="absolute inset-0 flex items-center justify-center"
               >
                 <div className="glass-strong relative h-64 w-full max-w-xl overflow-hidden rounded-2xl p-6">
-                  <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-emerald-400">
+                  <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-indigo-400">
                     Documentation source
                   </p>
                   <div className="mt-3 h-40 overflow-hidden font-mono text-[12px] leading-relaxed text-white/45">
@@ -138,7 +138,7 @@ export function TransformExperience({
                     className="pointer-events-none absolute inset-x-6 h-8"
                     style={{
                       background:
-                        "linear-gradient(180deg, transparent, rgba(0,168,107,0.28), transparent)",
+                        "linear-gradient(180deg, transparent, rgba(99,102,241,0.32), transparent)",
                       animation: "scan-line 1.8s ease-in-out infinite alternate",
                     }}
                   />
@@ -236,7 +236,7 @@ export function TransformExperience({
                   <div
                     className="absolute inset-0 opacity-25"
                     style={{
-                      background: "linear-gradient(135deg, #00A86B, #00E08F, #5eead4)",
+                      background: "linear-gradient(135deg, #6366F1, #818CF8, #a5b4fc)",
                     }}
                   />
                   <div className="relative flex h-full flex-col items-center justify-center text-center">
@@ -245,7 +245,7 @@ export function TransformExperience({
                       Merging into your deck…
                     </p>
                     <div className="mt-2 flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4 text-emerald-300" />
+                      <Sparkles className="h-4 w-4 text-indigo-300" />
                       <span className="text-[12px] font-medium text-white/45">
                         13 investor-ready slides
                       </span>
@@ -267,7 +267,7 @@ export function TransformExperience({
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }}
-                  className="grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-[0_18px_44px_rgba(0,168,107,0.45)]"
+                  className="grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 text-white shadow-[0_18px_44px_rgba(99,102,241,0.45)]"
                 >
                   <Check className="h-10 w-10" strokeWidth={3} />
                 </motion.span>
@@ -287,7 +287,7 @@ export function TransformExperience({
         {/* Steps + progress */}
         <div className="mt-10 w-full max-w-2xl">
           <div className="mb-3 flex min-h-[22px] items-center justify-between">
-            <span className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+            <span className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
               {STEPS[activeStep]}
             </span>
             <span className="text-[13px] font-semibold tabular-nums text-white/45">
@@ -296,7 +296,7 @@ export function TransformExperience({
           </div>
           <div className="relative h-2.5 w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
             <motion.div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300"
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-500 via-indigo-400 to-indigo-300"
               animate={{ width: `${progress}%` }}
               transition={{ ease: "easeInOut", duration: 0.6 }}
             />
@@ -309,9 +309,9 @@ export function TransformExperience({
                 className={cn(
                   "flex h-6 items-center gap-1 rounded-full border px-2.5 text-[11px] font-medium transition-all duration-300",
                   i < activeStep
-                    ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300"
+                    ? "border-indigo-400/20 bg-indigo-500/10 text-indigo-300"
                     : i === activeStep
-                      ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-300 shadow-[0_0_16px_rgba(0,168,107,0.3)]"
+                      ? "border-indigo-400/40 bg-indigo-500/15 text-indigo-300 shadow-[0_0_16px_rgba(99,102,241,0.3)]"
                       : "border-white/10 bg-white/5 text-white/35",
                 )}
               >

@@ -211,7 +211,7 @@ export default function Dashboard() {
         {/* Header */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-400">
               Deck studio
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
@@ -252,8 +252,8 @@ export default function Dashboard() {
                 className={cn(
                   "relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition-all duration-300",
                   dragOver
-                    ? "border-emerald-400/70 bg-emerald-500/10 shadow-[0_0_40px_rgba(0,168,107,0.2)]"
-                    : "border-white/15 bg-white/[0.03] hover:border-emerald-400/40 hover:bg-white/[0.05]",
+                    ? "border-indigo-400/70 bg-indigo-500/10 shadow-[0_0_40px_rgba(99,102,241,0.2)]"
+                    : "border-white/15 bg-white/[0.03] hover:border-indigo-400/40 hover:bg-white/[0.05]",
                 )}
               >
                 <input
@@ -263,7 +263,7 @@ export default function Dashboard() {
                   className="hidden"
                   onChange={(e) => handleFile(e.target.files?.[0])}
                 />
-                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-emerald-300">
+                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-indigo-300">
                   <FileUp className="h-5 w-5" strokeWidth={1.9} />
                 </span>
                 <div>
@@ -300,7 +300,7 @@ export default function Dashboard() {
                   onChange={(e) => setGithubUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleGithub()}
                   placeholder="Paste GitHub repository URL — github.com/owner/repo"
-                  className="h-9 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                  className="h-9 min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
                 />
                 <Button
                   variant="outline"
@@ -324,7 +324,7 @@ export default function Dashboard() {
                   value={markdown}
                   onChange={(e) => setMarkdown(e.target.value)}
                   placeholder={"# My Startup\n\nWe fix the way teams…\n\n## Features\n- …"}
-                  className="h-full min-h-[240px] w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-[13px] leading-relaxed text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                  className="h-full min-h-[240px] w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 font-mono text-[13px] leading-relaxed text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
                   spellCheck={false}
                 />
               </div>
@@ -356,7 +356,7 @@ export default function Dashboard() {
                 size="lg"
                 onClick={handleGenerate}
                 disabled={markdown.trim().length < 20 || phase === "transforming"}
-                className="shimmer mt-4 h-12 w-full gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-[15px] font-semibold text-white shadow-[0_14px_34px_rgba(0,168,107,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,168,107,0.45)] disabled:opacity-40"
+                className="shimmer mt-4 h-12 w-full gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[15px] font-semibold text-white shadow-[0_14px_34px_rgba(99,102,241,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(99,102,241,0.45)] disabled:opacity-40"
               >
                 <Wand2 className="h-5 w-5" />
                 Generate pitch deck
@@ -364,7 +364,7 @@ export default function Dashboard() {
               </Button>
               <Link
                 to="/wallet"
-                className="mt-2.5 block text-center text-[11.5px] text-white/45 underline-offset-2 transition hover:text-emerald-300 hover:underline"
+                className="mt-2.5 block text-center text-[11.5px] text-white/45 underline-offset-2 transition hover:text-indigo-300 hover:underline"
               >
                 Free plan includes 2 decks — upgrade to Founder for unlimited.
               </Link>
@@ -375,7 +375,7 @@ export default function Dashboard() {
           <div className="glass overflow-hidden">
             <div className="flex h-full flex-col p-6">
               <div className="flex items-center gap-2.5">
-                <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-emerald-300">
+                <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-indigo-300">
                   <Sparkles className="h-[18px] w-[18px]" strokeWidth={1.9} />
                 </span>
                 <div className="leading-tight">
@@ -439,7 +439,7 @@ export default function Dashboard() {
                               "border-transparent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
                               section.derived
                                 ? "bg-amber-500/10 text-amber-300"
-                                : "bg-emerald-500/10 text-emerald-300",
+                                : "bg-indigo-500/10 text-indigo-300",
                             )}
                           >
                             {section.derived ? "derived" : "found"}
@@ -487,7 +487,7 @@ export default function Dashboard() {
             </h2>
             <Link
               to="/decks"
-              className="flex items-center gap-1 text-[13px] font-semibold text-emerald-300 transition hover:text-emerald-200"
+              className="flex items-center gap-1 text-[13px] font-semibold text-indigo-300 transition hover:text-indigo-200"
             >
               View all <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -521,7 +521,7 @@ export default function Dashboard() {
                 >
                   <div
                     className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-15 blur-2xl transition-opacity group-hover:opacity-30"
-                    style={{ background: deck.sections[0]?.accent ?? "#00A86B" }}
+                    style={{ background: deck.sections[0]?.accent ?? "#6366F1" }}
                   />
                   <div className="relative flex h-full flex-col">
                     <div className="flex items-start justify-between gap-2">
@@ -584,7 +584,7 @@ export default function Dashboard() {
                       </span>
                       <Link
                         to={`/deck/${deck._id}`}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(0,168,107,0.3)] transition hover:-translate-y-0.5"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.3)] transition hover:-translate-y-0.5"
                       >
                         Open <ArrowRight className="h-3 w-3" />
                       </Link>

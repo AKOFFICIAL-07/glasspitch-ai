@@ -89,10 +89,10 @@ export const DECK_TEMPLATES: DeckTemplate[] = [
   {
     id: "glass",
     name: "Glassmorphism",
-    tagline: "Frosted emerald glass",
-    accent: "#00A86B",
-    accent2: "#00E08F",
-    bg: ["oklch(0.2 0.05 160)", "oklch(0.155 0.03 170)", "oklch(0.17 0.045 150)"],
+    tagline: "Frosted indigo glass",
+    accent: "#6366F1",
+    accent2: "#818CF8",
+    bg: ["oklch(0.2 0.05 255)", "oklch(0.155 0.03 262)", "oklch(0.17 0.045 245)"],
     dark: true,
   },
   {
@@ -101,7 +101,7 @@ export const DECK_TEMPLATES: DeckTemplate[] = [
     tagline: "Clean light minimal",
     accent: "#0a0a0a",
     accent2: "#555555",
-    bg: ["oklch(0.99 0 0)", "oklch(0.96 0.005 160)", "oklch(0.985 0 0)"],
+    bg: ["oklch(0.99 0 0)", "oklch(0.96 0.005 250)", "oklch(0.985 0 0)"],
     dark: false,
   },
   {
@@ -125,10 +125,10 @@ export const DECK_TEMPLATES: DeckTemplate[] = [
   {
     id: "startup-dark",
     name: "Startup Dark",
-    tagline: "Charcoal & lime",
-    accent: "#A3E635",
-    accent2: "#D9F99D",
-    bg: ["oklch(0.2 0.02 130)", "oklch(0.15 0.015 140)", "oklch(0.17 0.02 120)"],
+    tagline: "Charcoal & electric blue",
+    accent: "#3B82F6",
+    accent2: "#60A5FA",
+    bg: ["oklch(0.2 0.03 245)", "oklch(0.15 0.02 255)", "oklch(0.17 0.025 235)"],
     dark: true,
   },
   {
@@ -159,12 +159,12 @@ export const SECTION_META: Record<
   SectionKey,
   { title: string; eyebrow: string; icon: string; accent: string }
 > = {
-  problem: { title: "Problem", eyebrow: "The pain", icon: "flame", accent: "#00A86B" },
-  features: { title: "Solution", eyebrow: "How we fix it", icon: "sparkles", accent: "#00E08F" },
-  tech: { title: "Technology", eyebrow: "Built on", icon: "cpu", accent: "#34d399" },
-  market: { title: "Market Opportunity", eyebrow: "The opportunity", icon: "trending-up", accent: "#5eead4" },
-  revenue: { title: "Business Model", eyebrow: "The model", icon: "line-chart", accent: "#86efac" },
-  competitors: { title: "Competitive Landscape", eyebrow: "The landscape", icon: "crosshair", accent: "#a7f3d0" },
+  problem: { title: "Problem", eyebrow: "The pain", icon: "flame", accent: "#6366F1" },
+  features: { title: "Solution", eyebrow: "How we fix it", icon: "sparkles", accent: "#818CF8" },
+  tech: { title: "Technology", eyebrow: "Built on", icon: "cpu", accent: "#3B82F6" },
+  market: { title: "Market Opportunity", eyebrow: "The opportunity", icon: "trending-up", accent: "#60A5FA" },
+  revenue: { title: "Business Model", eyebrow: "The model", icon: "line-chart", accent: "#A5B4FC" },
+  competitors: { title: "Competitive Landscape", eyebrow: "The landscape", icon: "crosshair", accent: "#C7D2FE" },
 };
 
 /* ------------------------------------------------------------------ */

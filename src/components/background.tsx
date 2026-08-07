@@ -1,24 +1,24 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useRef } from "react";
 
-/** Soft, drifting emerald aurora blobs on charcoal. */
+/** Soft, drifting indigo aurora blobs on charcoal. */
 export function AuroraBlobs({ className }: { className?: string }) {
   return (
     <div
       aria-hidden
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
-      <div className="animate-aurora absolute -top-44 -left-36 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(0,168,107,0.18),transparent_66%)] blur-2xl" />
+      <div className="animate-aurora absolute -top-44 -left-36 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.18),transparent_66%)] blur-2xl" />
       <div
         className="animate-aurora absolute top-1/4 -right-44 h-[40rem] w-[40rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.14),transparent_66%)] blur-2xl"
         style={{ animationDelay: "-9s" }}
       />
       <div
-        className="animate-aurora absolute -bottom-56 left-1/3 h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(94,234,212,0.1),transparent_66%)] blur-2xl"
+        className="animate-aurora absolute -bottom-56 left-1/3 h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(129,140,248,0.12),transparent_66%)] blur-2xl"
         style={{ animationDelay: "-16s" }}
       />
       <div
-        className="animate-aurora absolute top-1/2 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(0,224,143,0.12),transparent_66%)] blur-2xl"
+        className="animate-aurora absolute top-1/2 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(129,140,248,0.12),transparent_66%)] blur-2xl"
         style={{ animationDelay: "-4s" }}
       />
     </div>
@@ -37,13 +37,13 @@ interface Particle {
 }
 
 const PARTICLE_COLORS = [
-  "rgba(0,168,107,ALPHA)",
-  "rgba(52,211,153,ALPHA)",
-  "rgba(94,234,212,ALPHA)",
+  "rgba(99,102,241,ALPHA)",
+  "rgba(129,140,248,ALPHA)",
+  "rgba(165,180,252,ALPHA)",
   "rgba(16,185,129,ALPHA)",
 ];
 
-/** Canvas of tiny drifting emerald particles (disabled when reduced motion). */
+/** Canvas of tiny drifting indigo particles (disabled when reduced motion). */
 export function ParticleField({ className, count = 46 }: { className?: string; count?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -141,7 +141,7 @@ export function ParticleField({ className, count = 46 }: { className?: string; c
   );
 }
 
-/** Full-page charcoal + emerald glass background: aurora + grid + particles. */
+/** Full-page charcoal + indigo glass background: aurora + grid + particles. */
 export function BackgroundFX({
   className,
   particleCount = 46,

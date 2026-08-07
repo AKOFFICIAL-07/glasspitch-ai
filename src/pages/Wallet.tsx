@@ -81,7 +81,7 @@ export default function Wallet() {
       >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
               Billing
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-100">Wallet</h1>
@@ -93,7 +93,7 @@ export default function Wallet() {
             <Badge
               className={
                 isPro
-                  ? "w-fit border-transparent bg-emerald-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300"
+                  ? "w-fit border-transparent bg-indigo-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-indigo-300"
                   : "w-fit border-transparent bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-400"
               }
             >
@@ -111,7 +111,7 @@ export default function Wallet() {
           <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
             {/* Usage */}
             <div className="glass flex flex-col rounded-3xl p-7">
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300">
                 <WalletIcon className="h-5 w-5" strokeWidth={1.9} />
               </span>
               <h2 className="mt-5 text-lg font-semibold text-slate-100">Deck usage</h2>
@@ -130,7 +130,7 @@ export default function Wallet() {
                 </div>
                 <div className="relative mt-3 h-2.5 overflow-hidden rounded-full border border-white/10 bg-white/5">
                   <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-700"
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-400 to-indigo-500 transition-all duration-700"
                     style={{ width: isPro ? "100%" : `${pct}%` }}
                   />
                 </div>
@@ -159,7 +159,7 @@ export default function Wallet() {
                 <ul className="mt-5 flex-1 space-y-2 text-[13px] text-slate-300">
                   {["2 pitch decks", "PDF export", "Share links", "Comment on any deck"].map((f) => (
                     <li key={f} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={2.5} />
+                      <Check className="h-4 w-4 shrink-0 text-indigo-400" strokeWidth={2.5} />
                       {f}
                     </li>
                   ))}
@@ -170,8 +170,8 @@ export default function Wallet() {
               </div>
 
               {/* Pro */}
-              <div className="edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-emerald-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-6 backdrop-blur-xl">
-                <Badge className="absolute right-4 top-4 border-transparent bg-emerald-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-300">
+              <div className="edge-highlight relative flex flex-col overflow-hidden rounded-3xl border border-indigo-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_262/0.7)] to-[oklch(0.18_0.03_262/0.6)] p-6 backdrop-blur-xl">
+                <Badge className="absolute right-4 top-4 border-transparent bg-indigo-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-indigo-300">
                   One-time
                 </Badge>
                 <h3 className="text-[15px] font-semibold text-slate-100">Founder</h3>
@@ -183,13 +183,13 @@ export default function Wallet() {
                 <ul className="mt-5 flex-1 space-y-2 text-[13px] text-slate-200">
                   {["Unlimited pitch decks", "Publish to the catalog", "Priority deck quality", "Early access to new formats"].map((f) => (
                     <li key={f} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 shrink-0 text-emerald-300" strokeWidth={2.5} />
+                      <Check className="h-4 w-4 shrink-0 text-indigo-300" strokeWidth={2.5} />
                       {f}
                     </li>
                   ))}
                 </ul>
                 {isPro ? (
-                  <Button disabled className="mt-6 w-full rounded-xl bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/15">
+                  <Button disabled className="mt-6 w-full rounded-xl bg-indigo-500/15 text-indigo-300 hover:bg-indigo-500/15">
                     <Check className="mr-2 h-4 w-4" />
                     Pro active
                   </Button>
@@ -197,7 +197,7 @@ export default function Wallet() {
                   <Button
                     onClick={handleUpgrade}
                     disabled={checkingOut}
-                    className="shimmer mt-6 w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 shadow-[0_12px_30px_rgba(34,211,238,0.25)]"
+                    className="shimmer mt-6 w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 shadow-[0_12px_30px_rgba(99,102,241,0.25)]"
                   >
                     {checkingOut ? (
                       <>
@@ -229,7 +229,7 @@ export default function Wallet() {
         <section className="mt-12">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+              <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
                 On-chain
               </p>
               <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-100">
@@ -241,7 +241,7 @@ export default function Wallet() {
               </p>
             </div>
             {x402Config && (
-              <Badge className="w-fit border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
+              <Badge className="w-fit border-transparent bg-indigo-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-indigo-300">
                 {x402Config.network}
               </Badge>
             )}
@@ -256,7 +256,7 @@ export default function Wallet() {
               </div>
             ) : payments.length === 0 ? (
               <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
-                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-emerald-300">
+                <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-indigo-300">
                   <WalletIcon className="h-5 w-5" strokeWidth={1.9} />
                 </span>
                 <p className="text-[14px] font-medium text-slate-200">No on-chain payments yet</p>
@@ -278,7 +278,7 @@ export default function Wallet() {
                       <span
                         className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${
                           verified
-                            ? "bg-emerald-500/15 text-emerald-300"
+                            ? "bg-indigo-500/15 text-indigo-300"
                             : "bg-white/5 text-slate-500"
                         }`}
                       >
@@ -298,7 +298,7 @@ export default function Wallet() {
                             className={cn(
                               "border-transparent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
                               verified
-                                ? "bg-emerald-500/15 text-emerald-300"
+                                ? "bg-indigo-500/15 text-indigo-300"
                                 : p.status === "failed"
                                   ? "bg-rose-500/10 text-rose-300"
                                   : "bg-amber-500/10 text-amber-300",
@@ -318,7 +318,7 @@ export default function Wallet() {
                               href={explorer}
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center justify-end gap-1 font-mono text-[11px] text-emerald-300/80 underline-offset-2 hover:text-emerald-300 hover:underline"
+                              className="flex items-center justify-end gap-1 font-mono text-[11px] text-indigo-300/80 underline-offset-2 hover:text-indigo-300 hover:underline"
                             >
                               {p.txHash.slice(0, 12)}…
                               <ExternalLink className="h-3 w-3" />

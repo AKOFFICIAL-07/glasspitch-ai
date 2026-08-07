@@ -248,7 +248,7 @@ export default function DeckView() {
               className={cn(
                 "gap-2 rounded-xl text-[13px]",
                 deckDoc?.published
-                  ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-300"
+                  ? "border-indigo-400/30 bg-indigo-500/10 text-indigo-300"
                   : "glass-soft text-white/70 hover:bg-white/10",
               )}
             >
@@ -260,7 +260,7 @@ export default function DeckView() {
               onClick={handleShare}
               className={cn(
                 "glass-soft gap-2 rounded-xl text-[13px]",
-                shareCopied ? "border-emerald-400/30 text-emerald-300" : "text-white/70 hover:bg-white/10",
+                shareCopied ? "border-indigo-400/30 text-indigo-300" : "text-white/70 hover:bg-white/10",
               )}
             >
               <Link2 className="h-4 w-4" />
@@ -340,7 +340,7 @@ export default function DeckView() {
                     type="button"
                     aria-label="Previous slide"
                     onClick={prev}
-                    className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-emerald-300"
+                    className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-indigo-300"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -350,7 +350,7 @@ export default function DeckView() {
                     type="button"
                     aria-label="Next slide"
                     onClick={next}
-                    className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-emerald-300"
+                    className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/70 shadow-lg transition hover:scale-105 hover:text-indigo-300"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -371,7 +371,7 @@ export default function DeckView() {
                 </Button>
                 <div className="relative h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
                   <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400"
                     animate={{ width: `${((index + 1) / total) * 100}%` }}
                     transition={{ ease: "easeInOut", duration: 0.4 }}
                   />
@@ -400,13 +400,13 @@ export default function DeckView() {
                       <span className="w-24 shrink-0 text-[12px] font-semibold text-white/70">{m.label}</span>
                       <div className="h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
                         <motion.div
-                          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400"
                           initial={{ width: 0 }}
                           animate={{ width: `${m.score}%` }}
                           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                         />
                       </div>
-                      <span className="w-9 shrink-0 text-right text-[12px] font-bold tabular-nums text-emerald-300">
+                      <span className="w-9 shrink-0 text-right text-[12px] font-bold tabular-nums text-indigo-300">
                         {m.score}
                       </span>
                     </div>
@@ -424,7 +424,7 @@ export default function DeckView() {
                     }}
                   />
                 ) : (
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                  <span className="h-2 w-2 rounded-full bg-indigo-400" />
                 )}
                 {slides[index]?.kind === "cover"
                   ? "Cover"
@@ -499,7 +499,7 @@ function VoicePitchMenu({
           disabled={!deck}
           className={cn(
             "glass-soft gap-2 rounded-xl text-[13px] hover:bg-white/10",
-            playing ? "border-emerald-400/40 text-emerald-300" : "text-white/70",
+            playing ? "border-indigo-400/40 text-indigo-300" : "text-white/70",
           )}
         >
           <Mic className="h-4 w-4" />
@@ -528,8 +528,8 @@ function VoicePitchMenu({
               className={cn(
                 "flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-all",
                 playing === o.id
-                  ? "border-emerald-400/50 bg-emerald-500/10"
-                  : "border-white/10 bg-white/5 hover:border-emerald-400/30 hover:bg-white/10",
+                  ? "border-indigo-400/50 bg-indigo-500/10"
+                  : "border-white/10 bg-white/5 hover:border-indigo-400/30 hover:bg-white/10",
               )}
             >
               <span>
@@ -537,7 +537,7 @@ function VoicePitchMenu({
                 <span className="block text-[12px] text-white/45">{o.desc}</span>
               </span>
               {playing === o.id ? (
-                <Loader2 className="h-4 w-4 animate-spin text-emerald-300" />
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-300" />
               ) : (
                 <Mic className="h-4 w-4 text-white/50" />
               )}
@@ -684,7 +684,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
           className={cn(
             "gap-2 rounded-xl text-[13px]",
             unlock?.unlocked
-              ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300"
+              ? "border-indigo-400/40 bg-indigo-500/10 text-indigo-300"
               : "glass-soft text-white/70 hover:bg-white/10",
           )}
         >
@@ -695,7 +695,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
       <DialogContent className="glass-strong rounded-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-white">
-            <Wallet className="h-4 w-4 text-emerald-400" />
+            <Wallet className="h-4 w-4 text-indigo-400" />
             Generate premium deck
           </DialogTitle>
           <DialogDescription className="text-white/50">
@@ -717,9 +717,9 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                     className={cn(
                       "grid h-7 w-7 place-items-center rounded-full text-[11px] font-bold",
                       done
-                        ? "bg-emerald-500 text-white"
+                        ? "bg-indigo-500 text-white"
                         : active
-                          ? "bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/50"
+                          ? "bg-indigo-500/20 text-indigo-300 ring-1 ring-indigo-400/50"
                           : "bg-white/5 text-white/40",
                     )}
                   >
@@ -739,7 +739,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                 Connect an Algorand wallet to pay {amountLabel} on-chain via x402.
                 {config && (
                   <span className="mt-1 block text-[11px] text-white/40">
-                    Network: <span className="font-semibold text-emerald-300">{config.network}</span> · Receiver:{" "}
+                    Network: <span className="font-semibold text-indigo-300">{config.network}</span> · Receiver:{" "}
                     <span className="font-mono">{config.receiverAddress.slice(0, 8)}…</span>
                   </span>
                 )}
@@ -748,7 +748,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                 <Button
                   onClick={() => handleWalletConnect("pera")}
                   disabled={busy}
-                  className="h-11 gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_10px_24px_rgba(0,168,107,0.3)]"
+                  className="h-11 gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-500 text-white shadow-[0_10px_24px_rgba(99,102,241,0.3)]"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
                   Pera
@@ -758,7 +758,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                   disabled={busy}
                   className="h-11 gap-2 rounded-xl border border-white/15 bg-white/5 text-white/85 backdrop-blur-md transition hover:bg-white/10"
                 >
-                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 text-emerald-300" />}
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 text-indigo-300" />}
                   Lute
                 </Button>
               </div>
@@ -773,7 +773,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 placeholder="ALGO wallet address (e.g. 3P7Y...)"
-                className="h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] font-mono text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                className="h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] font-mono text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
               />
               <Button
                 onClick={() => handleWalletConnect("manual")}
@@ -791,7 +791,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
 
           {step === "authorize" && (
             <div className="space-y-3">
-              <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/[0.07] p-4">
+              <div className="rounded-xl border border-indigo-400/25 bg-indigo-500/[0.07] p-4">
                 <div className="flex items-center justify-between text-[13px]">
                   <span className="text-white/60">Amount</span>
                   <span className="font-bold text-white">{amountLabel}</span>
@@ -802,13 +802,13 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[13px]">
                   <span className="text-white/60">Receiver</span>
-                  <span className="max-w-[200px] truncate font-mono text-[11px] text-emerald-300">
+                  <span className="max-w-[200px] truncate font-mono text-[11px] text-indigo-300">
                     {config?.receiverAddress ?? "…"}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[13px]">
                   <span className="text-white/60">Wallet</span>
-                  <span className="max-w-[200px] truncate font-mono text-[11px] text-emerald-300">
+                  <span className="max-w-[200px] truncate font-mono text-[11px] text-indigo-300">
                     {walletAddress}
                   </span>
                 </div>
@@ -822,7 +822,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
               <Button
                 onClick={handleAuthorize}
                 disabled={busy}
-                className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_10px_24px_rgba(0,168,107,0.3)]"
+                className="w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-500 text-white shadow-[0_10px_24px_rgba(99,102,241,0.3)]"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
                 {busy ? "Requesting x402 authorization…" : "Request x402 payment authorization"}
@@ -845,7 +845,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                   </div>
                   <div className="mt-2 flex items-center justify-between text-[13px]">
                     <span className="text-white/60">To</span>
-                    <span className="max-w-[220px] truncate font-mono text-[11px] text-emerald-300">
+                    <span className="max-w-[220px] truncate font-mono text-[11px] text-indigo-300">
                       {config?.receiverAddress ?? "…"}
                     </span>
                   </div>
@@ -857,7 +857,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
               <Button
                 onClick={walletKind !== "manual" ? handlePayAndVerify : handleVerify}
                 disabled={busy || (walletKind === "manual" && txHash.trim().length < 20)}
-                className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_10px_24px_rgba(0,168,107,0.3)]"
+                className="w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-500 text-white shadow-[0_10px_24px_rgba(99,102,241,0.3)]"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 {busy
@@ -882,7 +882,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                   value={txHash}
                   onChange={(e) => setTxHash(e.target.value)}
                   placeholder="Transaction hash (64-char)"
-                  className="h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 font-mono text-[12px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                  className="h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 font-mono text-[12px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
                 />
               )}
             </div>
@@ -890,15 +890,15 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
 
           {step === "done" && (
             <div className="space-y-3">
-              <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/[0.08] p-4">
+              <div className="rounded-xl border border-indigo-400/30 bg-indigo-500/[0.08] p-4">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                  <CheckCircle2 className="h-5 w-5 text-indigo-400" />
                   <span className="text-[14px] font-bold text-white">Payment verified — deck unlocked</span>
                 </div>
                 <div className="mt-3 space-y-2 text-[12.5px]">
                   <div className="flex justify-between gap-3">
                     <span className="text-white/50">Wallet address</span>
-                    <span className="max-w-[220px] truncate font-mono text-[11px] text-emerald-300">
+                    <span className="max-w-[220px] truncate font-mono text-[11px] text-indigo-300">
                       {walletAddress}
                     </span>
                   </div>
@@ -908,7 +908,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                       href={config ? `${config.explorerBase}/tx/${txHash || verified?.txHash}` : "#"}
                       target="_blank"
                       rel="noreferrer"
-                      className="max-w-[220px] truncate font-mono text-[11px] text-emerald-300 underline-offset-2 hover:underline"
+                      className="max-w-[220px] truncate font-mono text-[11px] text-indigo-300 underline-offset-2 hover:underline"
                     >
                       {txHash || verified?.txHash}
                     </a>
@@ -921,7 +921,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                   </div>
                   <div className="flex justify-between gap-3">
                     <span className="text-white/50">Payment status</span>
-                    <span className="font-semibold text-emerald-300">Verified ✓</span>
+                    <span className="font-semibold text-indigo-300">Verified ✓</span>
                   </div>
                   <div className="flex justify-between gap-3">
                     <span className="text-white/50">Confirmed round</span>
@@ -941,7 +941,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
               </div>
               <Button
                 onClick={() => setOpen(false)}
-                className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white"
+                className="w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-500 text-white"
               >
                 <Download className="h-4 w-4" />
                 Unlock premium exports
@@ -950,11 +950,11 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
           )}
 
           {unlock?.unlocked && step !== "done" && (
-            <div className="flex items-center justify-between rounded-xl border border-emerald-400/25 bg-emerald-500/[0.07] px-4 py-2.5">
-              <span className="text-[12.5px] font-semibold text-emerald-300">
+            <div className="flex items-center justify-between rounded-xl border border-indigo-400/25 bg-indigo-500/[0.07] px-4 py-2.5">
+              <span className="text-[12.5px] font-semibold text-indigo-300">
                 ✓ This deck is already unlocked
               </span>
-              <Button size="sm" className="rounded-lg bg-emerald-500 text-white" onClick={() => setStep("done")}>
+              <Button size="sm" className="rounded-lg bg-indigo-500 text-white" onClick={() => setStep("done")}>
                 View receipt
               </Button>
             </div>
@@ -1278,7 +1278,7 @@ function CommentSection({
   return (
     <div className="glass mt-6 rounded-2xl p-5">
       <div className="flex items-center gap-2">
-        <MessageSquare className="h-4 w-4 text-emerald-300" />
+        <MessageSquare className="h-4 w-4 text-indigo-300" />
         <h3 className="text-[15px] font-semibold text-white">Feedback</h3>
         <span className="text-[12px] text-white/45">
           {comments === undefined ? "" : `· ${comments.length} comment${comments.length === 1 ? "" : "s"}`}
@@ -1287,7 +1287,7 @@ function CommentSection({
 
       <div className="mt-4 flex items-start gap-3">
         <Avatar className="h-8 w-8 shrink-0">
-          <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-[10px] font-semibold text-white">
+          <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-[10px] font-semibold text-white">
             {initials(currentUser?.name)}
           </AvatarFallback>
         </Avatar>
@@ -1296,7 +1296,7 @@ function CommentSection({
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Ask a question or leave feedback for the founder…"
-            className="min-h-[76px] resize-none rounded-xl border-white/10 bg-white/5 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/40 focus-visible:border-emerald-400/40 focus-visible:ring-emerald-400/20"
+            className="min-h-[76px] resize-none rounded-xl border-white/10 bg-white/5 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/40 focus-visible:border-indigo-400/40 focus-visible:ring-indigo-400/20"
           />
           <div className="mt-2 flex items-center justify-end gap-2">
             <span className="text-[11px] text-white/40">{body.length}/500</span>
@@ -1304,7 +1304,7 @@ function CommentSection({
               size="sm"
               onClick={handlePost}
               disabled={body.trim().length < 2 || posting}
-              className="gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-[12.5px] text-white shadow-[0_8px_18px_rgba(0,168,107,0.25)] disabled:opacity-40"
+              className="gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[12.5px] text-white shadow-[0_8px_18px_rgba(99,102,241,0.25)] disabled:opacity-40"
             >
               {posting ? "Posting…" : "Post"}
               <Send className="h-3.5 w-3.5" />
