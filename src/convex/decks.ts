@@ -50,6 +50,20 @@ export const createDeck = mutation({
     const user = await getCurrentUser(ctx);
     if (!user) throw new Error("Not signed in");
 
+    // Free plan allows 2 decks; Pro is unlimited.
+    const plan = user.plan ?? "free";
+    if (plan !== "pro") {
+      const owned = await ctx.db
+        .query("decks")
+        .withIndex("by_owner", (q) => q.eq("ownerId", user._id))
+        .collect();
+      if (owned.length >= 2) {
+        throw new Error(
+          "Free plan limit reached — upgrade to Founder for unlimited decks (Wallet → upgrade).",
+        );
+      }
+    }
+
     // Reuse an existing project with the same owner + name when present.
     const existing = await ctx.db
       .query("projects")
@@ -179,5 +193,39 @@ export const getDeckByShareCode = query({
       .first();
     if (!deck) return null;
     return deck;
+  },
+});
+
+/** Toggle a deck's visibility in the public catalog (owner or admin only). */
+export const publishDeck = mutation({
+  args: { deckId: v.id("decks"), published: v.boolean() },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Not signed in");
+    const deck = await ctx.db.get(args.deckId);
+    if (!deck) throw new Error("Not found");
+    const isOwner = deck.ownerId === user._id;
+    const isAdmin = user.role === "admin";
+    if (!isOwner && !isAdmin) throw new Error("Not allowed");
+    await ctx.db.patch(args.deckId, { published: args.published });
+    return args.published;
+  },
+});
+
+/** Public catalog — published decks, newest first, optional text search. */
+export const listPublishedDecks = query({
+  args: { query: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const q = (args.query ?? "").trim().toLowerCase();
+    const decks = await ctx.db
+      .query("decks")
+      .withIndex("by_published", (q) => q.eq("published", true))
+      .order("desc")
+      .collect();
+    if (!q) return decks;
+    return decks.filter((d) => {
+      const haystack = `${d.title} ${d.tagline} ${d.projectName}`.toLowerCase();
+      return q.split(/\s+/).every((term) => haystack.includes(term));
+    });
   },
 });

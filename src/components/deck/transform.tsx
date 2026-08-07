@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 type Phase = "reading" | "cards" | "merge" | "done";
 
 const STEPS = [
-  "Reading README",
+  "Reading repo docs",
   "Extracting narrative",
   "Structuring Problem",
   "Mapping Features",
@@ -88,7 +88,7 @@ export function TransformExperience({
       className="fixed inset-0 z-40 overflow-hidden"
       style={{
         background:
-          "linear-gradient(150deg, oklch(0.99 0.006 255) 0%, oklch(0.965 0.02 245) 55%, oklch(0.97 0.02 215) 100%)",
+          "linear-gradient(155deg, oklch(0.19 0.028 262) 0%, oklch(0.15 0.02 265) 55%, oklch(0.17 0.03 285) 100%)",
       }}
     >
       <AuroraBlobs className="absolute inset-0" />
@@ -99,7 +99,7 @@ export function TransformExperience({
       <button
         type="button"
         onClick={onSkip}
-        className="no-print glass-soft absolute right-5 top-5 z-20 flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium text-slate-500 transition hover:text-slate-800"
+        className="no-print glass-soft absolute right-5 top-5 z-20 flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium text-slate-400 transition hover:text-white"
       >
         <SkipForward className="h-3.5 w-3.5" />
         Skip
@@ -119,10 +119,10 @@ export function TransformExperience({
                 className="absolute inset-0 flex items-center justify-center"
               >
                 <div className="glass-strong relative h-64 w-full max-w-xl overflow-hidden rounded-2xl p-6">
-                  <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-indigo-400">
+                  <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
                     README.md
                   </p>
-                  <div className="mt-3 h-40 overflow-hidden font-mono text-[12px] leading-relaxed text-slate-400">
+                  <div className="mt-3 h-40 overflow-hidden font-mono text-[12px] leading-relaxed text-slate-500">
                     {markdown.slice(0, 420).split("\n").slice(0, 9).map((line, i) => (
                       <div
                         key={i}
@@ -140,7 +140,7 @@ export function TransformExperience({
                     className="pointer-events-none absolute inset-x-6 h-8"
                     style={{
                       background:
-                        "linear-gradient(180deg, transparent, rgba(56,189,248,0.35), transparent)",
+                        "linear-gradient(180deg, transparent, rgba(34,211,238,0.22), transparent)",
                       animation: "scan-line 1.8s ease-in-out infinite alternate",
                     }}
                   />
@@ -165,7 +165,7 @@ export function TransformExperience({
                   className="glass-strong absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 rounded-2xl px-6 py-5 text-center"
                 >
                   <BrandMark className="h-11 w-11" />
-                  <span className="text-[13px] font-semibold text-slate-600">
+                  <span className="text-[13px] font-semibold text-slate-300">
                     Extracting narrative…
                   </span>
                 </motion.div>
@@ -192,20 +192,20 @@ export function TransformExperience({
                       className="absolute w-52"
                       style={{ left: pos.x, top: pos.y }}
                     >
-                      <div className="shimmer relative overflow-hidden rounded-2xl border border-white/80 bg-white/70 p-4 shadow-[0_16px_40px_rgba(80,110,200,0.16),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl">
+                      <div className="shimmer relative overflow-hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.028_262/0.6)] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl">
                         <div className="flex items-center gap-2.5">
                           <span
                             className="grid h-8 w-8 place-items-center rounded-lg text-white"
                             style={{
                               background: meta.accent,
-                              boxShadow: `0 8px 18px ${meta.accent}66`,
+                              boxShadow: `0 8px 18px ${meta.accent}44`,
                             }}
                           >
                             <SectionIcon name={key === "tech" ? "cpu" : key === "revenue" ? "line-chart" : key} className="h-4 w-4" />
                           </span>
                           <div className="leading-tight">
-                            <div className="text-[14px] font-bold text-slate-700">{meta.title}</div>
-                            <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                            <div className="text-[14px] font-bold text-slate-200">{meta.title}</div>
+                            <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
                               {meta.eyebrow}
                             </div>
                           </div>
@@ -233,20 +233,20 @@ export function TransformExperience({
                   className="glass-strong relative h-56 w-[400px] overflow-hidden rounded-2xl"
                 >
                   <div
-                    className="absolute inset-0 opacity-20"
+                    className="absolute inset-0 opacity-25"
                     style={{
                       background:
-                        "linear-gradient(135deg, #38bdf8, #6366f1, #14b8a6)",
+                        "linear-gradient(135deg, #22d3ee, #6366f1, #a855f7)",
                     }}
                   />
                   <div className="relative flex h-full flex-col items-center justify-center text-center">
                     <BrandMark className="h-12 w-12" />
-                    <p className="mt-4 text-[17px] font-bold text-slate-700">
+                    <p className="mt-4 text-[17px] font-bold text-slate-200">
                       Merging into your deck…
                     </p>
                     <div className="mt-2 flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4 text-indigo-400" />
-                      <span className="text-[12px] font-medium text-slate-400">
+                      <Sparkles className="h-4 w-4 text-cyan-300" />
+                      <span className="text-[12px] font-medium text-slate-500">
                         Cover + 6 story slides + closing
                       </span>
                     </div>
@@ -275,7 +275,7 @@ export function TransformExperience({
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="mt-6 text-xl font-semibold text-slate-700"
+                  className="mt-6 text-xl font-semibold text-slate-200"
                 >
                   Deck ready — opening your studio…
                 </motion.p>
@@ -287,16 +287,16 @@ export function TransformExperience({
         {/* Steps + progress */}
         <div className="mt-10 w-full max-w-2xl">
           <div className="mb-3 flex min-h-[22px] items-center justify-between">
-            <span className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-500">
+            <span className="text-[13px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
               {STEPS[activeStep]}
             </span>
-            <span className="text-[13px] font-semibold tabular-nums text-slate-400">
+            <span className="text-[13px] font-semibold tabular-nums text-slate-500">
               {Math.round(progress)}%
             </span>
           </div>
-          <div className="relative h-2.5 w-full overflow-hidden rounded-full border border-white/70 bg-white/60">
+          <div className="relative h-2.5 w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
             <motion.div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-sky-400 via-indigo-500 to-teal-400"
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500"
               animate={{ width: `${progress}%` }}
               transition={{ ease: "easeInOut", duration: 0.6 }}
             />
@@ -309,10 +309,10 @@ export function TransformExperience({
                 className={cn(
                   "flex h-6 items-center gap-1 rounded-full border px-2.5 text-[11px] font-medium transition-all duration-300",
                   i < activeStep
-                    ? "border-teal-200 bg-teal-50 text-teal-600"
+                    ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300"
                     : i === activeStep
-                      ? "border-indigo-200 bg-indigo-50 text-indigo-600 shadow-sm"
-                      : "border-white/70 bg-white/50 text-slate-300",
+                      ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.2)]"
+                      : "border-white/10 bg-white/5 text-slate-600",
                 )}
               >
                 {i < activeStep && <Check className="h-3 w-3" />}

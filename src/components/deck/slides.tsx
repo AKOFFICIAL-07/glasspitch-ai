@@ -60,8 +60,8 @@ export function slideLabel(slide: SlideDef): string {
 
 function slideAccent(slide: SlideDef): string {
   if (slide.kind === "section") return slide.section.accent;
-  if (slide.kind === "cover") return "#6366f1";
-  return "#0ea5e9";
+  if (slide.kind === "cover") return "#818cf8";
+  return "#22d3ee";
 }
 
 /* ------------------------------------------------------------------ */
@@ -79,41 +79,38 @@ function SlideFrame({
 }) {
   return (
     <div
-      className={cn(
-        "relative h-full w-full overflow-hidden rounded-2xl",
-        className,
-      )}
+      className={cn("relative h-full w-full overflow-hidden rounded-2xl", className)}
       style={{
         background:
-          "linear-gradient(135deg, oklch(0.99 0.004 255) 0%, oklch(0.975 0.012 250) 50%, oklch(0.98 0.008 210) 100%)",
+          "linear-gradient(145deg, oklch(0.21 0.03 262) 0%, oklch(0.17 0.024 262) 52%, oklch(0.185 0.03 285) 100%)",
       }}
     >
-      <AuroraBlobs className="absolute inset-0 opacity-70" />
-      <div className="bg-grid absolute inset-0 opacity-60" />
+      <AuroraBlobs className="absolute inset-0 opacity-90" />
+      <div className="bg-grid absolute inset-0 opacity-70" />
       <div
-        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full opacity-25 blur-3xl"
+        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full opacity-20 blur-3xl"
         style={{ background: accent }}
       />
       <div
-        className="pointer-events-none absolute -bottom-40 -left-24 h-80 w-80 rounded-full opacity-15 blur-3xl"
+        className="pointer-events-none absolute -bottom-40 -left-24 h-80 w-80 rounded-full opacity-10 blur-3xl"
         style={{ background: accent }}
       />
       <div className="relative z-10 h-full w-full">{children}</div>
       {/* edge highlight */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/70" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
     </div>
   );
 }
 
 function Watermark({ index, total }: { index: number; total: number }) {
   return (
-    <div className="absolute bottom-5 left-8 right-8 flex items-center justify-between text-[13px] font-medium tracking-wide text-slate-400">
+    <div className="absolute bottom-5 left-8 right-8 flex items-center justify-between text-[13px] font-medium tracking-wide text-slate-500">
       <span className="flex items-center gap-2">
-        <span className="grid h-5 w-5 place-items-center rounded-md bg-gradient-to-br from-sky-400 to-indigo-500 text-[9px] font-bold text-white">
-          G
+        <span className="grid h-5 w-5 place-items-center rounded-md bg-gradient-to-br from-cyan-400 to-violet-600 text-[9px] font-bold text-white">
+          PF
         </span>
-        GlassPitch
+        Pitch Forge
       </span>
       <span>
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -133,17 +130,17 @@ function CoverSlide({ deck }: { deck: PitchDeck }) {
         initial={{ opacity: 0, y: -14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-center gap-2 rounded-full border border-white/80 bg-white/60 px-4 py-1.5 text-[13px] font-semibold uppercase tracking-[0.22em] text-indigo-500 shadow-sm backdrop-blur-md"
+        className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[13px] font-semibold uppercase tracking-[0.22em] text-cyan-300 backdrop-blur-md"
       >
-        <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-        Investor pitch · generated from README
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
+        Investor pitch · generated from repo docs
       </motion.div>
 
       <motion.h1
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-8 max-w-[960px] text-[76px] font-bold leading-[1.02] tracking-tight text-slate-800"
+        className="mt-8 max-w-[960px] text-[76px] font-bold leading-[1.02] tracking-tight text-slate-100"
       >
         <span className="text-gradient">{deck.title}</span>
       </motion.h1>
@@ -152,7 +149,7 @@ function CoverSlide({ deck }: { deck: PitchDeck }) {
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-6 max-w-[820px] text-[25px] leading-snug text-slate-500"
+        className="mt-6 max-w-[820px] text-[25px] leading-snug text-slate-400"
       >
         {deck.tagline}
       </motion.p>
@@ -166,11 +163,11 @@ function CoverSlide({ deck }: { deck: PitchDeck }) {
         {deck.sections.map((s) => (
           <span
             key={s.key}
-            className="flex items-center gap-2 rounded-full border border-white/80 bg-white/65 px-4 py-2 text-[15px] font-medium text-slate-600 shadow-sm backdrop-blur-md"
+            className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[15px] font-medium text-slate-300 backdrop-blur-md"
           >
             <span
               className="grid h-5 w-5 place-items-center rounded-md text-white"
-              style={{ background: s.accent }}
+              style={{ background: s.accent, boxShadow: `0 0 14px ${s.accent}66` }}
             >
               <SectionIcon name={s.key === "tech" ? "cpu" : s.key === "revenue" ? "line-chart" : s.key === "competitors" ? "crosshair" : s.key === "market" ? "trending-up" : s.key === "features" ? "sparkles" : "flame"} className="h-3 w-3" />
             </span>
@@ -180,20 +177,20 @@ function CoverSlide({ deck }: { deck: PitchDeck }) {
       </motion.div>
 
       {/* floating deco cards */}
-      <div className="animate-float pointer-events-none absolute right-20 top-24 hidden rounded-2xl border border-white/80 bg-white/60 px-4 py-3 shadow-lg backdrop-blur-md sm:block">
-        <div className="flex items-center gap-2 text-slate-500">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-sky-100 text-sky-500">
+      <div className="animate-float pointer-events-none absolute right-20 top-24 hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 shadow-lg backdrop-blur-md sm:block">
+        <div className="flex items-center gap-2 text-slate-400">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-cyan-500/15 text-cyan-300">
             <Flame className="h-4 w-4" />
           </span>
           <span className="text-[13px] font-medium">Problem defined</span>
         </div>
       </div>
       <div
-        className="animate-float-x pointer-events-none absolute left-24 top-36 hidden rounded-2xl border border-white/80 bg-white/60 px-4 py-3 shadow-lg backdrop-blur-md sm:block"
+        className="animate-float-x pointer-events-none absolute left-24 top-36 hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 shadow-lg backdrop-blur-md sm:block"
         style={{ animationDelay: "-2s" }}
       >
-        <div className="flex items-center gap-2 text-slate-500">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-teal-100 text-teal-500">
+        <div className="flex items-center gap-2 text-slate-400">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-500/15 text-emerald-300">
             <Cpu className="h-4 w-4" />
           </span>
           <span className="text-[13px] font-medium">Stack surfaced</span>
@@ -224,7 +221,7 @@ function SectionSlide({
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           className="absolute -left-4 -top-24 select-none text-[210px] font-black leading-none"
-          style={{ color: section.accent, opacity: 0.13 }}
+          style={{ color: section.accent, opacity: 0.16 }}
         >
           {String(number).padStart(2, "0")}
         </motion.div>
@@ -248,7 +245,7 @@ function SectionSlide({
             {section.eyebrow}
           </span>
           {section.derived && (
-            <span className="rounded-full border border-slate-200 bg-white/70 px-2.5 py-1 text-[11px] font-medium text-slate-400">
+            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-slate-500">
               AI-derived
             </span>
           )}
@@ -258,7 +255,7 @@ function SectionSlide({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-5 text-[62px] font-bold leading-none tracking-tight text-slate-800"
+          className="mt-5 text-[62px] font-bold leading-none tracking-tight text-slate-100"
         >
           {section.title}
         </motion.h2>
@@ -268,14 +265,14 @@ function SectionSlide({
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.6, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
           className="mt-5 h-1.5 w-28 origin-left rounded-full"
-          style={{ background: section.accent }}
+          style={{ background: section.accent, boxShadow: `0 0 16px ${section.accent}88` }}
         />
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.34 }}
-          className="mt-6 max-w-[420px] text-[18px] leading-relaxed text-slate-400"
+          className="mt-6 max-w-[420px] text-[18px] leading-relaxed text-slate-500"
         >
           Slide {String(index + 1).padStart(2, "0")} — {section.title.toLowerCase()} at a glance
         </motion.p>
@@ -288,7 +285,7 @@ function SectionSlide({
         transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         className="ml-10 w-[54%]"
       >
-        <div className="relative rounded-3xl border border-white/80 bg-white/55 p-9 shadow-[0_24px_60px_rgba(80,110,200,0.14),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl">
+        <div className="relative rounded-3xl border border-white/10 bg-[oklch(0.2_0.028_262/0.55)] p-9 shadow-[0_24px_60px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-xl">
           <div className="space-y-5">
             {section.bullets.map((bullet, bi) => (
               <motion.div
@@ -300,16 +297,16 @@ function SectionSlide({
               >
                 <span
                   className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[13px] font-bold text-white shadow-md"
-                  style={{ background: section.accent }}
+                  style={{ background: section.accent, boxShadow: `0 0 16px ${section.accent}55` }}
                 >
                   {bi + 1}
                 </span>
-                <p className="text-[21px] leading-snug text-slate-600">{bullet}</p>
+                <p className="text-[21px] leading-snug text-slate-300">{bullet}</p>
               </motion.div>
             ))}
           </div>
           <div
-            className="pointer-events-none absolute -bottom-7 -right-7 h-24 w-24 rounded-2xl border border-white/70 bg-white/40 backdrop-blur-md"
+            className="pointer-events-none absolute -bottom-7 -right-7 h-24 w-24 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md"
             style={{ transform: "rotate(8deg)" }}
           >
             <div
@@ -339,7 +336,7 @@ function ClosingSlide({ deck }: { deck: PitchDeck }) {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-sky-400 via-indigo-500 to-teal-400 text-white shadow-[0_18px_44px_rgba(99,102,241,0.45),inset_0_1px_0_rgba(255,255,255,0.6)]"
+        className="grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-cyan-400 via-indigo-500 to-violet-600 text-white shadow-[0_18px_44px_rgba(99,102,241,0.45),inset_0_1px_0_rgba(255,255,255,0.35)]"
       >
         <Rocket className="h-9 w-9" />
       </motion.div>
@@ -347,7 +344,7 @@ function ClosingSlide({ deck }: { deck: PitchDeck }) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-8 text-[64px] font-bold leading-tight tracking-tight text-slate-800"
+        className="mt-8 text-[64px] font-bold leading-tight tracking-tight text-slate-100"
       >
         Let&apos;s build <span className="text-gradient">this together.</span>
       </motion.h2>
@@ -360,10 +357,10 @@ function ClosingSlide({ deck }: { deck: PitchDeck }) {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="rounded-2xl border border-white/80 bg-white/60 px-7 py-5 shadow-sm backdrop-blur-md"
+            className="rounded-2xl border border-white/10 bg-white/5 px-7 py-5 backdrop-blur-md"
           >
-            <div className="text-[34px] font-bold tracking-tight text-slate-800">{s.value}</div>
-            <div className="mt-1 text-[13px] font-medium uppercase tracking-[0.16em] text-slate-400">
+            <div className="text-[34px] font-bold tracking-tight text-slate-100">{s.value}</div>
+            <div className="mt-1 text-[13px] font-medium uppercase tracking-[0.16em] text-slate-500">
               {s.label}
             </div>
           </div>
@@ -373,7 +370,7 @@ function ClosingSlide({ deck }: { deck: PitchDeck }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        className="mt-9 max-w-[720px] text-[20px] text-slate-500"
+        className="mt-9 max-w-[720px] text-[20px] text-slate-400"
       >
         {deck.tagline}
       </motion.p>
@@ -389,14 +386,14 @@ function ClosingSlide({ deck }: { deck: PitchDeck }) {
 export function SlideContent({ deck, slide, index, total }: { deck: PitchDeck; slide: SlideDef; index: number; total: number }) {
   if (slide.kind === "cover") {
     return (
-      <SlideFrame accent="#6366f1">
+      <SlideFrame accent="#818cf8">
         <CoverSlide deck={deck} />
       </SlideFrame>
     );
   }
   if (slide.kind === "closing") {
     return (
-      <SlideFrame accent="#0ea5e9">
+      <SlideFrame accent="#22d3ee">
         <ClosingSlide deck={deck} />
       </SlideFrame>
     );

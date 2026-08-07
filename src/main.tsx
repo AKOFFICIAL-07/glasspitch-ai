@@ -17,14 +17,14 @@ const Projects = lazy(() => import("./pages/Projects.tsx"));
 const Decks = lazy(() => import("./pages/Decks.tsx"));
 const DeckView = lazy(() => import("./pages/DeckView.tsx"));
 const ShareView = lazy(() => import("./pages/ShareView.tsx"));
+const Catalog = lazy(() => import("./pages/Catalog.tsx"));
+const Wallet = lazy(() => import("./pages/Wallet.tsx"));
+const Admin = lazy(() => import("./pages/Admin.tsx"));
 const TemplatesPage = lazy(() =>
   import("./pages/Placeholder.tsx").then((m) => ({ default: m.TemplatesPage })),
 );
 const AnalyticsPage = lazy(() =>
   import("./pages/Placeholder.tsx").then((m) => ({ default: m.AnalyticsPage })),
-);
-const WalletPage = lazy(() =>
-  import("./pages/Placeholder.tsx").then((m) => ({ default: m.WalletPage })),
 );
 const SettingsPage = lazy(() =>
   import("./pages/Placeholder.tsx").then((m) => ({ default: m.SettingsPage })),
@@ -43,7 +43,7 @@ function RouteLoading() {
           </div>
         </div>
         <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-          GlassPitch
+          Pitch Forge
         </p>
       </div>
     </div>
@@ -183,6 +183,7 @@ createRoot(document.getElementById("root")!).render(
                 }
               />
               <Route path="/d/:shareCode" element={<ShareView />} />
+              <Route path="/catalog" element={<Catalog />} />
               <Route
                 path="/templates"
                 element={
@@ -203,7 +204,15 @@ createRoot(document.getElementById("root")!).render(
                 path="/wallet"
                 element={
                   <RequireAuth>
-                    <WalletPage />
+                    <Wallet />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <RequireAuth>
+                    <Admin />
                   </RequireAuth>
                 }
               />

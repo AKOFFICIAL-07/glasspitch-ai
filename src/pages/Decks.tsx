@@ -49,16 +49,17 @@ export default function Decks() {
       >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-500">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
               Library
             </p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-800">Decks</h1>
-            <p className="mt-2 text-[14px] text-slate-500">
-              Every pitch deck you’ve generated, ready to present, share and download.
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-100">Decks</h1>
+            <p className="mt-2 text-[14px] text-slate-400">
+              Every pitch deck you’ve forged — ready to present, share, publish
+              and download.
             </p>
           </div>
           <Link to="/dashboard">
-            <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 shadow-[0_10px_24px_rgba(99,102,241,0.4)]">
+            <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 shadow-[0_10px_24px_rgba(34,211,238,0.25)]">
               <Plus className="h-4 w-4" strokeWidth={2.5} />
               New deck
             </Button>
@@ -76,13 +77,13 @@ export default function Decks() {
             <span className="glass-soft grid h-14 w-14 place-items-center rounded-2xl text-slate-300">
               <Presentation className="h-6 w-6" />
             </span>
-            <p className="max-w-sm text-[14px] leading-relaxed text-slate-500">
-              Nothing here yet — your generated decks will live in this library.
+            <p className="max-w-sm text-[14px] leading-relaxed text-slate-400">
+              Nothing here yet — your forged decks will live in this library.
             </p>
             <Link to="/dashboard">
-              <Button className="mt-2 gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500">
+              <Button className="mt-2 gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600">
                 <Plus className="h-4 w-4" />
-                Generate your first deck
+                Forge your first deck
               </Button>
             </Link>
           </div>
@@ -102,7 +103,7 @@ export default function Decks() {
                 />
                 <div className="relative flex flex-1 flex-col">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="line-clamp-1 text-[16px] font-bold text-slate-800">
+                    <h3 className="line-clamp-1 text-[16px] font-bold text-slate-100">
                       {deck.title}
                     </h3>
                     <AlertDialog>
@@ -110,7 +111,7 @@ export default function Decks() {
                         <button
                           type="button"
                           aria-label="Delete deck"
-                          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-300 opacity-0 transition hover:bg-rose-50 hover:text-rose-500 group-hover:opacity-100"
+                          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-600 opacity-0 transition hover:bg-rose-500/10 hover:text-rose-400 group-hover:opacity-100"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -142,7 +143,7 @@ export default function Decks() {
                     </AlertDialog>
                   </div>
 
-                  <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-slate-500">
+                  <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-slate-400">
                     {deck.tagline}
                   </p>
 
@@ -159,8 +160,8 @@ export default function Decks() {
                     ))}
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-white/70 pt-3.5">
-                    <span className="text-[11.5px] font-medium text-slate-400">
+                  <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3.5">
+                    <span className="text-[11.5px] font-medium text-slate-500">
                       {deck.sections.length + 2} slides ·{" "}
                       {formatDistanceToNow(new Date(deck._creationTime), { addSuffix: true })}
                     </span>
@@ -169,13 +170,13 @@ export default function Decks() {
                         type="button"
                         aria-label="Copy share link"
                         onClick={() => handleShare(deck)}
-                        className="glass-soft grid h-8 w-8 place-items-center rounded-lg text-slate-500 transition hover:bg-white/90 hover:text-indigo-500"
+                        className="glass-soft grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-cyan-300"
                       >
                         <Link2 className="h-3.5 w-3.5" />
                       </button>
                       <Link
                         to={`/deck/${deck._id}`}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.35)] transition hover:-translate-y-0.5"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(34,211,238,0.25)] transition hover:-translate-y-0.5"
                       >
                         {copiedId === deck._id ? "Copied" : "Open"} <ArrowRight className="h-3 w-3" />
                       </Link>

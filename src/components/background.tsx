@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useRef } from "react";
 
-/** Soft, drifting aurora blobs in restrained cool colors. */
+/** Soft, drifting aurora blobs — cool cyan/violet on dark. */
 export function AuroraBlobs({ className }: { className?: string }) {
   return (
     <div
@@ -9,18 +9,18 @@ export function AuroraBlobs({ className }: { className?: string }) {
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
       <div
-        className="animate-aurora absolute -top-44 -left-36 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(125,211,252,0.5),transparent_66%)] blur-2xl"
+        className="animate-aurora absolute -top-44 -left-36 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.16),transparent_66%)] blur-2xl"
       />
       <div
-        className="animate-aurora absolute top-1/4 -right-44 h-[40rem] w-[40rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(165,180,252,0.42),transparent_66%)] blur-2xl"
+        className="animate-aurora absolute top-1/4 -right-44 h-[40rem] w-[40rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.14),transparent_66%)] blur-2xl"
         style={{ animationDelay: "-9s" }}
       />
       <div
-        className="animate-aurora absolute -bottom-56 left-1/3 h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(153,246,228,0.38),transparent_66%)] blur-2xl"
+        className="animate-aurora absolute -bottom-56 left-1/3 h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.1),transparent_66%)] blur-2xl"
         style={{ animationDelay: "-16s" }}
       />
       <div
-        className="animate-aurora absolute top-1/2 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(196,181,253,0.28),transparent_66%)] blur-2xl"
+        className="animate-aurora absolute top-1/2 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.12),transparent_66%)] blur-2xl"
         style={{ animationDelay: "-4s" }}
       />
     </div>
@@ -39,9 +39,9 @@ interface Particle {
 }
 
 const PARTICLE_COLORS = [
-  "rgba(96,165,250,ALPHA)",
+  "rgba(34,211,238,ALPHA)",
   "rgba(129,140,248,ALPHA)",
-  "rgba(45,212,191,ALPHA)",
+  "rgba(52,211,153,ALPHA)",
   "rgba(167,139,250,ALPHA)",
 ];
 
@@ -96,7 +96,7 @@ export function ParticleField({ className, count = 46 }: { className?: string; c
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
       for (const p of particles) {
-        const alpha = 0.22 + 0.4 * Math.abs(Math.sin(p.phase));
+        const alpha = 0.18 + 0.35 * Math.abs(Math.sin(p.phase));
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = p.hue.replace("ALPHA", alpha.toFixed(2));
@@ -116,7 +116,7 @@ export function ParticleField({ className, count = 46 }: { className?: string; c
         }
         if (p.x < -8) p.x = width + 8;
         if (p.x > width + 8) p.x = -8;
-        const alpha = 0.22 + 0.4 * Math.abs(Math.sin(p.phase));
+        const alpha = 0.18 + 0.35 * Math.abs(Math.sin(p.phase));
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = p.hue.replace("ALPHA", alpha.toFixed(2));
@@ -143,7 +143,7 @@ export function ParticleField({ className, count = 46 }: { className?: string; c
   );
 }
 
-/** Full-page light glass background: aurora + grid + particles. */
+/** Full-page dark glass background: aurora + grid + particles. */
 export function BackgroundFX({
   className,
   particleCount = 46,
@@ -154,7 +154,13 @@ export function BackgroundFX({
   grid?: boolean;
 }) {
   return (
-    <div aria-hidden className={cn("pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[oklch(0.985_0.006_250)] print:hidden", className)}>
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[oklch(0.155_0.022_262)] print:hidden",
+        className,
+      )}
+    >
       <AuroraBlobs className="absolute inset-0" />
       {grid && <div className="bg-grid absolute inset-0" />}
       <ParticleField count={particleCount} className="absolute inset-0" />

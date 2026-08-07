@@ -1,6 +1,7 @@
 import { BackgroundFX } from "@/components/background";
 import { SlideThumb, useSlideNavigation } from "@/components/deck/presenter";
 import { DeckStage, PrintDeck, deckSlides } from "@/components/deck/slides";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,8 +15,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useAuth } from "@/hooks/use-auth";
 import { SECTION_META, type PitchDeck } from "@/lib/deck";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "convex/react";
@@ -26,7 +29,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  Globe,
   Link2,
+  MessageSquare,
+  Send,
   Trash2,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -37,8 +43,10 @@ export default function DeckView() {
   const { id = "" } = useParams();
   const deckId = id as Id<"decks">;
   const navigate = useNavigate();
+  const { user } = useAuth();
   const deckDoc = useQuery(api.decks.getDeck, { deckId });
   const deleteDeck = useMutation(api.decks.deleteDeck);
+  const publishDeck = useMutation(api.decks.publishDeck);
   const [shareCopied, setShareCopied] = useState(false);
 
   const deck: PitchDeck | null = useMemo(() => {
@@ -92,8 +100,17 @@ export default function DeckView() {
     }
   };
 
+  const handlePublish = async () => {
+    try {
+      await publishDeck({ deckId, published: !deckDoc?.published });
+      toast.success(deckDoc?.published ? "Deck removed from catalog" : "Deck published to the catalog");
+    } catch {
+      toast.error("Could not update catalog status");
+    }
+  };
+
   useEffect(() => {
-    if (deckDoc) document.title = `${deckDoc.title} — GlassPitch`;
+    if (deckDoc) document.title = `${deckDoc.title} — Pitch Forge`;
   }, [deckDoc]);
 
   const slides = deck ? deckSlides(deck) : [];
@@ -107,25 +124,40 @@ export default function DeckView() {
         {/* Top bar */}
         <header className="glass-strong flex items-center gap-3 rounded-2xl px-4 py-3">
           <Link to="/decks">
-            <Button variant="outline" size="icon" className="glass-soft h-10 w-10 rounded-xl text-slate-600 hover:bg-white/80">
+            <Button variant="outline" size="icon" className="glass-soft h-10 w-10 rounded-xl text-slate-300 hover:bg-white/10">
               <ArrowLeft className="h-[18px] w-[18px]" />
             </Button>
           </Link>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-[15px] font-bold text-slate-800">
+            <h1 className="truncate text-[15px] font-bold text-slate-100">
               {deckDoc?.title ?? "Loading deck…"}
             </h1>
-            <p className="truncate text-[12px] text-slate-400">
-              {deckDoc ? `${total} slides · ${deckDoc.stats.words.toLocaleString()} words distilled` : ""}
+            <p className="truncate text-[12px] text-slate-500">
+              {deckDoc
+                ? `${total} slides · ${deckDoc.stats.words.toLocaleString()} words distilled${deckDoc.published ? " · published to catalog" : ""}`
+                : ""}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
+              onClick={handlePublish}
+              className={cn(
+                "gap-2 rounded-xl text-[13px]",
+                deckDoc?.published
+                  ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-300"
+                  : "glass-soft text-slate-300 hover:bg-white/10",
+              )}
+            >
+              <Globe className="h-4 w-4" />
+              <span className="hidden sm:inline">{deckDoc?.published ? "Published" : "Publish"}</span>
+            </Button>
+            <Button
+              variant="outline"
               onClick={handleShare}
               className={cn(
                 "glass-soft gap-2 rounded-xl text-[13px]",
-                shareCopied ? "border-teal-200 text-teal-600" : "text-slate-600 hover:bg-white/80",
+                shareCopied ? "border-cyan-400/30 text-cyan-300" : "text-slate-300 hover:bg-white/10",
               )}
             >
               <Link2 className="h-4 w-4" />
@@ -134,14 +166,14 @@ export default function DeckView() {
             <Button
               variant="outline"
               onClick={handlePrint}
-              className="glass-soft gap-2 rounded-xl text-[13px] text-slate-600 hover:bg-white/80"
+              className="glass-soft gap-2 rounded-xl text-[13px] text-slate-300 hover:bg-white/10"
             >
               <Download className="h-4 w-4" />
               <span className="hidden sm:inline">Download PDF</span>
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="icon" className="glass-soft h-10 w-10 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-500">
+                <Button variant="outline" size="icon" className="glass-soft h-10 w-10 rounded-xl text-slate-500 hover:bg-rose-500/10 hover:text-rose-400">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </AlertDialogTrigger>
@@ -165,8 +197,8 @@ export default function DeckView() {
 
         {!deckDoc || !deck ? (
           <div className="mt-6 flex flex-col items-center justify-center gap-4 py-24 text-center">
-            <Skeleton className="h-[420px] w-full max-w-4xl rounded-2xl bg-white/50" />
-            <p className="text-[13.5px] text-slate-400">Loading your deck…</p>
+            <Skeleton className="h-[420px] w-full max-w-4xl rounded-2xl bg-white/5" />
+            <p className="text-[13.5px] text-slate-500">Loading your deck…</p>
           </div>
         ) : (
           <div className="mt-5 flex gap-5">
@@ -186,7 +218,7 @@ export default function DeckView() {
               ))}
             </aside>
 
-            {/* Stage */}
+            {/* Stage + comments */}
             <div className="min-w-0 flex-1">
               <div className="relative">
                 <DeckStage deck={deck} index={index} direction={direction} />
@@ -196,7 +228,7 @@ export default function DeckView() {
                     type="button"
                     aria-label="Previous slide"
                     onClick={prev}
-                    className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-slate-600 shadow-lg transition hover:scale-105 hover:text-indigo-500"
+                    className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-slate-300 shadow-lg transition hover:scale-105 hover:text-cyan-300"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -206,7 +238,7 @@ export default function DeckView() {
                     type="button"
                     aria-label="Next slide"
                     onClick={next}
-                    className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-slate-600 shadow-lg transition hover:scale-105 hover:text-indigo-500"
+                    className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-slate-300 shadow-lg transition hover:scale-105 hover:text-cyan-300"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -220,19 +252,19 @@ export default function DeckView() {
                   size="sm"
                   onClick={prev}
                   disabled={isFirst}
-                  className="glass-soft gap-1.5 rounded-xl text-[12.5px] text-slate-600 hover:bg-white/80 disabled:opacity-40"
+                  className="glass-soft gap-1.5 rounded-xl text-[12.5px] text-slate-300 hover:bg-white/10 disabled:opacity-40"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Prev</span>
                 </Button>
-                <div className="relative h-2 flex-1 overflow-hidden rounded-full border border-white/70 bg-white/60">
+                <div className="relative h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
                   <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-sky-400 via-indigo-500 to-teal-400"
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500"
                     animate={{ width: `${((index + 1) / total) * 100}%` }}
                     transition={{ ease: "easeInOut", duration: 0.4 }}
                   />
                 </div>
-                <span className="whitespace-nowrap text-[12.5px] font-semibold tabular-nums text-slate-500">
+                <span className="whitespace-nowrap text-[12.5px] font-semibold tabular-nums text-slate-400">
                   {index + 1} / {total}
                 </span>
                 <Button
@@ -240,7 +272,7 @@ export default function DeckView() {
                   size="sm"
                   onClick={next}
                   disabled={isLast}
-                  className="glass-soft gap-1.5 rounded-xl text-[12.5px] text-slate-600 hover:bg-white/80 disabled:opacity-40"
+                  className="glass-soft gap-1.5 rounded-xl text-[12.5px] text-slate-300 hover:bg-white/10 disabled:opacity-40"
                 >
                   <span className="hidden sm:inline">Next</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -248,7 +280,7 @@ export default function DeckView() {
               </div>
 
               {/* Slide caption */}
-              <div className="mt-3 flex items-center justify-center gap-2 text-[12.5px] font-medium text-slate-400">
+              <div className="mt-3 flex items-center justify-center gap-2 text-[12.5px] font-medium text-slate-500">
                 {slides[index]?.kind === "section" ? (
                   <span
                     className="h-2 w-2 rounded-full"
@@ -267,8 +299,136 @@ export default function DeckView() {
                     ? "Closing"
                     : (slides[index] as { section: { title: string } }).section.title}
               </div>
+
+              {/* Comments */}
+              <CommentSection deckId={deckId} currentUser={user} />
             </div>
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CommentSection({
+  deckId,
+  currentUser,
+}: {
+  deckId: Id<"decks">;
+  currentUser: { name?: string; email?: string } | null | undefined;
+}) {
+  const comments = useQuery(api.comments.listComments, { deckId });
+  const addComment = useMutation(api.comments.addComment);
+  const deleteComment = useMutation(api.comments.deleteComment);
+  const [body, setBody] = useState("");
+  const [posting, setPosting] = useState(false);
+
+  const handlePost = async () => {
+    if (body.trim().length < 2) return;
+    setPosting(true);
+    try {
+      await addComment({ deckId, body: body.trim() });
+      setBody("");
+      toast.success("Comment posted");
+    } catch {
+      toast.error("Could not post comment");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const initials = (name?: string) =>
+    name
+      ?.split(/\s+/)
+      .map((p) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "PF";
+
+  return (
+    <div className="glass mt-6 rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <MessageSquare className="h-4 w-4 text-cyan-300" />
+        <h3 className="text-[15px] font-semibold text-slate-100">Feedback</h3>
+        <span className="text-[12px] text-slate-500">
+          {comments === undefined ? "" : `· ${comments.length} comment${comments.length === 1 ? "" : "s"}`}
+        </span>
+      </div>
+
+      <div className="mt-4 flex items-start gap-3">
+        <Avatar className="h-8 w-8 shrink-0">
+          <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-600 text-[10px] font-semibold text-white">
+            {initials(currentUser?.name)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <Textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Ask a question or leave feedback for the founder…"
+            className="min-h-[76px] resize-none rounded-xl border-white/10 bg-white/5 text-[13px] text-slate-200 shadow-inner backdrop-blur-md placeholder:text-slate-600 focus-visible:border-cyan-400/40 focus-visible:ring-cyan-400/20"
+          />
+          <div className="mt-2 flex items-center justify-end gap-2">
+            <span className="text-[11px] text-slate-600">{body.length}/500</span>
+            <Button
+              size="sm"
+              onClick={handlePost}
+              disabled={body.trim().length < 2 || posting}
+              className="gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-[12.5px] shadow-[0_8px_18px_rgba(34,211,238,0.2)] disabled:opacity-40"
+            >
+              {posting ? "Posting…" : "Post"}
+              <Send className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        {comments === undefined ? (
+          <div className="flex items-center gap-2 text-[12.5px] text-slate-500">
+            <Skeleton className="h-4 w-40 rounded bg-white/5" />
+          </div>
+        ) : comments.length === 0 ? (
+          <p className="text-center text-[12.5px] text-slate-600">
+            No feedback yet — be the first to comment.
+          </p>
+        ) : (
+          comments.map((c) => (
+            <div key={c._id} className="flex items-start gap-3">
+              <Avatar className="h-8 w-8 shrink-0">
+                <AvatarFallback className="bg-slate-700 text-[10px] font-semibold text-slate-200">
+                  {initials(c.authorName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] font-semibold text-slate-200">{c.authorName}</span>
+                  <span className="text-[11px] text-slate-600">
+                    {new Date(c._creationTime).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-[13.5px] leading-relaxed text-slate-400">{c.body}</p>
+              </div>
+              <button
+                type="button"
+                aria-label="Delete comment"
+                onClick={async () => {
+                  try {
+                    await deleteComment({ commentId: c._id });
+                    toast.success("Comment deleted");
+                  } catch {
+                    toast.error("Could not delete comment");
+                  }
+                }}
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-700 opacity-30 transition hover:bg-rose-500/10 hover:text-rose-400 hover:opacity-100"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))
         )}
       </div>
     </div>

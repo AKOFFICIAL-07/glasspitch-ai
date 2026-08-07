@@ -1,5 +1,5 @@
 import { PlaceholderPage } from "@/components/placeholder-page";
-import { BarChart3, LayoutTemplate, Settings, Wallet } from "lucide-react";
+import { BarChart3, LayoutTemplate, Settings } from "lucide-react";
 
 export function TemplatesPage() {
   return (
@@ -23,23 +23,12 @@ export function AnalyticsPage() {
   );
 }
 
-export function WalletPage() {
-  return (
-    <PlaceholderPage
-      icon={Wallet}
-      title="Wallet"
-      blurb="A home for your fundraising essentials — round tracking, cap table previews and investor CRM. Wallet will keep your numbers in one glass place."
-      chips={["Round tracker", "Investor list", "Invoices", "Payouts"]}
-    />
-  );
-}
-
 export function SettingsPage() {
   return (
     <PlaceholderPage
       icon={Settings}
       title="Settings"
-      blurb="Manage your profile, workspace and preferences. More controls land here as GlassPitch grows past version one."
+      blurb="Manage your profile, workspace and preferences. More controls land here as Pitch Forge grows past version one."
       chips={["Profile", "Workspace", "Appearance", "API keys"]}
     />
   );

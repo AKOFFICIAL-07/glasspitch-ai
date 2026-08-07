@@ -71,8 +71,8 @@ export function SlideThumb({
       className={cn(
         "relative block w-full overflow-hidden rounded-lg transition-all duration-200",
         active
-          ? "ring-2 ring-indigo-400 shadow-[0_10px_26px_rgba(99,102,241,0.4)]"
-          : "opacity-70 ring-1 ring-white/70 hover:opacity-100",
+          ? "ring-2 ring-cyan-400 shadow-[0_10px_26px_rgba(34,211,238,0.35)]"
+          : "opacity-70 ring-1 ring-white/10 hover:opacity-100",
       )}
       style={{ height: S * 720 }}
     >

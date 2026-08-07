@@ -104,26 +104,26 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           {/* Pitch panel */}
           <div className="glass relative hidden flex-col justify-between overflow-hidden rounded-3xl p-8 lg:flex">
             <div
-              className="pointer-events-none absolute inset-0 opacity-25"
+              className="pointer-events-none absolute inset-0 opacity-20"
               style={{
                 background:
-                  "linear-gradient(140deg, rgba(56,189,248,0.4), rgba(99,102,241,0.35), rgba(20,184,166,0.4))",
+                  "linear-gradient(140deg, rgba(34,211,238,0.3), rgba(99,102,241,0.25), rgba(168,85,247,0.3))",
               }}
             />
             <div className="relative">
               <Brand />
-              <h2 className="mt-8 text-3xl font-bold leading-tight tracking-tight text-slate-800">
-                Turn a README into a deck investors{" "}
-                <span className="text-gradient">actually read.</span>
+              <h2 className="mt-8 text-3xl font-bold leading-tight tracking-tight text-slate-100">
+                Your hackathon repo deserves a{" "}
+                <span className="text-gradient">serious deck.</span>
               </h2>
               <ul className="mt-7 space-y-3.5">
                 {[
-                  "Six story sections extracted automatically",
+                  "Six story sections extracted from your docs",
                   "Floating glass cards that build your narrative",
-                  "Present, download as PDF, or share one link",
+                  "Present, export as PDF, publish to the catalog",
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-[14px] text-slate-600">
-                    <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 text-[10px] font-bold text-white">
+                  <li key={item} className="flex items-start gap-3 text-[14px] text-slate-300">
+                    <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 text-[10px] font-bold text-white">
                       ✓
                     </span>
                     {item}
@@ -131,9 +131,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                 ))}
               </ul>
             </div>
-            <p className="relative text-[12.5px] leading-relaxed text-slate-400">
+            <p className="relative text-[12.5px] leading-relaxed text-slate-500">
               Free to start — your first deck is one paste away. No design
-              skills, no template hunting.
+              skills, no template hunting, no 3 a.m. panic before demo day.
             </p>
           </div>
 
@@ -143,13 +143,10 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               <>
                 <CardHeader className="text-center">
                   <div className="flex justify-center">
-                    <BrandMark
-                      className="mt-2 h-14 w-14 cursor-pointer"
-                      aria-label="GlassPitch home"
-                    />
+                    <BrandMark className="mt-2 h-14 w-14" />
                   </div>
-                  <CardTitle className="mt-3 text-2xl tracking-tight text-slate-800">
-                    Get started with GlassPitch
+                  <CardTitle className="mt-3 text-2xl tracking-tight text-slate-100">
+                    Get started with Pitch Forge
                   </CardTitle>
                   <CardDescription className="text-[13.5px]">
                     Enter your email to log in or sign up — or continue as guest
@@ -159,12 +156,12 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <CardContent className="px-7">
                     <div className="relative flex items-center gap-2">
                       <div className="relative flex-1">
-                        <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                         <Input
                           name="email"
                           placeholder="name@example.com"
                           type="email"
-                          className="h-11 rounded-xl border-white/80 bg-white/70 pl-10 text-[14px] shadow-inner backdrop-blur-md focus-visible:border-indigo-300 focus-visible:ring-indigo-200/50"
+                          className="h-11 rounded-xl border-white/10 bg-white/5 pl-10 text-[14px] shadow-inner backdrop-blur-md focus-visible:border-cyan-400/40 focus-visible:ring-cyan-400/20"
                           disabled={isLoading}
                           required
                         />
@@ -174,7 +171,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                         variant="outline"
                         size="icon"
                         disabled={isLoading}
-                        className="glass-soft h-11 w-11 rounded-xl text-indigo-500 hover:bg-white/90"
+                        className="glass-soft h-11 w-11 rounded-xl text-cyan-300 hover:bg-white/10"
                       >
                         {isLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -183,15 +180,15 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                         )}
                       </Button>
                     </div>
-                    {error && <p className="mt-2 text-sm text-rose-500">{error}</p>}
+                    {error && <p className="mt-2 text-sm text-rose-400">{error}</p>}
 
                     <div className="my-5">
                       <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-white/80" />
+                          <span className="w-full border-t border-white/10" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-transparent px-2 text-slate-400">Or</span>
+                          <span className="bg-transparent px-2 text-slate-500">Or</span>
                         </div>
                       </div>
                     </div>
@@ -199,7 +196,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     <Button
                       type="button"
                       variant="outline"
-                      className="glass-soft mt-1 h-11 w-full rounded-xl text-[14px] font-medium text-slate-600 hover:bg-white/90"
+                      className="glass-soft mt-1 h-11 w-full rounded-xl text-[14px] font-medium text-slate-300 hover:bg-white/10"
                       onClick={handleGuestLogin}
                       disabled={isLoading}
                     >
@@ -215,16 +212,16 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <div className="flex justify-center">
                     <BrandMark className="h-12 w-12" />
                   </div>
-                  <CardTitle className="text-xl tracking-tight text-slate-800">
+                  <CardTitle className="text-xl tracking-tight text-slate-100">
                     Check your email
                   </CardTitle>
                   <CardDescription className="text-[13.5px]">
                     We&apos;ve sent a code to{" "}
-                    <span className="font-semibold text-slate-600">{step.email}</span>
+                    <span className="font-semibold text-slate-300">{step.email}</span>
                   </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleOtpSubmit}>
-                  <CardContent className="pb-4 px-7">
+                  <CardContent className="px-7 pb-4">
                     <input type="hidden" name="email" value={step.email} />
                     <input type="hidden" name="code" value={otp} />
 
@@ -246,20 +243,20 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                             <InputOTPSlot
                               key={index}
                               index={index}
-                              className="h-12 w-10 rounded-lg border-white/80 bg-white/70 shadow-inner backdrop-blur-md"
+                              className="h-12 w-10 rounded-lg border-white/10 bg-white/5 shadow-inner backdrop-blur-md"
                             />
                           ))}
                         </InputOTPGroup>
                       </InputOTP>
                     </div>
                     {error && (
-                      <p className="mt-2 text-center text-sm text-rose-500">{error}</p>
+                      <p className="mt-2 text-center text-sm text-rose-400">{error}</p>
                     )}
-                    <p className="mt-5 text-center text-sm text-slate-400">
+                    <p className="mt-5 text-center text-sm text-slate-500">
                       Didn&apos;t receive a code?{" "}
                       <Button
                         variant="link"
-                        className="h-auto p-0 font-semibold text-indigo-500"
+                        className="h-auto p-0 font-semibold text-cyan-300"
                         onClick={() => setStep("signIn")}
                       >
                         Try again
@@ -269,7 +266,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <CardFooter className="flex-col gap-2 px-7 pb-6">
                     <Button
                       type="submit"
-                      className="h-11 w-full gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 text-[14px] shadow-[0_12px_28px_rgba(99,102,241,0.4)]"
+                      className="h-11 w-full gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 text-[14px] shadow-[0_12px_28px_rgba(34,211,238,0.25)]"
                       disabled={isLoading || otp.length !== 6}
                     >
                       {isLoading ? (
@@ -289,7 +286,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       variant="ghost"
                       onClick={() => setStep("signIn")}
                       disabled={isLoading}
-                      className="w-full text-[13px] text-slate-500 hover:bg-white/70"
+                      className="w-full text-[13px] text-slate-400 hover:bg-white/10"
                     >
                       Use different email
                     </Button>
@@ -298,13 +295,13 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               </>
             )}
 
-            <div className="rounded-b-3xl border-t border-white/70 bg-white/40 px-6 py-4 text-center text-xs text-slate-400">
+            <div className="rounded-b-3xl border-t border-white/10 bg-white/5 px-6 py-4 text-center text-xs text-slate-500">
               Secured by{" "}
               <a
                 href="https://freebuff.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-slate-500 underline-offset-2 hover:underline"
+                className="font-medium text-slate-400 underline-offset-2 hover:underline"
               >
                 freebuff.com
               </a>

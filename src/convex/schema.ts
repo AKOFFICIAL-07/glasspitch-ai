@@ -30,6 +30,7 @@ const schema = defineSchema(
       isAnonymous: v.optional(v.boolean()), // is the user anonymous. do not remove
 
       role: v.optional(roleValidator), // role of the user. do not remove
+      plan: v.optional(v.string()), // billing plan: "free" | "pro"
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
     // pitch deck projects — one per source README
@@ -63,10 +64,22 @@ const schema = defineSchema(
         lines: v.number(),
         sectionsFound: v.number(),
       }),
+      published: v.optional(v.boolean()), // visible in the public catalog
     })
       .index("by_owner", ["ownerId"])
       .index("by_project", ["projectId"])
-      .index("by_share_code", ["shareCode"]),
+      .index("by_share_code", ["shareCode"])
+      .index("by_published", ["published"]),
+
+    // public comments on decks
+    comments: defineTable({
+      deckId: v.id("decks"),
+      authorId: v.id("users"),
+      authorName: v.string(),
+      body: v.string(),
+    })
+      .index("by_deck", ["deckId"])
+      .index("by_author", ["authorId"]),
   },
   {
     schemaValidation: false,

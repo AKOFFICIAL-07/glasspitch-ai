@@ -42,12 +42,12 @@ export const SECTION_META: Record<
   SectionKey,
   { title: string; eyebrow: string; icon: string; accent: string }
 > = {
-  problem: { title: "Problem", eyebrow: "The pain", icon: "flame", accent: "#38bdf8" },
-  features: { title: "Features", eyebrow: "The solution", icon: "sparkles", accent: "#6366f1" },
-  tech: { title: "Tech Stack", eyebrow: "Built on", icon: "cpu", accent: "#14b8a6" },
-  market: { title: "Market", eyebrow: "The opportunity", icon: "trending-up", accent: "#8b5cf6" },
-  revenue: { title: "Revenue", eyebrow: "The model", icon: "line-chart", accent: "#10b981" },
-  competitors: { title: "Competitors", eyebrow: "The landscape", icon: "crosshair", accent: "#64748b" },
+  problem: { title: "Problem", eyebrow: "The pain", icon: "flame", accent: "#22d3ee" },
+  features: { title: "Features", eyebrow: "The solution", icon: "sparkles", accent: "#818cf8" },
+  tech: { title: "Tech Stack", eyebrow: "Built on", icon: "cpu", accent: "#34d399" },
+  market: { title: "Market", eyebrow: "The opportunity", icon: "trending-up", accent: "#a78bfa" },
+  revenue: { title: "Revenue", eyebrow: "The model", icon: "line-chart", accent: "#f59e0b" },
+  competitors: { title: "Competitors", eyebrow: "The landscape", icon: "crosshair", accent: "#94a3b8" },
 };
 
 /* ------------------------------------------------------------------ */
@@ -72,7 +72,6 @@ function isBadLine(line: string): boolean {
   if (!t) return true;
   if (t.startsWith("![") || t.startsWith("<img") || t.startsWith("|")) return true;
   if (t.startsWith("<!--") || t.startsWith("```") || t.startsWith("~~~")) return true;
-  if (t.startsWith("![") || t.startsWith("[![")) return true;
   if (/^(badges|shields|coverage|license|build|ci)[:|]?/i.test(t) && t.length < 40) return true;
   return false;
 }
@@ -89,7 +88,7 @@ const HEADING_KEYWORDS: Record<SectionKey, string[]> = {
   features: ["feature", "capabilit", "what it does", "what can", "highlights", "how it work", "function", "key abilities"],
   tech: ["tech", "stack", "architecture", "built with", "built on", "dependency", "librar", "framework", "getting started", "installation", "setup"],
   market: ["market", "audience", "who is", "who should", "use case", "user", "customer", "target", "community"],
-  revenue: ["revenue", "business model", "monetiz", "pricing", "commercial", "how we make", "business"],
+  revenue: ["revenue", "business model", "monetiz", "pricing", "commercial", "how we make", "business", "token"],
   competitors: ["competitor", "alternativ", "comparison", "vs.", " v ", "landscape", "related work", "other tools"],
 };
 
@@ -158,7 +157,6 @@ function parseReadme(markdown: string): {
     if (!current) {
       preamble.push(clean);
     } else {
-      // Paragraph inside a detected section becomes a bullet candidate.
       const sentences = splitSentences(clean);
       current.bullets.push(...sentences);
     }
@@ -176,7 +174,6 @@ function parseReadme(markdown: string): {
     }
     if (inFence) continue;
 
-    // Headings
     const headingMatch = /^(#{1,4})\s+(.+)$/.exec(line);
     if (headingMatch) {
       flushParagraph();
@@ -198,13 +195,11 @@ function parseReadme(markdown: string): {
       continue;
     }
 
-    // Bullet lists
     const bulletMatch = /^\s*(?:[-*+•]|\d+[.)])\s+(.+)$/.exec(raw);
     if (bulletMatch) {
       const bullet = stripInlineMarkdown(bulletMatch[1]);
       if (bullet && !isBadLine(bullet) && bullet.length > 2) {
         if (current) current.bullets.push(bullet);
-        else if (!title && !tagline) preamble.push(bullet);
         else preamble.push(bullet);
       }
       continue;
@@ -231,9 +226,9 @@ function parseReadme(markdown: string): {
 const FALLBACK: Record<SectionKey, { bullets: string[]; derived: boolean }> = {
   problem: {
     bullets: [
-      "Existing workflows are slow, fragmented, and require expensive tooling",
-      "Teams lose time stitching together disconnected solutions",
-      "The gap compounds as teams and projects scale",
+      "Existing workflows are slow, fragmented, and held together by manual process",
+      "Teams lose time stitching together disconnected tools and data",
+      "The gap compounds as teams and protocols scale",
     ],
     derived: true,
   },
@@ -247,8 +242,8 @@ const FALLBACK: Record<SectionKey, { bullets: string[]; derived: boolean }> = {
   },
   tech: {
     bullets: [
-      "Modern TypeScript tooling and a battle-tested stack",
-      "Leverages open-source libraries instead of reinventing infrastructure",
+      "Modern TypeScript tooling on a battle-tested stack",
+      "Open-source libraries instead of reinventing infrastructure",
       "Deployable to any cloud with minimal operational overhead",
     ],
     derived: true,
@@ -327,7 +322,6 @@ export function buildDeck(markdown: string): PitchDeck {
       bullets = [...block.bullets];
       if (bullets.length < 3) {
         bullets.push(...smartFallback(key, fallbackCtx));
-        derived = bullets.length >= 3 && bullets.length <= 3 ? true : false;
         derived = block.bullets.length < 3;
       }
     } else {
@@ -335,7 +329,6 @@ export function buildDeck(markdown: string): PitchDeck {
       derived = true;
     }
 
-    // Clean, dedupe, cap.
     bullets = [...new Set(bullets)]
       .map((b) => stripInlineMarkdown(b).trim())
       .filter((b) => b.length >= 8)
@@ -364,7 +357,7 @@ export function buildDeck(markdown: string): PitchDeck {
     title: parsed.title || "Untitled Project",
     tagline:
       parsed.tagline ||
-      (parsed.preamble[0] ? stripInlineMarkdown(parsed.preamble[0]) : "A focused solution for a real problem — built to ship."),
+      (parsed.preamble[0] ? stripInlineMarkdown(parsed.preamble[0]) : "A focused solution to a real problem — built to ship."),
     sections,
     stats: {
       words,
@@ -381,55 +374,55 @@ export const CARD_KEYS = SECTION_ORDER;
 /* Sample READMEs                                                      */
 /* ------------------------------------------------------------------ */
 
-export const SAMPLE_README_RICH = `# Lumina — AI Meeting Intelligence
+export const SAMPLE_README_RICH = `# Volta — Liquid Staking, One Transaction
 
-Lumina turns every meeting into searchable, actionable intelligence. It joins your calls, captures decisions, and drafts follow-ups so teams never lose context again.
+Volta turns any staked ETH position into instantly spendable yield. Deposit once, and Volta re-stakes across leading protocols to maximize returns while keeping every position liquid, audited, and withdrawable in a single transaction.
 
 ## The Problem
 
-Teams waste hours every week hunting for what was decided in meetings. Notes are scattered across documents, decisions live in people's heads, and follow-ups slip through the cracks. Existing tools capture recordings but not meaning, and searching them is painfully slow.
+Staking on Ethereum locks capital for weeks, fragments yield across a dozen protocols, and forces users to manage multiple positions and unlock periods manually. Retail stakers are losing yield they can't see, and the complexity keeps new capital out of the ecosystem.
 
 ## Features
 
-- Automatic meeting transcription with speaker identification
-- Decision and action-item extraction in real time
-- Semantic search across every meeting your team has ever had
-- One-click summaries delivered to Slack and email
-- Integrations with Zoom, Meet, and Teams
+- One-click restaking across EigenLayer and leading LRT protocols
+- Auto-compounding rewards settled every epoch, no gas rush
+- Instant liquidity: withdraw or spend staked positions anytime
+- Battle-tested smart contracts with public audits and invariants
+- SDK and API for wallets, exchanges, and DAO treasuries
 
 ## Tech Stack
 
-- TypeScript, React, and Node.js
-- WebRTC for real-time audio capture
-- Pinecone vector database for semantic search
-- Serverless edge deployment on Vercel
+- Solidity and Foundry for audited smart contracts
+- EigenLayer AVS infrastructure for restaking
+- TypeScript, React, and Viem for the dApp and SDK
+- PostgreSQL + Redis backend for indexing and rewards
 
 ## Market
 
-Knowledge workers lose an average of 3.6 hours per week to meeting follow-up. With 900M+ knowledge workers worldwide, even a 10% productivity gain represents a $2.4T annual opportunity. We launch in the SMB segment and expand to enterprise.
+$36B+ is currently staked on Ethereum, yet fewer than 12% of holders participate in restaking due to complexity. Liquid staking tokens already trade at premiums, and the addressable market grows with every L2 and rollup that settles to Ethereum.
 
 ## Revenue
 
-We monetize with a freemium model: free for individuals, $12/user/month for teams, and custom enterprise plans with SSO and compliance features.
+Volta takes a 10% performance fee on rewards generated through restaking. At scale, the fee compounds: deeper yield attracts more TVL, more TVL attracts more protocols, and protocols pay to integrate Volta's API.
 
 ## Competitors
 
-Zoom and Microsoft Teams offer basic transcriptions, but not intelligence. Otter.ai focuses on transcription, while Fireflies.ai covers notes — neither delivers decision extraction or cross-meeting semantic search out of the box.
+Lido dominates plain liquid staking but offers no restaking. EigenLayer is infrastructure, not a product — users still manage positions manually. Rocket Pool requires capital and node operators. No one combines one-click deposits with automated restaking across the ecosystem.
 `;
 
-export const SAMPLE_README_MINIMAL = `# OpenShelf
+export const SAMPLE_README_MINIMAL = `# merkle-feed
 
-A tiny command-line tool that turns any folder of markdown files into a searchable offline documentation site. No build step, no config, just content.
+A command-line tool that watches any EVM contract and streams its state changes as signed, verifiable data feeds. Built for hackathon teams that need reliable on-chain data without running their own indexer.
 
 \`\`\`bash
-npx openshelf ./docs
+npx merkle-feed watch 0x7a250d5630b4cf539739df2c5dacb4c659f2488d --abi ./abi.json
 \`\`\`
 
 ## Installation
 
-Install it globally with npm, or run it directly with npx. It works with any markdown files and generates a static site you can host anywhere.
+Install globally with npm, or run it directly with npx. It works against any EVM-compatible chain — Ethereum, Arbitrum, Base, or Polygon — with nothing but an RPC URL.
 
 ## Usage
 
-Point it at a folder, pick a theme, and it generates a fast, dependency-free site with full-text search, keyboard navigation, and dark mode support.
+Point it at a contract, pick the events to watch, and it emits signed JSON feeds with cryptographic proofs you can verify off-chain. Perfect for oracles, demo-day dashboards, and cross-chain data relays.
 `;
