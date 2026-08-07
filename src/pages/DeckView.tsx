@@ -553,7 +553,7 @@ function VoicePitchMenu({
 }
 
 /* ------------------------------------------------------------------ */
-/* x402 premium gate                                                   */
+/* Premium gate                                                   */
 /* ------------------------------------------------------------------ */
 
 function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | null }) {
@@ -699,7 +699,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
             Generate premium deck
           </DialogTitle>
           <DialogDescription className="text-white/50">
-            Pay 2.5 ALGO via x402 (Algorand HTTP payments) to unlock the premium
+            Pay 2.5 ALGO via secure crypto payment to unlock the premium
             deck — full-res exports, PPTX, and early access.
           </DialogDescription>
         </DialogHeader>
@@ -736,7 +736,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
           {step === "wallet" && (
             <div className="space-y-3">
               <p className="text-[12.5px] text-white/60">
-                Connect an Algorand wallet to pay {amountLabel} on-chain via x402.
+                Connect an Algorand wallet to pay {amountLabel} via secure crypto payment.
                 {config && (
                   <span className="mt-1 block text-[11px] text-white/40">
                     Network: <span className="font-semibold text-emerald-300">{config.network}</span> · Receiver:{" "}
@@ -825,7 +825,7 @@ function X402Gate({ deckId, deck }: { deckId: Id<"decks">; deck: PitchDeck | nul
                 className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_10px_24px_rgba(0,168,107,0.3)]"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
-                {busy ? "Requesting x402 authorization…" : "Request x402 payment authorization"}
+                {busy ? "Requesting payment authorization…" : "Request payment authorization"}
               </Button>
             </div>
           )}

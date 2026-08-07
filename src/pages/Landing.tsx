@@ -93,7 +93,7 @@ const STEPS = [
     icon: Rocket,
     step: "03",
     title: "Present, export, and raise",
-    copy: "Flip through your deck, play the voice pitch, export PDF or PPTX, or unlock premium exports with an x402 payment.",
+    copy: "Flip through your deck, play the voice pitch, export PDF or PPTX, or unlock premium exports with a secure crypto payment.",
   },
 ];
 
@@ -720,7 +720,7 @@ export default function Landing() {
               <span className="text-[13px] text-white/45">one-time</span>
             </div>
             <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-white/80">
-              {["Unlimited pitch decks", "Publish to the catalog", "Premium x402 exports", "AI voice pitch & templates"].map((f) => (
+              {["Unlimited pitch decks", "Publish to the catalog", "Premium crypto exports", "AI voice pitch & templates"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
                   <Check className="h-4 w-4 shrink-0 text-emerald-300" strokeWidth={2.5} />
                   {f}

@@ -258,7 +258,7 @@ export default function Settings() {
           </SettingsSection>
 
           {/* Algorand wallet */}
-          <SettingsSection icon={WalletIcon} title="Algorand wallet" desc="Used to sign mints and x402 payments">
+          <SettingsSection icon={WalletIcon} title="Algorand wallet" desc="Used to sign mints and crypto payments">
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-[11.5px] font-semibold uppercase tracking-wider text-white/40">
@@ -313,7 +313,7 @@ export default function Settings() {
                 <p className="text-[11.5px] leading-relaxed text-white/35">
                   Network: <span className="font-semibold text-emerald-300">{x402Config.network}</span> · Payments
                   settle to{" "}
-                  <span className="font-mono">{x402Config.receiverAddress.slice(0, 10)}…</span> via x402 on the
+                  <span className="font-mono">{x402Config.receiverAddress.slice(0, 10)}…</span> via crypto on the
                   Algorand network.
                 </p>
               )}
@@ -358,7 +358,7 @@ export default function Settings() {
               <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                    <Link2 className="h-3.5 w-3.5 text-emerald-300" /> Algorand x402
+                    <Link2 className="h-3.5 w-3.5 text-emerald-300" /> Algorand crypto
                   </span>
                   <Badge className="border-transparent bg-emerald-500/10 text-emerald-300">Configured</Badge>
                 </div>
@@ -371,12 +371,12 @@ export default function Settings() {
               <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                    <CreditCard className="h-3.5 w-3.5 text-emerald-300" /> Stripe checkout
+                    <WalletIcon className="h-3.5 w-3.5 text-emerald-300" /> Crypto payments
                   </span>
                   <Badge className="border-transparent bg-amber-500/10 text-amber-300">Needs key</Badge>
                 </div>
                 <p className="mt-1.5 text-[11.5px] text-white/40">
-                  Add a STRIPE_SECRET_KEY in the Keys tab to enable Founder checkout.
+                  Payments are processed via Algorand blockchain. Connect your wallet to pay.
                 </p>
               </div>
               {settings?.role === "admin" && (

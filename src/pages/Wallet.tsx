@@ -86,7 +86,7 @@ function FounderUpgradeDialog({
         walletAddress,
         to: config.receiverAddress,
         amountMicro: res.amountMicro,
-        note: "Deckify AI — Founder upgrade via x402",
+        note: "Deckify AI — Founder upgrade via secure crypto payment",
         algodUrl: config.algodUrl,
       });
 
@@ -120,7 +120,7 @@ function FounderUpgradeDialog({
         {step === "wallet" && (
           <div className="mt-6 space-y-3">
             <p className="text-[13px] text-white/55">
-              Connect your Algorand wallet to pay 19 ALGO via x402.
+              Connect your Algorand wallet to pay 19 ALGO via secure crypto payment.
             </p>
             <button
               onClick={() => handleWalletConnect("pera")}
@@ -335,7 +335,7 @@ export default function Wallet() {
               {/* Per-Deck */}
               <div className="glass relative flex flex-col rounded-3xl p-5">
                 <Badge className="absolute right-3 top-3 border-transparent bg-indigo-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-indigo-300">
-                  x402
+                  crypto
                 </Badge>
                 <h3 className="text-[14px] font-semibold text-slate-100">Per-Deck</h3>
                 <div className="mt-3 flex items-baseline gap-1">
@@ -420,7 +420,7 @@ export default function Wallet() {
                     className="mt-4 w-full gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[12px] font-semibold text-white shadow-[0_8px_24px_rgba(99,102,241,0.3)] hover:-translate-y-0.5"
                   >
                     <ArrowRight className="h-3.5 w-3.5" />
-                    Upgrade via x402
+                    Upgrade via crypto
                   </Button>
                 )}
               </div>
@@ -428,7 +428,7 @@ export default function Wallet() {
           </div>
         )}
 
-        {/* On-chain x402 payments */}
+        {/* On-chain crypto payments */}
         <section className="mt-12">
           <div className="flex items-center justify-between">
             <div>
@@ -436,7 +436,7 @@ export default function Wallet() {
                 On-chain
               </p>
               <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-100">
-                x402 payment history
+                Crypto payment history
               </h2>
               <p className="mt-1 text-[13px] text-slate-400">
                 ALGO payments made on the Algorand{" "}
