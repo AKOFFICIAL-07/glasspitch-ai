@@ -1,8 +1,9 @@
-import { AuroraBlobs, BackgroundFX, ParticleField } from "@/components/background";
+import { AuroraBlobs, ParticleField } from "@/components/background";
 import { Brand, BrandMark } from "@/components/brand";
 import { SlideContent } from "@/components/deck/slides";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import LiquidMetalHero from "@/components/ui/liquid-metal-hero";
 import {
   SAMPLE_README_RICH,
   SECTION_META,
@@ -11,7 +12,7 @@ import {
   type SectionKey,
 } from "@/lib/deck";
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   BarChart3,
@@ -21,7 +22,6 @@ import {
   FileText,
   Flame,
   Gauge,
-  Github,
   Mic,
   Palette,
   Presentation,
@@ -32,7 +32,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const SECTION_ICONS: Record<SectionKey, LucideIcon> = {
   problem: Flame,
@@ -290,17 +290,14 @@ function HeroDemo() {
 /* ------------------------------------------------------------------ */
 
 export default function Landing() {
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, 60]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0.35]);
+  const navigate = useNavigate();
+  const goForge = () => navigate("/auth?returnTo=/dashboard");
 
   const showcaseDeck = useMemo(() => buildDeck(SAMPLE_README_RICH), []);
   const showcaseSlides = showcaseDeck.sections.slice(0, 3);
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
-      <BackgroundFX particleCount={54} />
-
       {/* Nav */}
       <header className="no-print relative z-30 px-4 pt-4 sm:px-6">
         <div className="glass-strong mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-4 py-3 sm:px-5">
@@ -349,118 +346,19 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero */}
-      <motion.section
-        id="product"
-        style={{ y: heroY, opacity: heroOpacity }}
-        className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-14 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:pt-24"
-      >
-        <div>
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12.5px] font-semibold text-emerald-300 backdrop-blur-md"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            README → investor-ready pitch deck
-            <span className="ml-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-emerald-300">
-              for web3 teams
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 text-[42px] font-bold leading-[1.05] tracking-tight text-white sm:text-[54px]"
-          >
-            Transform technical documentation into{" "}
-            <span className="text-gradient">investor-ready pitch decks.</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-lg text-[16.5px] leading-relaxed text-white/60"
-          >
-            Upload a README or GitHub repository and let AI analyze your
-            project, enrich missing business insights, and generate a
-            professional investor presentation.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 flex flex-wrap items-center gap-3"
-          >
-            <Link to="/auth?returnTo=/dashboard">
-              <Button
-                size="lg"
-                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-7 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(0,168,107,0.45)]"
-              >
-                <FileText className="h-[18px] w-[18px]" />
-                Upload README
-                <ArrowRight className="h-[18px] w-[18px]" />
-              </Button>
-            </Link>
-            <Link to="/auth?returnTo=/dashboard">
-              <Button
-                size="lg"
-                variant="outline"
-                className="glass-soft gap-2 rounded-2xl px-6 text-[15px] text-white/80 hover:bg-white/10"
-              >
-                <Github className="h-4 w-4" />
-                Paste GitHub Repository
-              </Button>
-            </Link>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.45 }}
-            className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] font-medium text-white/50"
-          >
-            {["13 slides in seconds", "AI readiness score", "PDF · PPTX · share link", "Free plan: 2 decks"].map((t) => (
-              <span key={t} className="flex items-center gap-1.5">
-                <Check className="h-4 w-4 text-emerald-400" strokeWidth={2.5} />
-                {t}
-              </span>
-            ))}
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="relative"
-        >
-          <div className="animate-float absolute -left-6 top-10 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.05_160/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block">
-            <div className="flex items-center gap-2 text-[12px] font-semibold text-white/70">
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-500/15 text-emerald-300">
-                <Sparkles className="h-4 w-4" />
-              </span>
-              6 story cards extracted
-            </div>
-          </div>
-          <div
-            className="animate-float-x absolute -right-4 bottom-16 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.05_160/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block"
-            style={{ animationDelay: "-3s" }}
-          >
-            <div className="flex items-center gap-2 text-[12px] font-semibold text-white/70">
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-teal-500/15 text-teal-300">
-                <Gauge className="h-4 w-4" />
-              </span>
-              Readiness 84/100
-            </div>
-          </div>
-          <HeroDemo />
-        </motion.div>
-      </motion.section>
+      {/* Hero — liquid metal background + glass CTA buttons */}
+      <section id="product" className="relative z-10">
+        <LiquidMetalHero
+          badge="README → investor-ready pitch deck · for web3 teams"
+          title="Transform technical documentation into investor-ready pitch decks"
+          subtitle="Upload a README or GitHub repository and let AI analyze your project, enrich missing business insights, and generate a professional investor presentation."
+          primaryCtaLabel="Upload README — free"
+          secondaryCtaLabel="Paste GitHub Repository"
+          onPrimaryCtaClick={goForge}
+          onSecondaryCtaClick={goForge}
+          features={["13 slides in seconds", "AI readiness score", "PDF · PPTX · share link"]}
+        />
+      </section>
 
       {/* Section marquee */}
       <section className="relative z-10 border-y border-white/5 bg-white/[0.02] py-4 backdrop-blur-sm">
@@ -654,6 +552,14 @@ export default function Landing() {
               <ArrowRight className="h-[18px] w-[18px]" />
             </Button>
           </Link>
+        </div>
+
+        {/* Live transformation demo — README → cards → cover */}
+        <div className="mx-auto mt-16 max-w-xl">
+          <p className="mb-4 text-center text-[12.5px] font-semibold uppercase tracking-[0.18em] text-white/45">
+            Watch the forge run
+          </p>
+          <HeroDemo />
         </div>
       </section>
 
