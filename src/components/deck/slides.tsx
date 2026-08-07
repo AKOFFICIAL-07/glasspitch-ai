@@ -173,7 +173,7 @@ function Watermark({ deck, index, total }: { deck: PitchDeck; index: number; tot
         >
           <Rocket className="h-3 w-3" />
         </span>
-        Deckify AI
+        PitchForge AI
       </span>
       <span>
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -204,8 +204,8 @@ export function ReadinessRing({
       <svg width={size} height={size} className="-rotate-90">
         <defs>
           <linearGradient id="readiness-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366F1" />
-            <stop offset="100%" stopColor="#a5b4fc" />
+            <stop offset="0%" stopColor="#00A86B" />
+            <stop offset="100%" stopColor="#5eead4" />
           </linearGradient>
         </defs>
         <circle
@@ -836,7 +836,7 @@ function ClosingSlide({ deck }: { deck: PitchDeck }) {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="grid h-20 w-20 place-items-center rounded-3xl text-white shadow-[0_18px_44px_rgba(99,102,241,0.4),inset_0_1px_0_rgba(255,255,255,0.35)]"
+        className="grid h-20 w-20 place-items-center rounded-3xl text-white shadow-[0_18px_44px_rgba(0,168,107,0.4),inset_0_1px_0_rgba(255,255,255,0.35)]"
         style={{ background: `linear-gradient(135deg, ${t.accent}, ${t.accent2})` }}
       >
         <Rocket className="h-9 w-9" />

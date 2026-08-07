@@ -47,7 +47,7 @@ function SettingsSection({
       className="glass overflow-hidden rounded-3xl"
     >
       <div className="flex items-center gap-3 border-b border-white/5 px-6 py-4">
-        <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-indigo-300">
+        <span className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-emerald-300">
           <Icon className="h-4 w-4" strokeWidth={1.9} />
         </span>
         <div>
@@ -150,7 +150,7 @@ export default function Settings() {
       .toUpperCase() || "PF";
 
   const field =
-    "h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20";
+    "h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20";
 
   if (!hydrated) {
     return (
@@ -174,7 +174,7 @@ export default function Settings() {
       >
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
               Account
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">Settings</h1>
@@ -183,7 +183,7 @@ export default function Settings() {
             </p>
           </div>
           {isPro ? (
-            <Badge className="w-fit border-transparent bg-indigo-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-indigo-300">
+            <Badge className="w-fit border-transparent bg-emerald-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
               Founder plan
             </Badge>
           ) : (
@@ -200,7 +200,7 @@ export default function Settings() {
               <div className="flex flex-col items-center gap-3 sm:w-40">
                 <Avatar className="h-24 w-24 rounded-3xl">
                   <AvatarImage src={currentImage || undefined} alt={currentName} />
-                  <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-2xl font-bold text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-2xl font-bold text-white">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -237,7 +237,7 @@ export default function Settings() {
                     Bio
                   </label>
                   <textarea
-                    className="h-20 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
+                    className="h-20 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[13px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/30 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
                     value={bio || currentBio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="One line about you and your project…"
@@ -248,7 +248,7 @@ export default function Settings() {
                 <Button
                   onClick={handleSaveProfile}
                   disabled={savingProfile}
-                  className="gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-[0_10px_24px_rgba(99,102,241,0.25)]"
+                  className="gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_10px_24px_rgba(0,168,107,0.25)]"
                 >
                   {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   Save profile
@@ -287,7 +287,7 @@ export default function Settings() {
                   disabled={savingWallet}
                   className="gap-1.5 rounded-lg border border-white/15 bg-white/5 text-white/85 hover:bg-white/10"
                 >
-                  {savingWallet ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5 text-indigo-300" />}
+                  {savingWallet ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5 text-emerald-300" />}
                   Connect Lute
                 </Button>
                 <Button
@@ -302,16 +302,16 @@ export default function Settings() {
                 </Button>
               </div>
               {currentWallet && (
-                <div className="flex items-center justify-between rounded-xl border border-indigo-400/20 bg-indigo-500/[0.06] px-4 py-3">
-                  <span className="truncate font-mono text-[11.5px] text-indigo-300">{currentWallet}</span>
-                  <span className="shrink-0 text-[10.5px] font-bold uppercase tracking-wider text-indigo-300/70">
+                <div className="flex items-center justify-between rounded-xl border border-emerald-400/20 bg-emerald-500/[0.06] px-4 py-3">
+                  <span className="truncate font-mono text-[11.5px] text-emerald-300">{currentWallet}</span>
+                  <span className="shrink-0 text-[10.5px] font-bold uppercase tracking-wider text-emerald-300/70">
                     Saved ✓
                   </span>
                 </div>
               )}
               {x402Config && (
                 <p className="text-[11.5px] leading-relaxed text-white/35">
-                  Network: <span className="font-semibold text-indigo-300">{x402Config.network}</span> · Payments
+                  Network: <span className="font-semibold text-emerald-300">{x402Config.network}</span> · Payments
                   settle to{" "}
                   <span className="font-mono">{x402Config.receiverAddress.slice(0, 10)}…</span> via x402 on the
                   Algorand network.
@@ -321,7 +321,7 @@ export default function Settings() {
           </SettingsSection>
 
           {/* Plan & billing */}
-          <SettingsSection icon={CreditCard} title="Plan & billing" desc="Your Deckify AI plan and usage">
+          <SettingsSection icon={CreditCard} title="Plan & billing" desc="Your PitchForge plan and usage">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[15px] font-semibold text-white">
@@ -336,7 +336,7 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 {!isPro && (
                   <Link to="/wallet">
-                    <Button className="gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-[0_10px_24px_rgba(99,102,241,0.25)]">
+                    <Button className="gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_10px_24px_rgba(0,168,107,0.25)]">
                       <CreditCard className="h-4 w-4" />
                       Upgrade
                     </Button>
@@ -358,9 +358,9 @@ export default function Settings() {
               <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                    <Link2 className="h-3.5 w-3.5 text-indigo-300" /> Algorand x402
+                    <Link2 className="h-3.5 w-3.5 text-emerald-300" /> Algorand x402
                   </span>
-                  <Badge className="border-transparent bg-indigo-500/10 text-indigo-300">Configured</Badge>
+                  <Badge className="border-transparent bg-emerald-500/10 text-emerald-300">Configured</Badge>
                 </div>
                 <p className="mt-1.5 text-[11.5px] text-white/40">
                   {x402Config
@@ -371,19 +371,19 @@ export default function Settings() {
               <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                    <WalletIcon className="h-3.5 w-3.5 text-indigo-300" /> Algorand x402
+                    <CreditCard className="h-3.5 w-3.5 text-emerald-300" /> Stripe checkout
                   </span>
-                  <Badge className="border-transparent bg-indigo-500/15 text-indigo-300">Active</Badge>
+                  <Badge className="border-transparent bg-amber-500/10 text-amber-300">Needs key</Badge>
                 </div>
                 <p className="mt-1.5 text-[11.5px] text-white/40">
-                  Premium decks gated by on-chain ALGO payments via Algorand x402.
+                  Add a STRIPE_SECRET_KEY in the Keys tab to enable Founder checkout.
                 </p>
               </div>
               {settings?.role === "admin" && (
                 <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 sm:col-span-2">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                      <ShieldCheck className="h-3.5 w-3.5 text-indigo-300" /> Admin access
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> Admin access
                     </span>
                     <Link to="/admin">
                       <Button size="sm" variant="outline" className="gap-1.5 rounded-lg glass-soft text-white/70 hover:bg-white/10">

@@ -23,9 +23,9 @@ export default function NotFound() {
             never made it into the deck.
           </p>
           <Link to="/" className="mt-7">
-            <Button className="gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 shadow-[0_10px_24px_rgba(99,102,241,0.3)]">
+            <Button className="gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 shadow-[0_10px_24px_rgba(34,211,238,0.25)]">
               <ArrowLeft className="h-4 w-4" />
-              Back to Deckify AI
+              Back to Pitch Forge
             </Button>
           </Link>
         </div>

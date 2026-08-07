@@ -1,10 +1,8 @@
-import { AuroraBlobs } from "@/components/background";
+import { AuroraBlobs, BackgroundFX, ParticleField } from "@/components/background";
 import { Brand, BrandMark } from "@/components/brand";
-import { HeroDemo } from "@/components/deck/hero-demo";
 import { SlideContent } from "@/components/deck/slides";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BeamsBackground } from "@/components/ui/beams-background";
 import {
   SAMPLE_README_RICH,
   SECTION_META,
@@ -12,8 +10,8 @@ import {
   buildDeck,
   type SectionKey,
 } from "@/lib/deck";
-
-import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
   BarChart3,
@@ -23,6 +21,7 @@ import {
   FileText,
   Flame,
   Gauge,
+  Github,
   Mic,
   Palette,
   Presentation,
@@ -32,8 +31,8 @@ import {
   Wand2,
   type LucideIcon,
 } from "lucide-react";
-import { useMemo } from "react";
-import { Link, useNavigate } from "react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router";
 
 const SECTION_ICONS: Record<SectionKey, LucideIcon> = {
   problem: Flame,
@@ -48,7 +47,7 @@ const FEATURES: { icon: LucideIcon; title: string; copy: string }[] = [
   {
     icon: FileText,
     title: "Paste, drop, or pull from GitHub",
-    copy: "Upload a README, Markdown, PDF, or DOCX — or paste a GitHub repository URL. Deckify AI reads the structure, not just the words.",
+    copy: "Upload a README, Markdown, PDF, or DOCX — or paste a GitHub repository URL. PitchForge AI reads the structure, not just the words.",
   },
   {
     icon: Wand2,
@@ -105,22 +104,202 @@ const AI_FEATURES: { icon: LucideIcon; title: string; copy: string }[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/* Hero demo — looping README → cards → cover                          */
+/* ------------------------------------------------------------------ */
+
+type DemoPhase = "readme" | "cards" | "cover";
+
+function HeroDemo() {
+  const [phase, setPhase] = useState<DemoPhase>("readme");
+  const demoLines = useMemo(() => SAMPLE_README_RICH.split("\n").slice(0, 8), []);
+
+  useEffect(() => {
+    const timers = [
+      setTimeout(() => setPhase("cards"), 2600),
+      setTimeout(() => setPhase("cover"), 5600),
+      setTimeout(() => setPhase("readme"), 8800),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [phase]);
+
+  return (
+    <div className="glass-strong relative overflow-hidden rounded-3xl p-3 shadow-[0_30px_80px_rgba(0,0,0,0.5)]">
+      <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10" />
+      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-[linear-gradient(145deg,oklch(0.21_0.045_160),oklch(0.165_0.03_170))]">
+        <AuroraBlobs className="absolute inset-0 opacity-90" />
+        <div className="bg-grid absolute inset-0 opacity-70" />
+        <ParticleField count={26} className="absolute inset-0" />
+
+        <AnimatePresence mode="wait">
+          {phase === "readme" && (
+            <motion.div
+              key="readme"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 flex items-center justify-center p-6"
+            >
+              <div className="glass-strong relative h-full w-full max-w-md overflow-hidden rounded-xl p-5">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-400/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
+                  <span className="ml-2 text-[10px] font-semibold uppercase tracking-widest text-white/45">
+                    README.md
+                  </span>
+                </div>
+                <div className="mt-4 space-y-1.5 font-mono text-[10px] leading-relaxed text-white/45">
+                  {demoLines.map((line, i) => (
+                    <div key={i} className={cn("whitespace-pre-wrap truncate", i > 3 && "opacity-25")}>
+                      {line.slice(0, 52) || " "}
+                    </div>
+                  ))}
+                </div>
+                <div
+                  className="pointer-events-none absolute inset-x-4 h-6"
+                  style={{
+                    background: "linear-gradient(180deg, transparent, rgba(0,168,107,0.25), transparent)",
+                    animation: "scan-line 1.6s ease-in-out infinite alternate",
+                  }}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {phase === "cards" && (
+            <motion.div
+              key="cards"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              {SECTION_ORDER.map((key, i) => {
+                const meta = SECTION_META[key];
+                const Icon = SECTION_ICONS[key];
+                const angle = (i / SECTION_ORDER.length) * Math.PI * 2 - Math.PI / 2;
+                const x = Math.cos(angle) * 78;
+                const y = Math.sin(angle) * 58;
+                return (
+                  <motion.div
+                    key={key}
+                    initial={{ opacity: 0, scale: 0.4, x: 0, y: 0 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      x: [0, x, x, x * 0.85, x],
+                      y: [0, y, y, y * 0.85, y],
+                    }}
+                    exit={{ opacity: 0, scale: 0.3 }}
+                    transition={{
+                      duration: 2.8,
+                      times: [0, 0.3, 0.7, 0.85, 1],
+                      delay: i * 0.08,
+                      ease: "easeInOut",
+                    }}
+                    className="absolute left-1/2 top-1/2"
+                    style={{ marginLeft: -78, marginTop: -34 }}
+                  >
+                    <div className="shimmer w-40 overflow-hidden rounded-xl border border-white/10 bg-[oklch(0.22_0.05_160/0.6)] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="grid h-7 w-7 place-items-center rounded-lg text-white"
+                          style={{ background: meta.accent, boxShadow: `0 0 14px ${meta.accent}55` }}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        <div className="leading-tight">
+                          <div className="text-[11px] font-bold text-white/85">{meta.title}</div>
+                          <div className="text-[9px] uppercase tracking-wider text-white/45">
+                            {meta.eyebrow}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+
+          {phase === "cover" && (
+            <motion.div
+              key="cover"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 flex items-center justify-center p-6"
+            >
+              <motion.div
+                initial={{ scale: 0.6, rotate: -3, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 16 }}
+                className="relative h-full max-h-[280px] w-full max-w-[500px] overflow-hidden rounded-xl bg-[oklch(0.2_0.045_160/0.7)] shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                style={{ aspectRatio: "16/10" }}
+              >
+                <div
+                  className="absolute inset-0 opacity-25"
+                  style={{ background: "linear-gradient(135deg,#00A86B,#00E08F,#5eead4)" }}
+                />
+                <div className="relative flex h-full flex-col items-center justify-center px-8 text-center">
+                  <BrandMark className="h-9 w-9" />
+                  <p className="mt-3 text-[15px] font-bold text-white">Volta</p>
+                  <p className="mt-1 text-[10px] text-white/55">
+                    Liquid Staking — investor pitch
+                  </p>
+                  <div className="mt-3 flex gap-1.5">
+                    {SECTION_ORDER.slice(0, 5).map((k) => (
+                      <span
+                        key={k}
+                        className="rounded-full px-2 py-0.5 text-[8px] font-semibold text-white"
+                        style={{ background: SECTION_META[k].accent }}
+                      >
+                        {SECTION_META[k].title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* phase indicator */}
+        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md">
+          {(["readme", "cards", "cover"] as DemoPhase[]).map((p) => (
+            <span
+              key={p}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                phase === p ? "w-5 bg-emerald-400" : "w-1.5 bg-white/30",
+              )}
+            />
+          ))}
+          <span className="ml-2 text-[10px] font-medium text-white/45">live demo</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
 
 export default function Landing() {
-  const navigate = useNavigate();
-  const goForge = () => navigate("/auth?returnTo=/dashboard");
+  const { scrollYProgress } = useScroll();
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, 60]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0.35]);
 
   const showcaseDeck = useMemo(() => buildDeck(SAMPLE_README_RICH), []);
   const showcaseSlides = showcaseDeck.sections.slice(0, 3);
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
-      {/* Beams background — fixed full-viewport procedural canvas */}
-      <div className="fixed inset-0 z-0" aria-hidden>
-        <BeamsBackground intensity="strong" />
-      </div>
+      <BackgroundFX particleCount={54} />
 
       {/* Nav */}
       <header className="no-print relative z-30 px-4 pt-4 sm:px-6">
@@ -161,7 +340,7 @@ export default function Landing() {
               </Button>
             </Link>
             <Link to="/auth?returnTo=/dashboard">
-              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 text-white shadow-[0_10px_26px_rgba(99,102,241,0.4)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(99,102,241,0.5)]">
+              <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 text-white shadow-[0_10px_26px_rgba(0,168,107,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(0,168,107,0.45)]">
                 Open the forge
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -170,58 +349,118 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero — beams background + liquid glass CTA buttons */}
-      <section id="product" className="relative z-10">
-        <div className="mx-auto flex min-h-[calc(100vh-5.5rem)] max-w-5xl flex-col items-center justify-center px-6 pb-16 pt-24 text-center">
+      {/* Hero */}
+      <motion.section
+        id="product"
+        style={{ y: heroY, opacity: heroOpacity }}
+        className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-14 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:pt-24"
+      >
+        <div>
           <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12.5px] font-semibold text-emerald-300 backdrop-blur-md"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            README → investor-ready pitch deck
+            <span className="ml-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-emerald-300">
+              for web3 teams
+            </span>
+          </motion.div>
+
+          <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col items-center gap-6"
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 text-[42px] font-bold leading-[1.05] tracking-tight text-white sm:text-[54px]"
           >
-            <Badge className="border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200 backdrop-blur-md">
-              README → investor-ready pitch deck · for web3 teams
-            </Badge>
-            <h1 className="text-5xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
-              Transform technical documentation into{" "}
-              <span className="text-gradient">investor-ready pitch decks</span>
-            </h1>
-            <p className="max-w-2xl text-[16px] leading-relaxed text-white/60 sm:text-lg">
-              Upload a README or GitHub repository and let AI analyze your
-              project, enrich missing business insights, and generate a
-              professional investor presentation.
-            </p>
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+            Transform technical documentation into{" "}
+            <span className="text-gradient">investor-ready pitch decks.</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 max-w-lg text-[16.5px] leading-relaxed text-white/60"
+          >
+            Upload a README or GitHub repository and let AI analyze your
+            project, enrich missing business insights, and generate a
+            professional investor presentation.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-8 flex flex-wrap items-center gap-3"
+          >
+            <Link to="/auth?returnTo=/dashboard">
               <Button
                 size="lg"
-                onClick={goForge}
-                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 px-8 text-[15px] font-semibold text-white shadow-[0_16px_44px_rgba(99,102,241,0.4)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_56px_rgba(99,102,241,0.5)]"
+                className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-7 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.35)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(0,168,107,0.45)]"
               >
-                Upload README — free
+                <FileText className="h-[18px] w-[18px]" />
+                Upload README
                 <ArrowRight className="h-[18px] w-[18px]" />
               </Button>
+            </Link>
+            <Link to="/auth?returnTo=/dashboard">
               <Button
                 size="lg"
                 variant="outline"
-                onClick={goForge}
-                className="glass-soft rounded-2xl px-7 text-[15px] text-white/85 hover:bg-white/10"
+                className="glass-soft gap-2 rounded-2xl px-6 text-[15px] text-white/80 hover:bg-white/10"
               >
+                <Github className="h-4 w-4" />
                 Paste GitHub Repository
               </Button>
-            </div>
-            <div className="glass-soft mt-4 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 rounded-2xl px-6 py-3.5 text-[13px] font-medium text-white/70">
-              {["13 slides in seconds", "AI readiness score", "PDF · PPTX · share link"].map(
-                (f) => (
-                  <span key={f} className="flex items-center gap-2">
-                    <Check className="h-3.5 w-3.5 text-indigo-300" strokeWidth={2.5} />
-                    {f}
-                  </span>
-                ),
-              )}
-            </div>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.45 }}
+            className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] font-medium text-white/50"
+          >
+            {["13 slides in seconds", "AI readiness score", "PDF · PPTX · share link", "Free plan: 2 decks"].map((t) => (
+              <span key={t} className="flex items-center gap-1.5">
+                <Check className="h-4 w-4 text-emerald-400" strokeWidth={2.5} />
+                {t}
+              </span>
+            ))}
           </motion.div>
         </div>
-      </section>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="relative"
+        >
+          <div className="animate-float absolute -left-6 top-10 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.05_160/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block">
+            <div className="flex items-center gap-2 text-[12px] font-semibold text-white/70">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-500/15 text-emerald-300">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              6 story cards extracted
+            </div>
+          </div>
+          <div
+            className="animate-float-x absolute -right-4 bottom-16 z-20 hidden rounded-2xl border border-white/10 bg-[oklch(0.22_0.05_160/0.7)] px-4 py-3 shadow-xl backdrop-blur-xl lg:block"
+            style={{ animationDelay: "-3s" }}
+          >
+            <div className="flex items-center gap-2 text-[12px] font-semibold text-white/70">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-teal-500/15 text-teal-300">
+                <Gauge className="h-4 w-4" />
+              </span>
+              Readiness 84/100
+            </div>
+          </div>
+          <HeroDemo />
+        </motion.div>
+      </motion.section>
 
       {/* Section marquee */}
       <section className="relative z-10 border-y border-white/5 bg-white/[0.02] py-4 backdrop-blur-sm">
@@ -262,7 +501,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-indigo-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
             How it works
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -283,10 +522,10 @@ export default function Landing() {
               <div className="shimmer pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               <div className="relative">
                 <div className="flex items-center justify-between">
-                  <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-indigo-300">
+                  <span className="glass-soft grid h-12 w-12 place-items-center rounded-2xl text-emerald-300">
                     <step.icon className="h-[22px] w-[22px]" strokeWidth={1.8} />
                   </span>
-                  <span className="text-[44px] font-black leading-none text-white/5 transition-colors duration-300 group-hover:text-indigo-400/10">
+                  <span className="text-[44px] font-black leading-none text-white/5 transition-colors duration-300 group-hover:text-emerald-400/10">
                     {step.step}
                   </span>
                 </div>
@@ -307,7 +546,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-indigo-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
             AI Features
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -329,7 +568,7 @@ export default function Landing() {
               transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="glass glass-hover group relative overflow-hidden p-6"
             >
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300 transition-transform duration-300 group-hover:scale-110">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300 transition-transform duration-300 group-hover:scale-110">
                 <f.icon className="h-5 w-5" strokeWidth={1.9} />
               </span>
               <h3 className="mt-4 text-[16.5px] font-semibold text-white">{f.title}</h3>
@@ -348,7 +587,7 @@ export default function Landing() {
               transition={{ duration: 0.5, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="glass glass-hover group relative overflow-hidden p-6"
             >
-              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300 transition-transform duration-300 group-hover:scale-110">
+              <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-emerald-300 transition-transform duration-300 group-hover:scale-110">
                 <f.icon className="h-5 w-5" strokeWidth={1.9} />
               </span>
               <h3 className="mt-4 text-[16.5px] font-semibold text-white">{f.title}</h3>
@@ -367,7 +606,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-indigo-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
             Showcase
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -409,20 +648,12 @@ export default function Landing() {
           <Link to="/auth?returnTo=/dashboard">
             <Button
               size="lg"
-              className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 px-7 text-[15px] text-white shadow-[0_16px_40px_rgba(99,102,241,0.4)]"
+              className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-7 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.35)]"
             >
               Forge my repo into this
               <ArrowRight className="h-[18px] w-[18px]" />
             </Button>
           </Link>
-        </div>
-
-        {/* Live transformation demo — README → cards → cover */}
-        <div className="mx-auto mt-16 max-w-xl">
-          <p className="mb-4 text-center text-[12.5px] font-semibold uppercase tracking-[0.18em] text-white/45">
-            Watch the forge run
-          </p>
-          <HeroDemo />
         </div>
       </section>
 
@@ -435,7 +666,7 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <Badge className="border-transparent bg-indigo-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-300">
+          <Badge className="border-transparent bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
             Pricing
           </Badge>
           <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-bold tracking-tight text-white">
@@ -460,7 +691,7 @@ export default function Landing() {
             <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-white/70">
               {["2 pitch decks", "PDF export", "Share links", "Comment on any deck"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 shrink-0 text-indigo-300" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={2.5} />
                   {f}
                 </li>
               ))}
@@ -477,9 +708,9 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="edge-highlight relative flex flex-col overflow-hidden rounded-2xl border border-indigo-300/30 bg-gradient-to-b from-[oklch(0.24_0.05_255/0.7)] to-[oklch(0.17_0.035_255/0.6)] p-8 backdrop-blur-xl"
+            className="edge-highlight relative flex flex-col overflow-hidden rounded-2xl border border-emerald-400/30 bg-gradient-to-b from-[oklch(0.24_0.05_160/0.7)] to-[oklch(0.18_0.03_160/0.6)] p-8 backdrop-blur-xl"
           >
-            <Badge className="absolute right-5 top-5 border-transparent bg-indigo-400/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide text-indigo-200">
+            <Badge className="absolute right-5 top-5 border-transparent bg-emerald-500/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide text-emerald-300">
               One-time
             </Badge>
             <h3 className="text-lg font-semibold text-white">Founder</h3>
@@ -491,13 +722,13 @@ export default function Landing() {
             <ul className="mt-6 flex-1 space-y-2.5 text-[13.5px] text-white/80">
               {["Unlimited pitch decks", "Publish to the catalog", "Premium x402 exports", "AI voice pitch & templates"].map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 shrink-0 text-indigo-300" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 shrink-0 text-emerald-300" strokeWidth={2.5} />
                   {f}
                 </li>
               ))}
             </ul>
             <Link to="/auth?returnTo=/wallet" className="mt-7">
-              <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-[0_12px_30px_rgba(99,102,241,0.4)]">
+              <Button className="shimmer w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_12px_30px_rgba(0,168,107,0.35)]">
                 Upgrade to Founder
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -519,7 +750,7 @@ export default function Landing() {
             className="pointer-events-none absolute inset-0 opacity-25"
             style={{
               background:
-                "linear-gradient(120deg, rgba(59,130,246,0.4), rgba(99,102,241,0.35), rgba(129,140,248,0.28))",
+                "linear-gradient(120deg, rgba(0,168,107,0.4), rgba(0,224,143,0.3), rgba(94,234,212,0.35))",
             }}
           />
           <AuroraBlobs className="absolute inset-0 opacity-50" />
@@ -537,7 +768,7 @@ export default function Landing() {
               <Link to="/auth?returnTo=/dashboard">
                 <Button
                   size="lg"
-                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 px-8 text-[15px] font-semibold text-white shadow-[0_16px_40px_rgba(99,102,241,0.4)] transition-transform hover:-translate-y-0.5"
+                  className="shimmer gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-8 text-[15px] text-white shadow-[0_16px_40px_rgba(0,168,107,0.4)] transition-transform hover:-translate-y-0.5"
                 >
                   <FileText className="h-[18px] w-[18px]" />
                   Upload README — free
@@ -563,7 +794,6 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6">
           <Brand />
           <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] font-medium text-white/55">
-            <Link to="/hero" className="transition hover:text-white">Hero</Link>
             <Link to="/catalog" className="transition hover:text-white">Catalog</Link>
             <a href="#how-it-works" className="transition hover:text-white">How it works</a>
             <a href="#pricing" className="transition hover:text-white">Pricing</a>

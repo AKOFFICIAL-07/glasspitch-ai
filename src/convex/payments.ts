@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { getCurrentUser } from "./users";
-import { api } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
 /**
@@ -30,9 +29,6 @@ import { mutation, query } from "./_generated/server";
 
 /** Price for a premium deck, in ALGO. */
 export const PREMIUM_DECK_ALGO = 2.5;
-
-/** Price for the Founder plan, in ALGO. */
-export const FOUNDER_ALGO = 19;
 
 /** Default receiver for demo flows (public testnet address). */
 const DEFAULT_TESTNET_RECEIVER =
@@ -115,60 +111,13 @@ export const requestX402Authorization = mutation({
       assetId: 0, // native ALGO
       status: "authorized",
       network: net.network,
-      memo: args.memo ?? "Deckify AI — premium deck generation",
+      memo: args.memo ?? "PitchForge AI — premium deck generation",
     });
 
     return {
       paymentId,
       amountAlgo: PREMIUM_DECK_ALGO,
       amountMicro: Math.round(PREMIUM_DECK_ALGO * 1_000_000),
-      assetId: 0,
-      receiverAddress: getReceiverAddress(),
-      network: net.network,
-    };
-  },
-});
-
-/**
- * Request authorization for a Founder plan upgrade (19 ALGO via x402).
- *
- * Creates a payment record that the client signs and submits, then verifies
- * via `verifyX402Payment`. On successful verification the user is granted Pro.
- */
-export const requestFounderPayment = mutation({
-  args: {
-    walletAddress: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
-    if (!user) throw new Error("Not signed in");
-
-    if (user.plan === "pro") {
-      throw new Error("You are already on the Founder plan.");
-    }
-
-    const address = args.walletAddress.trim();
-    if (!/^[A-Z2-7]{40,58}$/.test(address)) {
-      throw new Error("Invalid Algorand address — expected 58-char base32 format.");
-    }
-
-    const net = getNetwork();
-    const amountMicro = Math.round(FOUNDER_ALGO * 1_000_000);
-    const paymentId = await ctx.db.insert("payments", {
-      userId: user._id,
-      walletAddress: address,
-      txHash: "",
-      amount: amountMicro,
-      assetId: 0, // native ALGO
-      status: "authorized",
-      network: net.network,
-      memo: "Deckify AI — Founder upgrade via x402",
-    });
-
-    return {
-      paymentId,
-      amountAlgo: FOUNDER_ALGO,
-      amountMicro,
       assetId: 0,
       receiverAddress: getReceiverAddress(),
       network: net.network,
@@ -240,7 +189,7 @@ export const verifyX402Payment = mutation({
       throw new Error("This is not a payment transaction.");
     }
     if (pay.receiver !== receiver) {
-      throw new Error("Receiver mismatch — the payment did not go to Deckify AI's wallet.");
+      throw new Error("Receiver mismatch — the payment did not go to PitchForge's wallet.");
     }
     const paid = Number(pay.amount ?? 0);
     if (paid < payment.amount) {
@@ -253,12 +202,6 @@ export const verifyX402Payment = mutation({
       network: net.network,
       confirmedRound: confirmedRound as number,
     });
-
-    // Grant Pro plan for Founder upgrade payments
-    if (payment.memo && payment.memo.includes("Founder upgrade")) {
-      await ctx.runMutation(api.billing.markPro);
-    }
-
     return { paymentId: payment._id, status: "verified", confirmedRound: confirmedRound as number };
   },
 });

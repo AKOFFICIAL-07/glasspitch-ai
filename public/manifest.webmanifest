@@ -1,10 +1,10 @@
 {
-  "name": "Deckify AI",
-  "short_name": "Deckify AI",
-  "description": "Turn your repo's README into an investor-ready pitch deck — AI analysis, blockchain payments, and beautiful exports.",
+  "name": "freebuff.com application",
+  "short_name": "freebuff.com",
+  "description": "freebuff.com application",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
+  "background_color": "#ffffff",
   "theme_color": "#000000",
   "icons": [
     {

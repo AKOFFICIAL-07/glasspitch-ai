@@ -28,7 +28,7 @@ export function PlaceholderPage({
         <div className="glass glass-hover relative w-full overflow-hidden p-10 sm:p-14">
           <div className="shimmer pointer-events-none absolute inset-0" />
           <div className="relative flex flex-col items-center">
-            <span className="glass-soft grid h-16 w-16 place-items-center rounded-2xl text-indigo-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <span className="glass-soft grid h-16 w-16 place-items-center rounded-2xl text-emerald-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
               <Icon className="h-7 w-7" strokeWidth={1.8} />
             </span>
             <h1 className="mt-6 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
@@ -36,7 +36,7 @@ export function PlaceholderPage({
             </h1>
             <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">{blurb}</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-              <Badge className="border-transparent bg-indigo-500/10 text-indigo-300">
+              <Badge className="border-transparent bg-emerald-500/10 text-emerald-300">
                 <Sparkles className="h-3 w-3" /> Coming soon
               </Badge>
               {chips.map((chip) => (
@@ -47,7 +47,7 @@ export function PlaceholderPage({
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link to="/dashboard">
-                <Button className="gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 shadow-[0_10px_24px_rgba(99,102,241,0.3)]">
+                <Button className="gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 shadow-[0_10px_24px_rgba(34,211,238,0.25)]">
                   <ArrowLeft className="h-4 w-4" />
                   Back to Dashboard
                 </Button>

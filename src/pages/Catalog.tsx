@@ -30,7 +30,7 @@ export default function Catalog() {
             <Brand />
           </Link>
           <Link to="/auth?returnTo=/dashboard">
-            <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 text-[13px] shadow-[0_8px_20px_rgba(99,102,241,0.25)]">
+            <Button className="shimmer gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 text-[13px] shadow-[0_8px_20px_rgba(34,211,238,0.25)]">
               <Sparkles className="h-4 w-4" />
               Forge a deck
             </Button>
@@ -43,7 +43,7 @@ export default function Catalog() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-indigo-300">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
               Public catalog
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-100 sm:text-5xl">
@@ -66,7 +66,7 @@ export default function Catalog() {
               value={term}
               onChange={(e) => setTerm(e.target.value)}
               placeholder="Search decks — e.g. “staking”, “oracle”, “DeFi”…"
-              className="glass-strong h-[52px] rounded-2xl border-white/10 bg-white/5 pl-12 text-[14px] text-slate-200 shadow-inner backdrop-blur-md placeholder:text-slate-600 focus-visible:border-indigo-400/40 focus-visible:ring-indigo-400/20"
+              className="glass-strong h-[52px] rounded-2xl border-white/10 bg-white/5 pl-12 text-[14px] text-slate-200 shadow-inner backdrop-blur-md placeholder:text-slate-600 focus-visible:border-emerald-400/40 focus-visible:ring-emerald-400/20"
             />
             {term && (
               <button
@@ -96,7 +96,7 @@ function CatalogGrid({ query }: { query: string }) {
         <h2 className="text-[15px] font-semibold text-slate-200">
           {query ? (
             <>
-              Results for <span className="text-indigo-300">“{query}”</span>
+              Results for <span className="text-emerald-300">“{query}”</span>
             </>
           ) : (
             "Latest decks"
@@ -121,7 +121,7 @@ function CatalogGrid({ query }: { query: string }) {
             and put it in the catalog.
           </p>
           <Link to="/auth?returnTo=/dashboard">
-            <Button className="mt-2 gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600">
+            <Button className="mt-2 gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600">
               <Sparkles className="h-4 w-4" />
               Forge a deck
             </Button>
@@ -146,8 +146,8 @@ function CatalogGrid({ query }: { query: string }) {
                   <span className="line-clamp-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">
                     {deck.projectName}
                   </span>
-                  <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-indigo-400/20 bg-indigo-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.9)]" />
+                  <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
                     Live
                   </span>
                 </div>
@@ -176,7 +176,7 @@ function CatalogGrid({ query }: { query: string }) {
                   </span>
                   <Link
                     to={`/d/${deck.shareCode}`}
-                    className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.25)] transition hover:-translate-y-0.5"
+                    className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-3.5 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_8px_18px_rgba(34,211,238,0.25)] transition hover:-translate-y-0.5"
                   >
                     View deck <ArrowRight className="h-3 w-3" />
                   </Link>

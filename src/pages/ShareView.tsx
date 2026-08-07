@@ -85,7 +85,7 @@ export default function ShareView() {
           </p>
           {deckDoc === null && (
             <Link to="/" className="mt-6 inline-block">
-              <Button className="gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600">
+              <Button className="gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600">
                 <Sparkles className="h-4 w-4" />
                 Forge your own deck
               </Button>
@@ -125,7 +125,7 @@ export default function ShareView() {
             <Link to="/auth?returnTo=/dashboard">
               <Button
                 size="sm"
-                className="shimmer gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 text-[12.5px] shadow-[0_8px_20px_rgba(99,102,241,0.25)]"
+                className="shimmer gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 text-[12.5px] shadow-[0_8px_20px_rgba(34,211,238,0.25)]"
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Forge your own</span>
@@ -144,7 +144,7 @@ export default function ShareView() {
                 type="button"
                 aria-label="Previous slide"
                 onClick={prev}
-                className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/300 shadow-lg transition hover:scale-105 hover:text-indigo-300"
+                className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/300 shadow-lg transition hover:scale-105 hover:text-emerald-300"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -154,7 +154,7 @@ export default function ShareView() {
                 type="button"
                 aria-label="Next slide"
                 onClick={next}
-                className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/300 shadow-lg transition hover:scale-105 hover:text-indigo-300"
+                className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/300 shadow-lg transition hover:scale-105 hover:text-emerald-300"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -174,7 +174,7 @@ export default function ShareView() {
             </Button>
             <div className="relative h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
               <motion.div
-                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-400 via-indigo-400 to-indigo-300"
+                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300"
                 animate={{ width: `${((index + 1) / total) * 100}%` }}
                 transition={{ ease: "easeInOut", duration: 0.4 }}
               />
@@ -199,11 +199,11 @@ export default function ShareView() {
         <ShareComments deckId={deckId} />
 
         <footer className="mt-6 flex items-center justify-center gap-2 text-[12px] font-medium text-white/500">
-          <span className="grid h-4 w-4 place-items-center rounded bg-gradient-to-br from-indigo-400 to-indigo-600 text-[7px] font-bold text-white">
+          <span className="grid h-4 w-4 place-items-center rounded bg-gradient-to-br from-emerald-400 to-teal-600 text-[7px] font-bold text-white">
             PF
           </span>
-          Forged with Deckify AI —{" "}
-          <Link to="/" className="text-indigo-300 underline-offset-2 hover:underline">
+          Forged with PitchForge AI —{" "}
+          <Link to="/" className="text-emerald-300 underline-offset-2 hover:underline">
             turn your repo into a deck
           </Link>
         </footer>
@@ -245,7 +245,7 @@ function ShareComments({ deckId }: { deckId: Id<"decks"> }) {
   return (
     <div className="glass mt-6 rounded-2xl p-5">
       <div className="flex items-center gap-2">
-        <MessageSquare className="h-4 w-4 text-indigo-300" />
+        <MessageSquare className="h-4 w-4 text-emerald-300" />
         <h3 className="text-[15px] font-semibold text-white/100">Feedback</h3>
         <span className="text-[12px] text-white/500">
           {comments === undefined ? "" : `· ${comments.length} comment${comments.length === 1 ? "" : "s"}`}
@@ -263,7 +263,7 @@ function ShareComments({ deckId }: { deckId: Id<"decks"> }) {
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Ask the founder a question or leave feedback…"
-                className="min-h-[76px] resize-none rounded-xl border-white/10 bg-white/5 text-[13px] text-white/200 shadow-inner backdrop-blur-md placeholder:text-white/600 focus-visible:border-indigo-400/40 focus-visible:ring-indigo-400/20"
+                className="min-h-[76px] resize-none rounded-xl border-white/10 bg-white/5 text-[13px] text-white/200 shadow-inner backdrop-blur-md placeholder:text-white/600 focus-visible:border-emerald-400/40 focus-visible:ring-emerald-400/20"
               />
               <div className="mt-2 flex items-center justify-end gap-2">
                 <span className="text-[11px] text-white/600">{body.length}/500</span>
@@ -271,7 +271,7 @@ function ShareComments({ deckId }: { deckId: Id<"decks"> }) {
                   size="sm"
                   onClick={handlePost}
                   disabled={body.trim().length < 2 || posting}
-                  className="gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[12.5px] shadow-[0_8px_18px_rgba(99,102,241,0.2)] disabled:opacity-40"
+                  className="gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-[12.5px] shadow-[0_8px_18px_rgba(34,211,238,0.2)] disabled:opacity-40"
                 >
                   {posting ? "Posting…" : "Post"}
                   <Send className="h-3.5 w-3.5" />

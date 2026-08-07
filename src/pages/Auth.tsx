@@ -129,7 +129,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               className="pointer-events-none absolute inset-0 opacity-20"
               style={{
                 background:
-                  "linear-gradient(140deg, rgba(99,102,241,0.4), rgba(129,140,248,0.3), rgba(165,180,252,0.35))",
+                  "linear-gradient(140deg, rgba(0,168,107,0.4), rgba(0,224,143,0.3), rgba(94,234,212,0.35))",
               }}
             />
             <div className="relative">
@@ -145,7 +145,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   "Present, export as PDF or PPTX, publish to the catalog",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-[14px] text-white/70">
-                    <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 text-[10px] font-bold text-white">
+                    <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-[10px] font-bold text-white">
                       ✓
                     </span>
                     {item}
@@ -168,7 +168,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     <BrandMark className="mt-2 h-14 w-14" />
                   </div>
                   <CardTitle className="mt-3 text-2xl tracking-tight text-white">
-                    Get started with Deckify AI
+                    Get started with PitchForge AI
                   </CardTitle>
                   <CardDescription className="text-[13.5px] text-white/50">
                     Continue with Google or GitHub — or use your email
@@ -235,7 +235,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                           name="email"
                           placeholder="name@example.com"
                           type="email"
-                          className="h-11 rounded-xl border-white/10 bg-white/5 pl-10 text-[14px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus-visible:border-indigo-400/40 focus-visible:ring-indigo-400/20"
+                          className="h-11 rounded-xl border-white/10 bg-white/5 pl-10 text-[14px] text-white/85 shadow-inner backdrop-blur-md placeholder:text-white/35 focus-visible:border-emerald-400/40 focus-visible:ring-emerald-400/20"
                           disabled={isLoading}
                           required
                         />
@@ -245,7 +245,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                         variant="outline"
                         size="icon"
                         disabled={isLoading}
-                        className="glass-soft h-11 w-11 rounded-xl text-indigo-300 hover:bg-white/10"
+                        className="glass-soft h-11 w-11 rounded-xl text-emerald-300 hover:bg-white/10"
                       >
                         {isLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -319,7 +319,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       Didn&apos;t receive a code?{" "}
                       <Button
                         variant="link"
-                        className="h-auto p-0 font-semibold text-indigo-300"
+                        className="h-auto p-0 font-semibold text-emerald-300"
                         onClick={() => setStep("signIn")}
                       >
                         Try again
@@ -329,7 +329,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <CardFooter className="flex-col gap-2 px-7 pb-6">
                     <Button
                       type="submit"
-                      className="h-11 w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-[14px] text-white shadow-[0_12px_28px_rgba(99,102,241,0.3)]"
+                      className="h-11 w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-[14px] text-white shadow-[0_12px_28px_rgba(0,168,107,0.3)]"
                       disabled={isLoading || otp.length !== 6}
                     >
                       {isLoading ? (

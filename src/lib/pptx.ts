@@ -71,7 +71,7 @@ interface PptxGenLike {
   writeFile(opts: { fileName: string }): Promise<void>;
 }
 
-const INDIGO = "6366F1";
+const EMERALD = "00A86B";
 const WHITE = "FFFFFF";
 const BODY = "E4E4E7";
 const MUTED = "A1A1AA";
@@ -84,7 +84,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
   const pptx = new mod.default();
   pptx.defineLayout({ name: "WIDE", width: 13.33, height: 7.5 });
   pptx.layout = "WIDE";
-  pptx.author = "Deckify AI";
+  pptx.author = "PitchForge AI";
   pptx.title = deck.title;
 
   const t = getTemplate(deck.template ?? "glass");
@@ -112,7 +112,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
   };
 
   const addPageFrame = (i: number) => {
-    // background + indigo top accent
+    // background + emerald top accent
     pptx.background = { color: "0A0A0A" };
     pptx.addShape("rect", { x: 0, y: 0, w: 13.33, h: 0.12, fill: { color: accent } });
     pptx.addShape("roundRect", {
@@ -124,7 +124,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       line: { color: accent },
       rectRadius: 0.1,
     });
-    pptx.addText("Deckify AI", {
+    pptx.addText("PitchForge AI", {
       x: 0.7,
       y: 0.68,
       w: 2.1,
@@ -184,7 +184,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       });
       pptx.addText(
         deck.sections.map((s) => ({ text: s.title, options: { breakLine: true } })),
-        { x: 2.2, y: 5.1, w: 8.9, h: 1.4, fontSize: 13, color: INDIGO, align: "center" },
+        { x: 2.2, y: 5.1, w: 8.9, h: 1.4, fontSize: 13, color: EMERALD, align: "center" },
       );
       pptx.addText(`Investor Readiness ${deck.readiness.overall}/100 · ${deck.stats.words.toLocaleString()} words distilled`, {
         x: 2.2,
@@ -223,7 +223,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
       const metrics = deck.readiness.metrics.map(
         (m) => ({ text: `${m.label}: ${m.score}/100  —  ${m.note}`, options: { breakLine: true, fontSize: 14, color: BODY } }),
       );
-      pptx.addText([{ text: `Investor Readiness ${deck.readiness.overall}/100`, options: { breakLine: true, fontSize: 20, bold: true, color: INDIGO } }, ...metrics], {
+      pptx.addText([{ text: `Investor Readiness ${deck.readiness.overall}/100`, options: { breakLine: true, fontSize: 20, bold: true, color: EMERALD } }, ...metrics], {
         x: 1.7,
         y: 4.2,
         w: 9.9,
@@ -287,7 +287,7 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
               h: 0.46,
               fontSize: 14,
               bold: true,
-              color: INDIGO,
+              color: EMERALD,
               align: "center",
               valign: "middle",
             });
@@ -327,15 +327,15 @@ export async function exportPptx(deck: PitchDeck): Promise<void> {
           });
           const rows: PptxTextItem[] = [
             { text: card.name, options: { breakLine: true, fontSize: 15, bold: true, color: WHITE } },
-            { text: card.category, options: { breakLine: true, fontSize: 11, color: INDIGO, charSpacing: 1 } },
+            { text: card.category, options: { breakLine: true, fontSize: 11, color: EMERALD, charSpacing: 1 } },
             { text: " ", options: { breakLine: true, fontSize: 6 } },
-            { text: "STRENGTHS", options: { breakLine: true, fontSize: 9, bold: true, color: "A5B4FC", charSpacing: 1 } },
+            { text: "STRENGTHS", options: { breakLine: true, fontSize: 9, bold: true, color: "86efac", charSpacing: 1 } },
             ...card.strengths.slice(0, 3).map((s) => ({ text: `• ${s}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
             { text: " ", options: { breakLine: true, fontSize: 6 } },
             { text: "WEAKNESSES", options: { breakLine: true, fontSize: 9, bold: true, color: "FCA5A5", charSpacing: 1 } },
             ...card.weaknesses.slice(0, 3).map((w) => ({ text: `• ${w}`, options: { breakLine: true, fontSize: 11, color: BODY } })),
             { text: " ", options: { breakLine: true, fontSize: 6 } },
-            { text: "OUR EDGE", options: { breakLine: true, fontSize: 9, bold: true, color: INDIGO, charSpacing: 1 } },
+            { text: "OUR EDGE", options: { breakLine: true, fontSize: 9, bold: true, color: EMERALD, charSpacing: 1 } },
             { text: card.advantage, options: { breakLine: true, fontSize: 10.5, color: MUTED } },
           ];
           pptx.addText(rows, { x: cx + 0.15, y: 1.8, w: cw - 0.3, h: 4.9, valign: "top" });
