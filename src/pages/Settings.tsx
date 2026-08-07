@@ -371,12 +371,12 @@ export default function Settings() {
               <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[13px] font-semibold text-white">
-                    <CreditCard className="h-3.5 w-3.5 text-indigo-300" /> Stripe checkout
+                    <WalletIcon className="h-3.5 w-3.5 text-indigo-300" /> Algorand x402
                   </span>
-                  <Badge className="border-transparent bg-amber-500/10 text-amber-300">Needs key</Badge>
+                  <Badge className="border-transparent bg-indigo-500/15 text-indigo-300">Active</Badge>
                 </div>
                 <p className="mt-1.5 text-[11.5px] text-white/40">
-                  Add a STRIPE_SECRET_KEY in the Keys tab to enable Founder checkout.
+                  Premium decks gated by on-chain ALGO payments via Algorand x402.
                 </p>
               </div>
               {settings?.role === "admin" && (

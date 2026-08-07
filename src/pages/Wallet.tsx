@@ -4,69 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { motion } from "framer-motion";
 import {
-  ArrowRight,
   Box,
   Check,
   CheckCircle2,
-  CreditCard,
   ExternalLink,
   Loader2,
-  Lock,
   Wallet as WalletIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
-import { toast } from "sonner";
+
 
 export default function Wallet() {
   const billing = useQuery(api.billing.getBilling);
-  const createCheckoutSession = useAction(api.billing.createCheckoutSession);
-  const markPro = useMutation(api.billing.markPro);
+
   const x402Config = useQuery(api.payments.getX402Config);
   const payments = useQuery(api.payments.listPayments);
   const nfts = useQuery(api.nfts.listMyNfts);
-  const [checkingOut, setCheckingOut] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const handled = useRef(false);
+
 
   const plan = billing?.plan ?? "free";
   const deckCount = billing?.deckCount ?? 0;
   const isPro = plan === "pro";
 
-  useEffect(() => {
-    const status = searchParams.get("checkout");
-    if (!status || handled.current) return;
-    handled.current = true;
-    if (status === "success") {
-      markPro()
-        .then(() => toast.success("Welcome to Founder — Pro unlocked"))
-        .catch(() => toast.error("Could not activate Pro — contact support"));
-    } else if (status === "cancelled") {
-      toast.info("Checkout cancelled — you're still on the free plan");
-    }
-    setSearchParams({}, { replace: true });
-  }, [searchParams, setSearchParams, markPro]);
-
-  const handleUpgrade = async () => {
-    setCheckingOut(true);
-    try {
-      const result = await createCheckoutSession({ plan: "pro" });
-      if (result.ok && result.url) {
-        window.location.href = result.url;
-        return;
-      }
-      toast.error(
-        "Checkout isn't configured yet — add a STRIPE_SECRET_KEY in the Keys tab to enable payments.",
-      );
-    } catch {
-      toast.error("Could not start checkout. Please try again.");
-    } finally {
-      setCheckingOut(false);
-    }
-  };
 
   const freeLimit = 2;
   const pct = Math.min(100, (deckCount / freeLimit) * 100);
@@ -140,10 +101,7 @@ export default function Wallet() {
                   </p>
                 )}
               </div>
-              <div className="mt-6 flex items-center gap-2 text-[12px] text-slate-500">
-                <Lock className="h-3.5 w-3.5" />
-                Payments processed securely via Stripe Checkout.
-              </div>
+
             </div>
 
             {/* Plans */}
@@ -195,22 +153,10 @@ export default function Wallet() {
                   </Button>
                 ) : (
                   <Button
-                    onClick={handleUpgrade}
-                    disabled={checkingOut}
-                    className="shimmer mt-6 w-full gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 shadow-[0_12px_30px_rgba(99,102,241,0.25)]"
+                    disabled
+                    className="mt-6 w-full gap-2 rounded-xl bg-indigo-500/15 text-indigo-300"
                   >
-                    {checkingOut ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Opening checkout…
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="h-4 w-4" />
-                        Upgrade to Founder
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
+                    Coming soon via x402
                   </Button>
                 )}
               </div>
@@ -218,12 +164,7 @@ export default function Wallet() {
           </div>
         )}
 
-        {billing && !isPro && (
-          <p className="mt-6 text-center text-[12.5px] text-slate-500">
-            No card on file? Payments only happen when you confirm in the Stripe
-            checkout — we never see your card details.
-          </p>
-        )}
+
 
         {/* On-chain x402 payments */}
         <section className="mt-12">
