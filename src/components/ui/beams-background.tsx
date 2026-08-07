@@ -195,30 +195,7 @@ export function BeamsBackground({
       />
 
       <div className="relative z-10 flex min-h-screen w-full items-center justify-center">
-        {children ? (
-          children
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-6 px-4 text-center">
-            <motion.h1
-              className="text-6xl font-semibold tracking-tighter text-white md:text-7xl lg:text-8xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              Beams
-              <br />
-              Background
-            </motion.h1>
-            <motion.p
-              className="text-lg tracking-tighter text-white/70 md:text-2xl lg:text-3xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              For your pleasure
-            </motion.p>
-          </div>
-        )}
+        {children}
       </div>
     </div>
   );
