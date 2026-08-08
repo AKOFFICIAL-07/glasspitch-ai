@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { ignores: ["dist", "src/convex/_generated"] },
   {
     extends: [
       js.configs.recommended,
@@ -26,7 +26,27 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
-        { allowConstantExport: true },
+        {
+          allowConstantExport: true,
+          // Intentional non-component exports: shadcn cva variant styles and
+          // deck helpers/hooks shipped alongside their components. These are
+          // stable APIs — moving them to separate files would break imports
+          // without any fast-refresh benefit (HMR is disabled in this project).
+          allowExportNames: [
+            "badgeVariants",
+            "buttonVariants",
+            "buttonGroupVariants",
+            "toggleVariants",
+            "navigationMenuTriggerStyle",
+            "useFormField",
+            "useSidebar",
+            "useSlideNavigation",
+            "useStageScale",
+            "deckSlides",
+            "slideLabel",
+            "slideAccent",
+          ],
+        },
       ],
     },
   },

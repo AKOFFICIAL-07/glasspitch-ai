@@ -32,6 +32,7 @@ const SettingsPage = lazy(() => import("./pages/Settings.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Branded loading fallback for route transitions
+// eslint-disable-next-line react-refresh/only-export-components -- entry-point component, never fast-refreshed
 function RouteLoading() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[oklch(0.13_0.01_170)]">
@@ -110,6 +111,7 @@ const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
 
 
+// eslint-disable-next-line react-refresh/only-export-components -- entry-point component, never fast-refreshed
 function RouteSyncer() {
   const location = useLocation();
   useEffect(() => {
