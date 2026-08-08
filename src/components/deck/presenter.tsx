@@ -1,4 +1,4 @@
-import { SlideContent, deckSlides, type SlideDef } from "@/components/deck/slides";
+import { SlideContent, type SlideDef } from "@/components/deck/slides";
 import type { PitchDeck } from "@/lib/deck";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
