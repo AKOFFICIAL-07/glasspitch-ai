@@ -190,6 +190,58 @@ export function assetExplorerUrl(base: string, assetId: number): string {
 }
 
 /* ------------------------------------------------------------------ */
+/* Wallet balances (Algorand indexer)                                  */
+/* ------------------------------------------------------------------ */
+
+/** USDC (Algorand Standard Asset) id per network — the stablecoin decks are priced in. */
+export const USDC_ASSET_IDS = {
+  testnet: 10458941,
+  mainnet: 31566704,
+} as const;
+
+export interface WalletBalance {
+  address: string;
+  /** Native ALGO balance, in microAlgos. */
+  algoMicro: number;
+  /** USDC balance, in 6-decimal units. */
+  usdcUnits: number;
+  usdcAssetId: number;
+}
+
+/**
+ * Fetch a wallet's ALGO + USDC balance from the Algorand indexer.
+ * Uses public AlgoNode endpoints (CORS-enabled), no API key required.
+ */
+export async function fetchWalletBalance(opts: {
+  address: string;
+  indexerUrl: string;
+  network: "testnet" | "mainnet";
+}): Promise<WalletBalance> {
+  const res = await fetch(
+    `${opts.indexerUrl.replace(/\/$/, "")}/v2/accounts/${opts.address}`,
+    { headers: { Accept: "application/json" } },
+  );
+  if (!res.ok) throw new Error(`Indexer error (${res.status})`);
+  const body = (await res.json()) as {
+    account?: {
+      amount?: number;
+      assets?: { "asset-id": number; amount: number }[];
+    };
+  };
+  const account = body?.account;
+  if (!account) throw new Error("Account not found on the Algorand network.");
+
+  const usdcAssetId = USDC_ASSET_IDS[opts.network];
+  const usdc = (account.assets ?? []).find((a) => a["asset-id"] === usdcAssetId);
+  return {
+    address: opts.address,
+    algoMicro: Number(account.amount ?? 0),
+    usdcUnits: Number(usdc?.amount ?? 0),
+    usdcAssetId,
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* ARC-3 NFT minting                                                   */
 /* ------------------------------------------------------------------ */
 

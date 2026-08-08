@@ -11,14 +11,16 @@ import {
   Box,
   Check,
   CheckCircle2,
+  Copy,
   ExternalLink,
   Loader2,
   Wallet as WalletIcon,
   Zap,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import type { WalletBalance } from "@/lib/algorand";
 
 type WalletKind = "pera" | "defly";
 type FounderStep = "idle" | "wallet" | "pay" | "done";
@@ -208,23 +210,100 @@ export default function Wallet() {
   const x402Config = useQuery(api.payments.getX402Config);
   const payments = useQuery(api.payments.listPayments);
   const nfts = useQuery(api.nfts.listMyNfts);
+  const settings = useQuery(api.settings.getSettings);
+  const saveWalletAddress = useMutation(api.settings.saveWalletAddress);
   const [founderOpen, setFounderOpen] = useState(false);
 
   const plan = billing?.plan ?? "free";
-  const deckCount = billing?.deckCount ?? 0;
   const isPro = plan === "pro";
+  const savedWallet = settings?.walletAddress ?? "";
 
-  // Mock usage data (in production, this would come from the backend)
-  const usageData = {
-    decksToday: Math.min(deckCount, 3),
-    usdcSpentToday: "1.70",
-    dailyBudget: isPro ? "20.00" : "5.00",
-    history: [
-      { operation: "README Analysis", cost: "0.10 USDC" },
-      { operation: "Market Research", cost: "0.25 USDC" },
-      { operation: "Competitor Analysis", cost: "0.20 USDC" },
-      { operation: "Deck Generation", cost: "1.15 USDC" },
-    ],
+  // Real wallet state — the address is persisted on the user, so it survives
+  // reloads and is shared with the DeckView payment gate + NFT minting.
+  const [connecting, setConnecting] = useState(false);
+  const [copying, setCopying] = useState(false);
+  const [balances, setBalances] = useState<Record<string, WalletBalance>>({});
+  const [balanceErrors, setBalanceErrors] = useState<Record<string, boolean>>({});
+
+  // Fetch live ALGO + USDC balances from the Algorand indexer when connected.
+  // Results are keyed by address so switching wallets never shows stale data.
+  useEffect(() => {
+    if (!savedWallet || !x402Config) return;
+    let cancelled = false;
+    import("@/lib/algorand")
+      .then((m) =>
+        m.fetchWalletBalance({
+          address: savedWallet,
+          indexerUrl: x402Config.indexerUrl,
+          network: x402Config.network,
+        }),
+      )
+      .then((b) => {
+        if (cancelled) return;
+        setBalances((prev) => ({ ...prev, [savedWallet]: b }));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setBalanceErrors((prev) => ({ ...prev, [savedWallet]: true }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [savedWallet, x402Config]);
+
+  const walletBalance = savedWallet ? (balances[savedWallet] ?? null) : null;
+  const walletBalanceError = savedWallet ? (balanceErrors[savedWallet] ?? false) : false;
+  const balanceLoading = savedWallet !== "" && !walletBalanceError && walletBalance === null;
+
+  const handleConnectWallet = async (kind: WalletKind) => {
+    setConnecting(true);
+    try {
+      let address = "";
+      if (kind === "pera") {
+        const { connectPera } = await import("@/lib/algorand");
+        address = await connectPera();
+      } else {
+        const { connectDefly } = await import("@/lib/algorand");
+        address = await connectDefly();
+      }
+      await saveWalletAddress({ walletAddress: address });
+      toast.success(`${kind === "pera" ? "Pera" : "Defly"} wallet connected`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not connect the wallet");
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  const handleCopyAddress = async () => {
+    if (!savedWallet) return;
+    try {
+      await navigator.clipboard.writeText(savedWallet);
+      setCopying(true);
+      toast.success("Wallet address copied");
+      setTimeout(() => setCopying(false), 1200);
+    } catch {
+      toast.error("Could not copy address");
+    }
+  };
+
+  // Real usage, derived from verified on-chain payments (no mock data).
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const verified = (payments ?? []).filter((p) => p.status === "verified");
+  const verifiedToday = verified.filter((p) => p._creationTime >= dayStart.getTime());
+  const decksToday = verifiedToday.filter((p) => p.deckId).length;
+  const usdcToday =
+    verifiedToday.filter((p) => p.assetId !== 0).reduce((sum, p) => sum + p.amount, 0) / 1_000_000;
+  const dailyBudget = isPro ? 20 : 5;
+  const remaining = Math.max(0, dailyBudget - usdcToday);
+  const recentTransactions = verified.slice(0, 4);
+
+  const paymentLabel = (p: (typeof verified)[number]) => {
+    const memo = p.memo ?? "";
+    if (memo.includes("Founder")) return "Founder upgrade";
+    if (memo.includes("premium deck")) return "Deck generation";
+    return p.assetId === 0 ? "ALGO payment" : "USDC payment";
   };
 
   return (
@@ -269,49 +348,141 @@ export default function Wallet() {
           <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
             {/* Connected Wallet Card */}
             <div className="glass flex flex-col rounded-3xl p-7">
-              <div className="flex items-center gap-3">
-                <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300">
-                  <WalletIcon className="h-5 w-5" strokeWidth={1.9} />
-                </span>
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-100">Connected Wallet</h2>
-                  <p className="text-[13px] text-slate-400">
-                    {isPro ? "Founder plan — forge unlimited decks." : "Free plan — pay per deck with crypto."}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="mt-6 space-y-4">
-                {/* Balance */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-[12px] font-medium text-slate-500">Balance</p>
-                  <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-100">
-                    {isPro ? "∞" : "0.00"} USDC
-                  </p>
-                </div>
-                
-                {/* Network & Wallet */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-[11px] font-medium text-slate-500">Network</p>
-                    <p className="mt-0.5 text-[13px] font-semibold text-slate-200">Algorand {x402Config?.network ?? "Testnet"}</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-[11px] font-medium text-slate-500">Wallet</p>
-                    <p className="mt-0.5 text-[13px] font-semibold text-slate-200">
-                      {x402Config ? "Connected" : "Not connected"}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="glass-soft grid h-11 w-11 place-items-center rounded-xl text-indigo-300">
+                    <WalletIcon className="h-5 w-5" strokeWidth={1.9} />
+                  </span>
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-100">Connected Wallet</h2>
+                    <p className="text-[13px] text-slate-400">
+                      {savedWallet
+                        ? "Algorand wallet linked to your account."
+                        : "Link a Pera or Defly wallet to pay with USDC."}
                     </p>
                   </div>
                 </div>
-                
-                {/* Daily Spending Limit */}
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[11px] font-medium text-slate-500">Daily Spending Limit</p>
-                    <p className="text-[13px] font-semibold text-slate-200">{usageData.dailyBudget} USDC</p>
-                  </div>
-                </div>
+                <Badge
+                  className={cn(
+                    "border-transparent px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide",
+                    savedWallet
+                      ? "bg-indigo-500/15 text-indigo-300"
+                      : "bg-white/5 text-slate-500",
+                  )}
+                >
+                  {savedWallet ? "Connected" : "Not connected"}
+                </Badge>
               </div>
+
+              {savedWallet ? (
+                <div className="mt-6 space-y-4">
+                  {/* Live balance */}
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-[12px] font-medium text-slate-500">USDC Balance</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-100">
+                      {balanceLoading ? "…" : walletBalanceError ? "Unavailable" : `${(walletBalance?.usdcUnits ?? 0) / 1_000_000} USDC`}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between text-[12px]">
+                      <span className="text-slate-500">ALGO</span>
+                      <span className="font-medium tabular-nums text-slate-300">
+                        {balanceLoading ? "…" : ((walletBalance?.algoMicro ?? 0) / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Wallet address + explorer */}
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-mono text-[12px] text-indigo-200">{savedWallet}</span>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <button
+                          onClick={handleCopyAddress}
+                          title="Copy address"
+                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                        >
+                          {copying ? (
+                            <Check className="h-3.5 w-3.5 text-emerald-300" />
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                        {x402Config && (
+                          <a
+                            href={`${x402Config.explorerBase}/address/${savedWallet}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="View on explorer"
+                            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Network & limit */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                      <p className="text-[11px] font-medium text-slate-500">Network</p>
+                      <p className="mt-0.5 text-[13px] font-semibold text-slate-200">Algorand {x402Config?.network ?? "Testnet"}</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                      <p className="text-[11px] font-medium text-slate-500">Daily Spending Limit</p>
+                      <p className="mt-0.5 text-[13px] font-semibold text-slate-200">{dailyBudget.toFixed(2)} USDC</p>
+                    </div>
+                  </div>
+
+                  {walletBalanceError && (
+                    <p className="text-[11.5px] text-amber-300/80">
+                      Couldn't fetch live balances — the indexer may be unreachable.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-6 space-y-3">
+                  <p className="text-[13px] text-slate-400">
+                    Connect your Algorand wallet to see balances and pay per deck with USDC.
+                  </p>
+                  <button
+                    onClick={() => handleConnectWallet("pera")}
+                    disabled={connecting}
+                    className="w-full rounded-2xl border border-[#4338ca]/30 bg-gradient-to-r from-[#4338ca] to-[#6366f1] px-4 py-3.5 text-left text-[14px] font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50"
+                  >
+                    <span className="flex items-center gap-3">
+                      {connecting ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <WalletIcon className="h-5 w-5" />
+                      )}
+                      <span>
+                        <span className="block">Pera Wallet</span>
+                        <span className="text-[11px] font-normal text-white/60">Algorand Mobile</span>
+                      </span>
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => handleConnectWallet("defly")}
+                    disabled={connecting}
+                    className="glass w-full rounded-2xl px-4 py-3.5 text-left text-[14px] font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50"
+                  >
+                    <span className="flex items-center gap-3">
+                      {connecting ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Zap className="h-5 w-5 text-[#818cf8]" />
+                      )}
+                      <span>
+                        <span className="block">Defly Wallet</span>
+                        <span className="text-[11px] font-normal text-white/60">Algorand Desktop</span>
+                      </span>
+                    </span>
+                  </button>
+                  <p className="text-[11.5px] text-slate-500">
+                    You can also paste an address in Settings → Algorand wallet.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Today's AI Usage */}
@@ -321,38 +492,49 @@ export default function Wallet() {
                 Usage-based crypto billing — pay only for what you use.
               </p>
               
-              {/* Usage Stats */}
+              {/* Usage Stats — real, derived from verified on-chain payments */}
               <div className="mt-5 grid grid-cols-3 gap-3">
                 <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-                  <p className="text-2xl font-bold tabular-nums text-slate-100">{usageData.decksToday}</p>
-                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">Decks Generated</p>
+                  <p className="text-2xl font-bold tabular-nums text-slate-100">{decksToday}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">Decks Today</p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-                  <p className="text-2xl font-bold tabular-nums text-slate-100">{usageData.usdcSpentToday}</p>
-                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">USDC Spent</p>
+                  <p className="text-2xl font-bold tabular-nums text-slate-100">{usdcToday.toFixed(2)}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">USDC Spent Today</p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-                  <p className="text-2xl font-bold tabular-nums text-indigo-300">
-                    {(parseFloat(usageData.dailyBudget) - parseFloat(usageData.usdcSpentToday)).toFixed(2)}
-                  </p>
-                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">Remaining</p>
+                  <p className="text-2xl font-bold tabular-nums text-indigo-300">{remaining.toFixed(2)}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">Remaining Budget</p>
                 </div>
               </div>
-              
-              {/* Generation History */}
+
+              {/* Recent Transactions — live from the payments table */}
               <div className="mt-5">
-                <h3 className="text-[13px] font-semibold text-slate-300">Generation History</h3>
-                <div className="mt-3 space-y-2">
-                  {usageData.history.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5"
-                    >
-                      <span className="text-[13px] text-slate-300">{item.operation}</span>
-                      <span className="text-[12px] font-semibold text-indigo-300">{item.cost}</span>
-                    </div>
-                  ))}
-                </div>
+                <h3 className="text-[13px] font-semibold text-slate-300">Recent Transactions</h3>
+                {recentTransactions.length === 0 ? (
+                  <div className="mt-3 rounded-xl border border-dashed border-white/10 px-4 py-6 text-center">
+                    <p className="text-[12.5px] text-slate-500">No verified payments yet.</p>
+                    <p className="mt-1 text-[11px] text-slate-600">
+                      Generate a premium deck or upgrade to Founder to see transactions here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-3 space-y-2">
+                    {recentTransactions.map((p) => (
+                      <div
+                        key={p._id}
+                        className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5"
+                      >
+                        <span className="truncate text-[13px] text-slate-300">{paymentLabel(p)}</span>
+                        <span className="shrink-0 text-[12px] font-semibold text-indigo-300">
+                          {p.assetId === 0
+                            ? `${(p.amount / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })} ALGO`
+                            : `$${(p.amount / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               {/* Pricing breakdown */}
