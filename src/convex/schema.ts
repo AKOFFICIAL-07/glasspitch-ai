@@ -158,6 +158,17 @@ const schema = defineSchema(
       .index("by_deck", ["deckId"])
       .index("by_author", ["authorId"]),
 
+    // deck analytics events (views, clicks, dwell time)
+    analytics: defineTable({
+      deckId: v.id("decks"),
+      event: v.string(), // "view" | "slide_dwell" | "share_click" | "download"
+      slideIndex: v.optional(v.number()), // which slide (for dwell)
+      duration: v.optional(v.number()), // ms spent on slide
+      meta: v.optional(v.string()), // freeform extra data
+    })
+      .index("by_deck", ["deckId"])
+      .index("by_deck_event", ["deckId", "event"]),
+
   },
   {
     schemaValidation: false,

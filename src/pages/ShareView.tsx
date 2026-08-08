@@ -23,13 +23,50 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { toast } from "sonner";
 
 export default function ShareView() {
   const { shareCode = "" } = useParams();
   const deckDoc = useQuery(api.decks.getDeckByShareCode, { shareCode });
+  const recordEvent = useMutation(api.analytics.recordEvent);
+
+  // --- Analytics: record view on load, track slide dwell ---
+  const viewRecorded = useRef(false);
+  const slideStartTime = useRef(0);
+  const currentSlide = useRef(0);
+
+  useEffect(() => {
+    if (deckDoc && !viewRecorded.current) {
+      viewRecorded.current = true;
+      recordEvent({ deckId: deckDoc._id, event: "view" }).catch(() => {});
+    }
+  }, [deckDoc, recordEvent]);
+
+  // Initialize slideStartTime on first render (not during ref creation)
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initializedRef.current) {
+      slideStartTime.current = Date.now();
+      initializedRef.current = true;
+    }
+  }, []);
+
+  const recordDwell = (newSlide: number) => {
+    if (!deckDoc) return;
+    const elapsed = Date.now() - slideStartTime.current;
+    if (elapsed > 500) {
+      recordEvent({
+        deckId: deckDoc._id,
+        event: "slide_dwell",
+        slideIndex: currentSlide.current,
+        duration: elapsed,
+      }).catch(() => {});
+    }
+    currentSlide.current = newSlide;
+    slideStartTime.current = Date.now();
+  };
 
   const deck: PitchDeck | null = useMemo(() => {
     if (!deckDoc) return null;
@@ -62,8 +99,12 @@ export default function ShareView() {
   const total = deck ? deckSlides(deck).length : 0;
   const { index, direction, next, prev, isFirst, isLast } = useSlideNavigation(total);
 
+  const wrappedNext = () => { if (!isLast) { recordDwell(index + 1); next(); } };
+  const wrappedPrev = () => { if (!isFirst) { recordDwell(index - 1); prev(); } };
+
   const handlePrint = () => {
     if (!deckDoc) return;
+    recordEvent({ deckId: deckDoc._id, event: "download" }).catch(() => {});
     const prevTitle = document.title;
     document.title = `${deckDoc.title} — Pitch Deck`;
     window.print();
@@ -143,7 +184,7 @@ export default function ShareView() {
               <button
                 type="button"
                 aria-label="Previous slide"
-                onClick={prev}
+                onClick={wrappedPrev}
                 className="glass-strong absolute left-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/300 shadow-lg transition hover:scale-105 hover:text-emerald-300"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -153,7 +194,7 @@ export default function ShareView() {
               <button
                 type="button"
                 aria-label="Next slide"
-                onClick={next}
+                onClick={wrappedNext}
                 className="glass-strong absolute right-3 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white/300 shadow-lg transition hover:scale-105 hover:text-emerald-300"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -165,7 +206,7 @@ export default function ShareView() {
             <Button
               variant="outline"
               size="sm"
-              onClick={prev}
+              onClick={wrappedPrev}
               disabled={isFirst}
               className="glass-soft gap-1.5 rounded-xl text-[12.5px] text-white/300 hover:bg-white/10 disabled:opacity-40"
             >
@@ -185,7 +226,7 @@ export default function ShareView() {
             <Button
               variant="outline"
               size="sm"
-              onClick={next}
+              onClick={wrappedNext}
               disabled={isLast}
               className="glass-soft gap-1.5 rounded-xl text-[12.5px] text-white/300 hover:bg-white/10 disabled:opacity-40"
             >
