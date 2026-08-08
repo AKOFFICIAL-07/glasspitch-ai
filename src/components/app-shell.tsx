@@ -96,6 +96,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <div className="flex-1 overflow-y-auto pb-2">{renderNav()}</div>
         <div className="px-3 pb-3">
+          <WalletStatus className="mb-2" />
           <UserChip isAdmin={isAdmin} />
         </div>
       </aside>
@@ -105,39 +106,92 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Link to="/dashboard">
           <Brand />
         </Link>
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="glass-soft h-10 w-10 rounded-xl">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-72 rounded-r-2xl border-r border-white/10 bg-[oklch(0.17_0.04_160/0.95)] p-0 backdrop-blur-2xl">
-            <SheetHeader className="border-b border-white/10 px-5 py-4 text-left">
-              <SheetTitle asChild>
+        <div className="flex items-center gap-2">
+          <WalletStatus compact />
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="glass-soft h-10 w-10 rounded-xl">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 rounded-r-2xl border-r border-white/10 bg-[oklch(0.17_0.04_160/0.95)] p-0 backdrop-blur-2xl">
+              <SheetHeader className="border-b border-white/10 px-5 py-4 text-left">
+                <SheetTitle asChild>
+                  <Link to="/dashboard" onClick={() => setOpen(false)}>
+                    <Brand />
+                  </Link>
+                </SheetTitle>
+                <SheetDescription className="sr-only">Navigation</SheetDescription>
+              </SheetHeader>
+              <div className="flex flex-col gap-3 px-4 py-4">
                 <Link to="/dashboard" onClick={() => setOpen(false)}>
-                  <Brand />
+                  <Button className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                    <Plus className="h-4 w-4" strokeWidth={2.5} />
+                    New deck
+                  </Button>
                 </Link>
-              </SheetTitle>
-              <SheetDescription className="sr-only">Navigation</SheetDescription>
-            </SheetHeader>
-            <div className="flex flex-col gap-3 px-4 py-4">
-              <Link to="/dashboard" onClick={() => setOpen(false)}>
-                <Button className="w-full gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
-                  <Plus className="h-4 w-4" strokeWidth={2.5} />
-                  New deck
-                </Button>
-              </Link>
-              {renderNav(() => setOpen(false))}
-              <div className="mt-2">
-                <UserChip isAdmin={isAdmin} />
+                {renderNav(() => setOpen(false))}
+                <div className="mt-2">
+                  <WalletStatus className="mb-2" />
+                  <UserChip isAdmin={isAdmin} />
+                </div>
               </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
       </header>
 
       <main className="px-4 pb-14 pt-4 sm:px-6 lg:pl-[19.5rem] lg:pr-8 lg:pt-6">{children}</main>
     </div>
+  );
+}
+
+/** Compact wallet indicator shown in the app bar — links to /wallet. */
+function WalletStatus({ compact = false, className }: { compact?: boolean; className?: string }) {
+  const { user } = useAuth();
+  const address = user?.walletAddress ?? "";
+  if (!address && compact) return null;
+  const short = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "";
+
+  return (
+    <Link
+      to="/wallet"
+      title={address || "Connect your Algorand wallet"}
+      className={cn(
+        "group flex items-center gap-2 rounded-xl border px-2.5 py-2 backdrop-blur-md transition",
+        address
+          ? "border-emerald-400/20 bg-emerald-500/[0.07] hover:bg-emerald-500/15"
+          : "border-white/10 bg-white/5 hover:bg-white/10",
+        compact && "rounded-lg px-2 py-1.5",
+        className,
+      )}
+    >
+      <span
+        className={cn(
+          "relative grid h-6 w-6 shrink-0 place-items-center rounded-lg",
+          address ? "bg-emerald-500/15 text-emerald-300" : "bg-white/5 text-slate-400",
+        )}
+      >
+        <Wallet className="h-3.5 w-3.5" strokeWidth={2} />
+        {address && (
+          <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+        )}
+      </span>
+      <span className="min-w-0">
+        <span
+          className={cn(
+            "block truncate font-semibold",
+            address ? "text-[11.5px] text-emerald-200" : "text-[11.5px] text-slate-300",
+            compact && "text-[11px]",
+          )}
+        >
+          {address ? short : "Connect wallet"}
+        </span>
+        <span className={cn("block text-[10px]", address ? "text-emerald-400/60" : "text-slate-500", compact && "hidden")}>
+          Algorand
+        </span>
+      </span>
+    </Link>
   );
 }
 
